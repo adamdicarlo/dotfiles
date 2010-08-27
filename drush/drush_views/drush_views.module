@@ -1,0 +1,7 @@
+<?php
+// $Id: drush_views.module,v 1.3 2009/05/04 13:40:10 pescetti Exp $
+
+/**
+ * Following the Drush 2.x conventions, all commands are now
+ * implemented in the drush_views.drush.inc file.
+ */
