@@ -1,0 +1,8 @@
+[user]
+	name = Adam J. DiCarlo
+	email = ajd@opensourcery.com
+[github]
+	user = adamdicarlo
+	token = 4c27c1d55e799fb6f6c549ffeef8a04e
+[push]
+	default = current
