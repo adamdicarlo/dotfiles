@@ -1,12 +1,12 @@
-set expandtab
-set tabstop=2
-set shiftwidth=2
 set autoindent
-set smartindent
-colorscheme desert
-
+set expandtab
 set incsearch
 set mouse=a
+set shiftwidth=2
+set showcmd
+set smartindent
+set tabstop=2
+colorscheme desert
 
 let php_sql_query = 1
 let php_parent_error_close = 1
