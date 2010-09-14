@@ -1,0 +1,32 @@
+set mainfont {{andale mono} 10}
+set textfont {{andale mono} 10}
+set uifont {{andale mono} 10 bold}
+set tabstop 8
+set findmergefiles 0
+set maxgraphpct 50
+set maxwidth 16
+set cmitmode patch
+set wrapcomment none
+set autoselect 1
+set showneartags 1
+set showlocalchanges 1
+set datetimeformat {%Y-%m-%d %H:%M:%S}
+set limitdiffs 1
+set bgcolor white
+set fgcolor black
+set colors {green red blue magenta darkgrey brown orange}
+set diffcolors {red "#00a000" blue}
+set markbgcolor #e0e0ff
+set diffcontext 16
+set selectbgcolor gray85
+set extdifftool meld
+set perfile_attrs 0
+set geometry(main) 1398x928+1401+57
+set geometry(state) normal
+set geometry(topwidth) 1394
+set geometry(topheight) 391
+set geometry(pwsash0) "889 2"
+set geometry(pwsash1) "1147 2"
+set geometry(botwidth) 891
+set geometry(botheight) 517
+set permviews {}
