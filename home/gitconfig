@@ -6,3 +6,8 @@
 	token = 4c27c1d55e799fb6f6c549ffeef8a04e
 [push]
 	default = current
+[color]
+	branch = auto
+	diff = auto
+	interactive = auto
+	status = auto
