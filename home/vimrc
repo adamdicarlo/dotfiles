@@ -26,6 +26,9 @@ if has("autocmd")
     autocmd BufRead,BufNewFile *.test set filetype=php
     autocmd BufRead,BufNewFile *.theme set filetype=php
   augroup END
+  augroup lesscss
+    autocmd BufRead,BufNewFile *.less set filetype=less
+  augroup END
 endif
 syntax on
 
