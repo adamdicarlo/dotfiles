@@ -11,3 +11,5 @@
 	diff = auto
 	interactive = auto
 	status = auto
+[core]
+	excludesfile = /home/ajd/.gitignore
