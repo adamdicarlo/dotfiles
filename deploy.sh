@@ -12,8 +12,8 @@ deploy_config () {
     if [[ "$1" == "gitk" ]]; then
       echo "Removing ~/.gitk"
     else
-      echo "$TARGET exists and is not a symbolic link! Aborting."
-      exit 1
+      echo "$TARGET exists and is not a symbolic link! Skipping."
+      continue
     fi
   fi
   rm "$TARGET" 2>/dev/null
