@@ -63,7 +63,7 @@
 // Load a drushrc.php configuration file from the current working directory.
 # $options['c'] = '.';
 
-$options['destination'] = 'sites/all/modules/contrib';
+$options['destination'] = 'sites/all/modules/local';
 
 // Specify CVS for checkouts
 # $options['package-handler'] = 'cvs';
