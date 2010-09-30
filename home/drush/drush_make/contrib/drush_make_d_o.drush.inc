@@ -1,5 +1,5 @@
 <?php
-// $Id: drush_make_d_o.drush.inc,v 1.1.2.13 2010/06/13 18:54:07 dmitrig01 Exp $
+// $Id: drush_make_d_o.drush.inc,v 1.1.2.19 2010/09/09 07:11:00 dmitrig01 Exp $
 
 /**
  * @file
@@ -96,68 +96,38 @@ function drush_make_d_o_drush_init() {
 }
 
 /**
- * Implement EXTENSION_drush_make_command().
+ * Implement EXTENSION_drush_make_validate_info().
  */
-function drush_make_d_o_drush_make_command(&$function, &$parameters, &$dependencies, $id, &$queue) {
+function drush_make_d_o_drush_make_validate_info($info) {
   if (drush_get_option('drupal-org')) {
-    switch ($function) {
-      // No libraries on d.o.
-      case 'drush_make_add_libraries':
-        return FALSE;
-
-      // Custom drupal.org validation for .make files.
-      case 'drush_make_validate_info_file':
-        $function = 'drush_make_d_o_validate_info_file';
-        break;
-
-      // Custom drupal.org processing for loading update XML files.
-      case 'drush_make_updatexml':
-        $function = 'drush_make_d_o_updatexml';
-        break;
-    }
-  }
-}
-
-/**
- * Provide additional drupal.org specific validation for .make files.
- */
-function drush_make_d_o_validate_info_file($info) {
-
-  // Run the regular validation first.
-  if (!($info = drush_make_validate_info_file($info))) {
-    return FALSE;
-  }
-
-  // The list of currently allowed top-leval attributes.
-  $top_level_attribute_whitelist = array('core', 'core_release', 'projects');
-
-  // The list of currently allowed project-level attributes.
-  $project_attribute_whitelist = array('version', 'subdir');
-
-  // Assume no errors to start.
-  $errors = FALSE;
-
-  // Check for disallowed top-level attributes.
-  foreach ($info as $attribute => $attribute_data) {
-    if (!in_array($attribute, $top_level_attribute_whitelist)) {
-      drush_make_error('BUILD_ERROR', dt("The top-level attribute '%attribute' is not allowed in drupal.org .make files", array('%attribute' => $attribute)));
-      $errors = TRUE;
-    }
-  }
-
-  // Check for a valid core value.
-  // This is just a basic sanity check for a properly formatted value.
-  if (!drush_make_d_o_check_valid_version(dt('Drupal core'), $info['core_release'])) {
-    $errors = TRUE;
-  }
-  if (!empty($info['projects'])) {
-    foreach ($info['projects'] as $project => $project_data) {
-      // No specifying just project name.
-      if (is_numeric($project)) {
-        drush_make_error('BUILD_ERROR', dt('Automatic best release support for project %project is not supported -- you must specify a version.', array('%project' => $project_data)));
+    // The list of currently allowed top-leval attributes.
+    $top_level_attribute_whitelist = array('core', 'api', 'core_release', 'projects');
+    
+    // The list of currently allowed project-level attributes.
+    $project_attribute_whitelist = array('version', 'subdir', 'patch');
+    
+    // Assume no errors to start.
+    $errors = FALSE;
+    
+    // Check for disallowed top-level attributes.
+    foreach ($info as $attribute => $attribute_data) {
+      if (!in_array($attribute, $top_level_attribute_whitelist)) {
+        drush_make_error('BUILD_ERROR', dt("The top-level attribute '%attribute' is not allowed in drupal.org .make files", array('%attribute' => $attribute)));
         $errors = TRUE;
       }
-      else {
+    }
+    
+    // Check for a valid core value.
+    // This is just a basic sanity check for a properly formatted value.
+    if (!drush_make_d_o_check_valid_version(dt('Drupal core'), $info['core_release'])) {
+      $errors = TRUE;
+    }
+    if (!empty($info['projects'])) {
+      foreach ($info['projects'] as $project => $project_data) {
+        // No specifying just project name.
+        if (!is_array($project_data)) {
+          $project_data = $info['projects'][$project] = array('version' => $project_data);
+        }
         // Version must be set.
         if (!isset($project_data['version'])) {
           drush_make_error('BUILD_ERROR', dt('No version specified for project %project -- version is required.', array('%project' => $project)));
@@ -170,17 +140,31 @@ function drush_make_d_o_validate_info_file($info) {
             $errors = TRUE;
           }
         }
+        // Check that patches do in fact come from drupal.org.
+        if (isset($project_data['patch'])) {
+          foreach ($project_data['patch'] as $patch) {
+            if (strpos($patch, 'http://drupal.org/files/issues') !== 0) {
+              drush_make_error('BUILD_ERROR', dt("The patch '%patch' is not hosted on drupal.org", array('%patch' => $patch)));
+              $errors = TRUE;
+            }
+          }
+        }
         // Check for bad project version.
         if (!drush_make_d_o_check_valid_version($project, $project_data['version'])) {
           $errors = TRUE;
         }
+        $info['projects'][$project] += array(
+          'name' => $project,
+          'core' => $info['core'],
+        );
+        $info['projects'][$project] = drush_make_d_o_updatexml($info['projects'][$project]);
       }
     }
-  }
-  // Abort if any errors were found.
-  if ($errors) {
-    drush_make_error('BUILD_ERROR', dt('The drupal.org validation check failed -- see @doc_link for more information.', array('@doc_link' => DRUSH_MAKE_DO_DOCUMENTATION_LINK)));
-    return FALSE;
+    // Abort if any errors were found.
+    if ($errors) {
+      drush_make_error('BUILD_ERROR', dt('The drupal.org validation check failed -- see @doc_link for more information.', array('@doc_link' => DRUSH_MAKE_DO_DOCUMENTATION_LINK)));
+      return FALSE;
+    }
   }
   return $info;
 }
@@ -195,7 +179,7 @@ function drush_make_d_o_validate_info_file($info) {
  * @return
  * TRUE if the version string is bad, FALSE otherwise.
  */
-function drush_make_d_o_check_valid_version($name, $version_string) {;
+function drush_make_d_o_check_valid_version($name, $version_string) {
   // Development snapshots not allowed.
   if (preg_match('/.*-dev$/', $version_string)) {
     drush_make_error('BUILD_ERROR', dt('%project branch releases not allowed.', array('%project' => $name)));
@@ -220,9 +204,11 @@ function drush_make_d_o_check_valid_version($name, $version_string) {;
  * items are collected for the package.
  */
 function drush_make_d_o_updatexml($project) {
-  $xml = drush_make_get_remote_file(drush_get_option('drush-make-update-default-url') . '/' . $project['name'] . '/' . $project['core']);
+  if ($filename = _drush_make_download_file(drush_get_option('drush-make-update-default-url') . '/' . $project['name'] . '/' . $project['core'])) {
+    $release_history = simplexml_load_string(file_get_contents($filename));
+    drush_op('unlink', $filename);
+  }
   // First, get the release history.
-  $release_history = simplexml_load_string($xml);
   if (!is_object($release_history) || !$release_history->title) {
     drush_make_error('XML_ERROR', dt("Could not retrieve version information for %project.", array('%project' => $project['name'])));
     return FALSE;

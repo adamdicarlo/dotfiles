@@ -1,7 +1,11 @@
 <?php
-// $Id: drush_make.utilities.inc,v 1.1.2.38 2010/06/29 22:03:41 dmitrig01 Exp $
+// $Id: drush_make.utilities.inc,v 1.1.2.49 2010/09/09 07:11:00 dmitrig01 Exp $
 
 function drush_make_ensure_version() {
+  // Check version 4:
+  if (function_exists('drush_get_global_options')) {
+    return '4.0';
+  }
   // Check version 2.1 or up:
   $options = drush_get_option_help();
   if (isset($options['-n, --nocolor'])) {
@@ -141,6 +145,16 @@ function drush_make_validate_info_file($info) {
     drush_make_error('BUILD_ERROR', dt("The 'core' attribute %core has an incorrect format.", array('%core' => $info['core'])));
     $errors = TRUE;
   }
+
+  if (!isset($info['api'])) {
+    $info['api'] = 2;
+    drush_log(dt("You need to specify an API version of two in your makefile:\napi = 2"), 'warning');
+  }
+  elseif ($info['api'] != 2) {
+    drush_make_error('BUILD_ERROR', dt("The specified API attribute is incompatible with this version of Drush Make."));
+    $errors = TRUE;
+  }
+
   $names = array();
 
   // Process projects.
@@ -219,6 +233,18 @@ function drush_make_validate_info_file($info) {
       }
     }
   }
+
+  foreach (drush_command_implements('drush_make_validate_info') as $module) {
+    $function = $module .'_drush_make_validate_info';
+    $return = $function($info);
+    if ($return) {
+      $info = $return;
+    }
+    else {
+      $errors = TRUE;
+    }
+  }
+
   if ($errors) {
     return FALSE;
   }
@@ -256,29 +282,37 @@ function drush_make_valid_url($url, $absolute = FALSE) {
   }
 }
 
-function drush_make_tmp() {
+function drush_make_tmp($set = TRUE) {
   static $tmp_dir;
-  if (!isset($tmp_dir)) {
+  if (!isset($tmp_dir) && $set) {
     $tmp_dir = sys_get_temp_dir();
-    $tmp_dir .= '/drush_make_tmp_' . time();
-    drush_op('mkdir', $tmp_dir);
+    if (strrpos($tmp_dir, '/') == strlen($tmp_dir) - 1) {
+      $tmp_dir .= 'drush_make_tmp_' . time();
+    }
+    else {
+      $tmp_dir .= '/drush_make_tmp_' . time();
+    }
+    drush_make_mkdir($tmp_dir);
   }
   return $tmp_dir;
 }
 
 function drush_make_clean_tmp() {
+  if (!($tmp_dir = drush_make_tmp(FALSE))) {
+    return;
+  }
   if (!drush_get_option('no-clean', FALSE)) {
-    drush_shell_exec('rm -rf %s', drush_make_tmp());
+    drush_shell_exec('rm -rf %s', $tmp_dir);
   }
   else {
-    drush_log(dt('Temporary directory: %dir', array('%dir' => drush_make_tmp())), 'ok');
+    drush_log(dt('Temporary directory: %dir', array('%dir' => $tmp_dir)), 'ok');
   }
 }
 
 function drush_make_prepare_install($build_path) {
   $default = drush_make_tmp() . '/__build__/sites/default';
   drush_shell_exec("cp %s %s", $default . '/default.settings.php', $default . '/settings.php');
-  drush_shell_exec("mkdir %s", $default . '/files');
+  drush_make_mkdir($default . '/files');
   drush_shell_exec("chmod a+w %s %s", $default . '/settings.php', $default . '/files');
 }
 
@@ -302,19 +336,19 @@ function drush_make_md5() {
 function drush_make_tar($build_path) {
   $tmp_path = drush_make_tmp();
 
-  drush_shell_exec('mkdir -p %s', dirname($build_path));
+  drush_make_mkdir(dirname($build_path));
   $filename = basename($build_path);
   $dirname = basename($build_path, '.tar.gz');
   // Move the build directory to a more human-friendly name, so that tar will
   // use it instead.
-  drush_shell_exec("mv %s/__build__ %s/%s", $tmp_path, $tmp_path, $dirname);
+  drush_shell_exec("mv %s %s", $tmp_path . '/__build__', $tmp_path . '/' . $dirname);
   // Only move the tar file to it's final location if it's been built
   // successfully.
-  if (drush_shell_exec("tar -C %s -Pczf %s/%s %s", $tmp_path, $tmp_path, $filename, $dirname)) {
-    drush_shell_exec("mv %s/%s %s", $tmp_path, $filename, $build_path);
+  if (drush_shell_exec("tar -C %s -Pczf %s %s", $tmp_path, $tmp_path . '/' . $filename, $dirname)) {
+    drush_shell_exec("mv %s %s", $tmp_path . '/' . $filename, $build_path);
   };
   // Move the build directory back to it's original location for consistency.
-  drush_shell_exec("mv %s/%s %s/__build__", $tmp_path, $dirname, $tmp_path);
+  drush_shell_exec("mv %s %s", $tmp_path . '/' . $dirname, $tmp_path . '/__build__');
 }
 
 /**
@@ -339,17 +373,17 @@ function drush_make_safe_path($path) {
   return !preg_match("+^/|^\.\.|/\.\./+", $path);
 }
 
-/**
- * Cd to a path, execute a command, cd back.
- */
-function drush_make_cd() {
-  $args = func_get_args();
-  $directory = array_shift($args);
-  $cwd = getcwd();
-  chdir($directory);
-  $return = call_user_func_array('drush_shell_exec', $args);
-  chdir($cwd);
-  return $return;
+if (!function_exists('drush_shell_cd_and_exec')) {
+  function drush_shell_cd_and_exec($effective_wd, $cmd) {
+    $args = func_get_args();
+
+    $effective_wd = array_shift($args);
+    $cwd = getcwd();
+    drush_op('chdir', $effective_wd);
+    $result = call_user_func_array('drush_shell_exec', $args);
+    drush_op('chdir', $cwd);
+    return $result;
+  }
 }
 
 /**
@@ -387,31 +421,6 @@ function drush_make_get_data($data_source) {
 }
 
 /**
- * Helper to get file contents.
- */
-function drush_make_get_remote_file($url) {
-  if (function_exists('curl_init')) {
-    $ch = curl_init($url);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 50);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, TRUE);
-    $file_contents = curl_exec($ch);
-    curl_close($ch);
-    return $file_contents;
-  }
-  elseif (ini_get('allow_url_fopen')) {
-    return file_get_contents($url);
-  }
-  elseif (drush_shell_exec('wget -qO- %s', $url) || drush_shell_exec('curl -L --silent %s', $url)) {
-    return implode("\n", drush_shell_exec_output());
-  }
-  // drush, we have an error.
-  else {
-    return drush_set_error('drush_make_download_error', 'Unable to download remote file. No download services supported.');
-  }
-}
-
-/**
  * Helper to provide sys_get_temp_dir if on php < 5.2.1
  */
 if (!function_exists('sys_get_temp_dir')) {
@@ -443,4 +452,177 @@ if (!function_exists('sys_get_temp_dir')) {
       }
     }
   }
+}
+
+/**
+ * Drush make parallel to drupal_http_request, but writes responses to a file.
+ */
+function drush_make_http_request($url, $destination, $headers = array(), $method = 'GET', $data = NULL, $retry = 5) {
+  global $db_prefix;
+
+  $result = new stdClass();
+
+  // Parse the URL and make sure we can handle the schema.
+  $uri = parse_url($url);
+
+  if ($uri == FALSE) {
+    $result->error = 'unable to parse URL';
+    $result->code = -1001;
+    return $result;
+  }
+
+  if (!isset($uri['scheme'])) {
+    $result->error = 'missing schema';
+    $result->code = -1002;
+    return $result;
+  }
+
+  switch ($uri['scheme']) {
+    case 'http':
+    case 'feed':
+      $port = isset($uri['port']) ? $uri['port'] : 80;
+      $host = $uri['host'] . ($port != 80 ? ':'. $port : '');
+      $fp = @fsockopen($uri['host'], $port, $errno, $errstr, 15);
+      break;
+    case 'https':
+      // Note: Only works for PHP 4.3 compiled with OpenSSL.
+      $port = isset($uri['port']) ? $uri['port'] : 443;
+      $host = $uri['host'] . ($port != 443 ? ':'. $port : '');
+      $fp = @fsockopen('ssl://'. $uri['host'], $port, $errno, $errstr, 20);
+      break;
+    default:
+      $result->error = 'invalid schema '. $uri['scheme'];
+      $result->code = -1003;
+      return $result;
+  }
+
+  // Make sure the socket opened properly.
+  if (!$fp) {
+    // When a network error occurs, we use a negative number so it does not
+    // clash with the HTTP status codes.
+    $result->code = -$errno;
+    $result->error = trim($errstr);
+
+    return $result;
+  }
+
+  // Construct the path to act on.
+  $path = isset($uri['path']) ? $uri['path'] : '/';
+  if (isset($uri['query'])) {
+    $path .= '?'. $uri['query'];
+  }
+
+  // Create HTTP request.
+  $defaults = array(
+    // RFC 2616: "non-standard ports MUST, default ports MAY be included".
+    // We don't add the port to prevent from breaking rewrite rules checking the
+    // host that do not take into account the port number.
+    'Host' => "Host: $host",
+    'User-Agent' => 'User-Agent: Drupal (+http://drupal.org/)',
+  );
+
+  // Only add Content-Length if we actually have any content or if it is a POST
+  // or PUT request. Some non-standard servers get confused by Content-Length in
+  // at least HEAD/GET requests, and Squid always requires Content-Length in
+  // POST/PUT requests.
+  $content_length = strlen($data);
+  if ($content_length > 0 || $method == 'POST' || $method == 'PUT') {
+    $defaults['Content-Length'] = 'Content-Length: '. $content_length;
+  }
+
+  // If the server url has a user then attempt to use basic authentication
+  if (isset($uri['user'])) {
+    $defaults['Authorization'] = 'Authorization: Basic '. base64_encode($uri['user'] . (!empty($uri['pass']) ? ":". $uri['pass'] : ''));
+  }
+
+  // If the database prefix is being used by SimpleTest to run the tests in a copied
+  // database then set the user-agent header to the database prefix so that any
+  // calls to other Drupal pages will run the SimpleTest prefixed database. The
+  // user-agent is used to ensure that multiple testing sessions running at the
+  // same time won't interfere with each other as they would if the database
+  // prefix were stored statically in a file or database variable.
+  if (is_string($db_prefix) && preg_match("/^simpletest\d+$/", $db_prefix, $matches)) {
+    $defaults['User-Agent'] = 'User-Agent: ' . $matches[0];
+  }
+
+  foreach ($headers as $header => $value) {
+    $defaults[$header] = $header .': '. $value;
+  }
+
+  $request = $method .' '. $path ." HTTP/1.0\r\n";
+  $request .= implode("\r\n", $defaults);
+  $request .= "\r\n\r\n";
+  $request .= $data;
+
+  $result->request = $request;
+
+  fwrite($fp, $request);
+
+  $fp_dest = fopen($destination, 'w');
+  $all_headers = FALSE;
+
+  // Fetch response.
+  $split = '';
+  while (!feof($fp) && $chunk = fread($fp, 1024)) {
+    if (strpos($chunk, "\r\n\r\n") !== FALSE && !$all_headers) {
+      $all_headers = TRUE;
+      list($header, $body) = explode("\r\n\r\n", $chunk, 2);
+      $split .= $header;
+      fwrite($fp_dest, $body);
+    }
+    elseif (!$all_headers) {
+      $split .= $chunk;
+    }
+    else {
+      fwrite($fp_dest, $chunk);
+    }
+  }
+  fclose($fp_dest);
+  fclose($fp);
+
+  // Parse response.
+  $split = preg_split("/\r\n|\n|\r/", $split);
+
+  list($protocol, $code, $status_message) = explode(' ', trim(array_shift($split)), 3);
+  $result->protocol = $protocol;
+  $result->status_message = $status_message;
+
+  $result->headers = array();
+
+  // Parse headers.
+  while ($line = trim(array_shift($split))) {
+    list($header, $value) = explode(':', $line, 2);
+    if (isset($result->headers[$header]) && $header == 'Set-Cookie') {
+      // RFC 2109: the Set-Cookie response header comprises the token Set-
+      // Cookie:, followed by a comma-separated list of one or more cookies.
+      $result->headers[$header] .= ','. trim($value);
+    }
+    else {
+      $result->headers[$header] = trim($value);
+    }
+  }
+
+  $responses = array(
+    100 => 'Continue', 101 => 'Switching Protocols',
+    200 => 'OK', 201 => 'Created', 202 => 'Accepted', 203 => 'Non-Authoritative Information', 204 => 'No Content', 205 => 'Reset Content', 206 => 'Partial Content',
+    300 => 'Multiple Choices', 301 => 'Moved Permanently', 302 => 'Found', 303 => 'See Other', 304 => 'Not Modified', 305 => 'Use Proxy', 307 => 'Temporary Redirect',
+    400 => 'Bad Request', 401 => 'Unauthorized', 402 => 'Payment Required', 403 => 'Forbidden', 404 => 'Not Found', 405 => 'Method Not Allowed', 406 => 'Not Acceptable', 407 => 'Proxy Authentication Required', 408 => 'Request Time-out', 409 => 'Conflict', 410 => 'Gone', 411 => 'Length Required', 412 => 'Precondition Failed', 413 => 'Request Entity Too Large', 414 => 'Request-URI Too Large', 415 => 'Unsupported Media Type', 416 => 'Requested range not satisfiable', 417 => 'Expectation Failed',
+    500 => 'Internal Server Error', 501 => 'Not Implemented', 502 => 'Bad Gateway', 503 => 'Service Unavailable', 504 => 'Gateway Time-out', 505 => 'HTTP Version not supported'
+  );
+  // RFC 2616 states that all unknown HTTP codes must be treated the same as the
+  // base code in their class.
+  if (!isset($responses[$code])) {
+    $code = floor($code / 100) * 100;
+  }
+
+  $result->code = $code;
+  return $result;
+}
+
+/**
+ * Cross-platform compatible helper function to recursively create a directory tree.
+ * @see http://theserverpages.com/php/manual/en/function.mkdir.php#50383
+ */
+function drush_make_mkdir($path) {
+  return is_dir($path) || (drush_make_mkdir(dirname($path)) && drush_shell_exec('mkdir %s', $path));
 }

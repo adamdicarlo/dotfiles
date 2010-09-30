@@ -1,3 +1,5 @@
+$Id: README.txt,v 1.1.2.19 2010/09/09 06:43:06 dmitrig01 Exp $
+
 Drush make
 ----------
 Drush make is an extension to drush that can create a ready-to-use drupal site,
@@ -68,6 +70,11 @@ where `drush make` can be used within an existing Drupal site.
     --test
 
       Run a temporary test build and clean up.
+
+    --translations=languages
+
+      Retrieve translations for the specified comma-separated list
+      of language(s) if available for all projects.
 
     --working-copy
 
@@ -173,6 +180,20 @@ Do not use both types of declarations for a single project in your makefile.
   project name is used.
 
         projects[mytheme][directory_name] = "yourtheme"
+
+- `l10n_path`
+
+  Specific URL (can include tokens) to a translation. Allows translations to be
+  retrieved from l10n servers other than `localize.drupal.org`.
+
+        projects[mytheme][l10n_path] = "http://myl10nserver.com/files/translations/%project-%core-%version-%language.po"
+
+- `l10n_url`
+
+  URL to an l10n server XML info file. Allows translations to be retrieved from
+  l10n servers other than `localize.drupal.org`.
+
+        projects[mytheme][l10n_url] = "http://myl10nserver.com/l10n_server.xml"
 
 
 ### Project download options
@@ -342,17 +363,34 @@ itself. Writing a new test is extremely simple. The process is as follows:
     'machine-readable-name' => array(
       'name'     => 'Human readable name',
       'makefile' => 'tests/yourtest.make',
-      'md5'      => 'f68e6510-your-hash-e04fbb4ed',
+      'messages' => array(
+          'Build hash: f68e6510-your-hash-e04fbb4ed',
+      ),
       'options'  => array('any' => TRUE, 'other' => TRUE, 'options' => TRUE),
     ),
 5. Test! Run drush make-test machine-readable-name to see if the test passes.
+
+You can check for any messages you want in the message array, but the most
+basic tests would just check the build hash.
+
+Generate
+--------
+
+Drush make has a primitive makefile generation capability. To use it, simply
+change your directory to the Drupal installation from which you would like to
+generate the file, and run the following command: 
+
+`drush generate makefile /path/to/make-file.make`
+
+This will generate a basic makefile. If you have code from other repositories,
+the makefile will not complete - you'll have to fill in some information before
+it is fully functional.
 
 Maintainer
 ----------
 - Dmitri Gaskin (dmitrig01)
 
-
-Contributors
+Co-maintainers
 ------------
 - Adrian Rossouw (adrian)
 - Antoine Beaupré (anarcat)

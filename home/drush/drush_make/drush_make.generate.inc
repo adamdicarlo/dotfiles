@@ -1,5 +1,5 @@
 <?php
-// $Id: drush_make.generate.inc,v 1.1.2.9 2010/06/29 20:39:26 dmitrig01 Exp $
+// $Id: drush_make.generate.inc,v 1.1.2.10 2010/09/03 02:58:49 dmitrig01 Exp $
 
 include_once 'includes/install.inc';
 include_once drupal_get_path('module', 'system') . '/system.install';
@@ -78,7 +78,7 @@ function _drush_generate_makefile_updatexml($name, $type, $info = array()) {
     'name' => $name,
     'location' => (isset($info['location']) ? $info['location'] : drush_get_option('drush-make-update-default-url')),
     'core' => DRUPAL_CORE_COMPATIBILITY,
-    'version' => drush_get_option('drush-make-version-best'),
+    'version' => DRUSH_MAKE_VERSION_BEST,
   );
 
   // Now we get the project information.

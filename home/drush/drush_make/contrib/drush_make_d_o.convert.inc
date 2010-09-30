@@ -1,5 +1,5 @@
 <?php
-// $Id: drush_make_d_o.convert.inc,v 1.1.2.12 2010/06/21 14:39:25 dmitrig01 Exp $
+// $Id: drush_make_d_o.convert.inc,v 1.1.2.17 2010/09/09 07:11:00 dmitrig01 Exp $
 
 class DrushMakeDrupalorgVersionChecker {
   function latestVersion($project_name, $version) {
@@ -71,7 +71,7 @@ class DrushMakeDrupalorgConverter extends DrushMakeDrupalorgVersionChecker {
   }
 
   function read() {
-    if (!($this->old_info = drush_make_parse_info_file(drush_make_get_data($this->from)))) {
+    if (!($this->old_info = drush_make_parse_info_file($this->from))) {
       drush_make_error('FILE_ERROR', dt("Unable to parse file %file", array('%file' => $this->from)));
       return FALSE;
     }
@@ -100,10 +100,10 @@ class DrushMakeDrupalorgConverter extends DrushMakeDrupalorgVersionChecker {
     }
 
     // The list of currently allowed top-leval attributes.
-    $top_level_attribute_whitelist = array('core', 'core_release', 'projects');
+    $top_level_attribute_whitelist = array('core', 'api', 'core_release', 'projects');
 
     // The list of currently allowed project-level attributes.
-    $project_attribute_whitelist = array('version', 'subdir');
+    $project_attribute_whitelist = array('version', 'subdir', 'patch');
 
     // The list of currently disallowed projects.
     $project_disallowed_list = array('drupal');
@@ -125,6 +125,7 @@ class DrushMakeDrupalorgConverter extends DrushMakeDrupalorgVersionChecker {
     else {
       $errors = TRUE;
     }
+    $this->new_info['api'] = 2;
 
     if (isset($this->old_info['projects'])) {
       foreach ($this->old_info['projects'] as $project => $project_data) {
@@ -147,6 +148,16 @@ class DrushMakeDrupalorgConverter extends DrushMakeDrupalorgVersionChecker {
             unset($project_data[$attribute]);
           }
         }
+        
+        // Check that patches do in fact come from drupal.org.
+        if (isset($project_data['patch'])) {
+          foreach ($project_data['patch'] as $key => $patch) {
+            if (strpos($patch, 'http://drupal.org/files/issues') !== 0) {
+              $this->log(dt("The patch '%patch' is not hosted on drupal.org -- it has been removed.", array('%patch' => $patch)), 'warning');
+              unset($project_data['patches'][$key]);
+            }
+          }
+        }
 
         // Reset the versioning variables to start fresh for every project.
         $version = NULL;
@@ -155,7 +166,7 @@ class DrushMakeDrupalorgConverter extends DrushMakeDrupalorgVersionChecker {
 
         // Figure out the basic version string.
         if (empty($project_data['version'])) {
-          $version = drush_get_option('drush-make-version-best');
+          $version = DRUSH_MAKE_VERSION_BEST;
         }
         elseif (preg_match('/^(\d+)((\.\d+)(-[a-z0-9]+)?)?$/', $project_data['version'], $matches)) {
           // Branch version only.
@@ -280,7 +291,7 @@ class DrushMakeDrupalorgVerifier extends DrushMakeDrupalorgVersionChecker {
   }
 
   function read($makefile) {
-    if (!($makefile = drush_make_parse_info_file(drush_make_get_data($makefile)))) {
+    if (!($makefile = drush_make_parse_info_file($makefile))) {
       drush_make_error('FILE_ERROR', dt("Unable to parse file %file", array('%file' => $makefile)));
       return FALSE;
     }

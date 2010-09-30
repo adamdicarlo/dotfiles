@@ -1,334 +1,429 @@
 <?php
-// $Id: drush_make.download.inc,v 1.1.2.55 2010/06/30 19:26:25 dmitrig01 Exp $
+// $Id: drush_make.download.inc,v 1.1.2.87 2010/09/06 15:54:23 dmitrig01 Exp $
 
-function drush_make_download_factory($project) {
-  $class = 'DrushMakeDownload_' . $project->download['type'];
-  if (class_exists($class)) {
-    return new $class($project);
+function drush_make_download_factory($type, $name, $download, $download_location) {
+  $function = 'drush_make_download_' . $type;
+  if (function_exists($function)) {
+    return $function($name, $download, $download_location);
   }
   else {
     return FALSE;
   }
 }
 
-abstract class DrushMakeDownload {
-  var $project;
-  var $path;
-
-  function __construct($project) {
-    $this->project = $project;
-    $this->tmp_path = drush_make_tmp();
-  }
-
-  abstract function download();
-}
-
-class DrushMakeDownload_CVS extends DrushMakeDownload {
-  function download() {
-    $name = $this->project->name;
-    $download = $this->project->download;
-    if (!empty($download['module'])) {
-      if (drush_get_option('working-copy')) {
-        if (isset($_ENV['CVSROOT'])) {
-          $this->project->download['root'] = $download['root'] = trim($_ENV['CVSROOT']);
-        }
-        else {
-          drush_log(dt('Please set the CVSROOT variable in your shell environment when using the --working-copy option.'), 'ok');
-        }
+function drush_make_download_cvs($name, $download, $download_location) {
+  if (!empty($download['module'])) {
+    if (drush_get_option('working-copy')) {
+      if ($download['module'] == 'drupal') {
+        $download['root'] = ":pserver:anonymous:anonymous@cvs.drupal.org:/cvs/drupal";
       }
-      // Fallback to anonymous @ cvs.drupal.org
-      if (!isset($download['root'])) {
-        $this->project->download['root'] = $download['root'] = ":pserver:anonymous:anonymous@cvs.drupal.org:/cvs/drupal-contrib";
-      }
-
-      // Checkout or export the module. CVS can't use absolute paths for named
-      // directories, so change into the directory just above the final
-      // destination for the checkout. 
-      $cd_to_directory = dirname($this->project->download_location);
-      $destination_directory = basename($this->project->download_location);
-
-      $command = 'cvs -d%s ' . (drush_get_option('working-copy') ? 'checkout' : 'export') . ' -d%s';
-      $args = array($download['root'], $destination_directory);
-      if (isset($download['revision'])) {
-        $command .= ' -r %s';
-        $args[] = $download['revision'];
-      }
-      if (isset($download['date'])) {
-        $command .= ' -D %s';
-        $args[] = $download['date'];
-      }
-      $args[] = $download['module'];
-      $command .= ' %s';
-
-      array_unshift($args, $command);
-      array_unshift($args, dirname($this->project->download_location));
-      if (call_user_func_array('drush_make_cd', $args)) {
-         drush_log(dt('%project downloaded from %module.', array('%project' => $name, '%module' => $download['module'])), 'ok');
-        return $this->project->download_location;
-      }
-    }
-    else {
-      $download['module'] = dt("unspecified module");
-    }
-    drush_make_error('DOWNLOAD_ERROR', dt('Unable to download %project from %root %module.', array('%project' => $name, '%root' => $download['root'], '%module' => $download['module'])));
-    return FALSE;
-  }
-}
-
-
-class DrushMakeDownload_Get extends DrushMakeDownload {
-  function download() {
-    if ($filename = $this->downloadFile()) {
-      $this->filename = $filename;
-      return $this->unpack();
-    }
-    return FALSE;
-  }
-
-  protected function downloadFile() {
-    $name = $this->project->name;
-    $filename = FALSE;
-    if (!empty($this->project->download['url'])) {
-      $url = $this->project->download['url'];
-      // Download the project -- try wget, fall back to curl.
-      if (drush_get_context('DRUSH_SIMULATE')) {
-        $filename = t('file');
+      elseif (isset($_ENV['CVSROOT'])) {
+        $download['root'] = trim($_ENV['CVSROOT']);
       }
       else {
-        drush_shell_exec("ls %s", $this->tmp_path);
+        drush_log(dt('Please set the CVSROOT variable in your shell environment when using the --working-copy option.'), 'ok');
+      }
+    }
+    // Fallback to anonymous @ cvs.drupal.org
+    if (!isset($download['root'])) {
+      $download['root'] = ":pserver:anonymous:anonymous@cvs.drupal.org:/cvs/drupal-contrib";
+    }
+  
+    // Checkout or export the module. CVS can't use absolute paths for named
+    // directories, so change into the directory just above the final
+    // destination for the checkout. 
+    $cd_to_directory = dirname($download_location);
+    $destination_directory = basename($download_location);
+  
+    $command = 'cvs -d%s ' . (drush_get_option('working-copy') ? 'checkout' : 'export') . ' -d%s';
+    $args = array($download['root'], $destination_directory);
+    if (isset($download['revision'])) {
+      $command .= ' -r %s';
+      $args[] = $download['revision'];
+    }
+    if (isset($download['date'])) {
+      $command .= ' -D %s';
+      $args[] = $download['date'];
+    }
+    $args[] = $download['module'];
+    $command .= ' %s';
+  
+    array_unshift($args, $command);
+    array_unshift($args, dirname($download_location));
+    if (call_user_func_array('drush_shell_cd_and_exec', $args)) {
+       drush_log(dt('%project downloaded from %module.', array('%project' => $name, '%module' => $download['module'])), 'ok');
+      return $download_location;
+    }
+  }
+  else {
+    $download['module'] = dt("unspecified module");
+  }
+  drush_make_error('DOWNLOAD_ERROR', dt('Unable to download %project from %root %module.', array('%project' => $name, '%root' => $download['root'], '%module' => $download['module'])));
+  return FALSE;
+}
+
+function drush_make_download_file($name, $download, $download_location) {
+  if ($filename = _drush_make_download_file($download)) {
+    drush_log(dt('%project downloaded from %url.', array('%project' => $name, '%url' => $download['url'])), 'ok');
+    return drush_make_download_file_unpack($filename, $download_location);
+  }
+  drush_make_error('DOWNLOAD_ERROR', dt('Unable to download %project from %url.', array('%project' => $name, '%url' => $download['url'])));
+  return FALSE;
+}
+
+function _drush_make_download_file($download) {
+  // Static variable to keep track of whether to use curl or wget.
+  static $download_mechanism;
+
+  $tmp_path = drush_make_tmp();
+  $filename = FALSE;
+  if (is_string($download)) {
+    $download = array('url' => $download);
+  }
+  if (!isset($download['request_type'])) {
+    $download['request_type'] = 'get';
+  }
+  if (!empty($download['url'])) {
+    $url = $download['url'];
+    if (drush_get_context('DRUSH_SIMULATE')) {
+      $filename = t('file');
+    }
+    else {
+      // For first try or if wget was detected already, try using wget 
+      // for downloading.
+      $success = FALSE;
+      $download_path = $tmp_path . '/__download__';
+      drush_make_mkdir($download_path);
+
+      if (!isset($download_mechanism) || $download_mechanism == 'curl') {
+        $header_file = $tmp_path . '/__header__';
+        drush_shell_exec("ls %s", $download_path);
         $files = drush_shell_exec_output();
-        if (drush_make_cd($this->tmp_path, 'wget %s', $url)) {
-          drush_shell_exec("ls %s", $this->tmp_path);
-          $files_new = drush_shell_exec_output();
-          $diff = array_diff($files_new, $files);
-          $filename = array_shift($diff);
+        if ($download['request_type'] == 'get' && drush_shell_cd_and_exec($download_path, 'curl -LOD %s %s', $header_file, $url)) {
+          $download_mechanism = 'curl';
+          $success = TRUE;
         }
-        elseif (drush_shell_exec('curl -I -L %s', $url)) {
-          $headers = drush_shell_exec_output();
-          foreach ($headers as $header) {
-            if (preg_match('/Location:(.*)/', $header, $matches)) {
-              $filename = basename($matches[1]);
-            }
-          }
-          if (!$filename) {
-            $filename = basename($url);
-          }
-          if (!drush_shell_exec('curl -L -o %s %s', $this->tmp_path . '/' . $filename, $url)) {
-            $filename = FALSE;
-          }
+        elseif ($download['request_type'] == 'post' && drush_shell_cd_and_exec($download_path, 'curl -d %s -LOD %s %s', $download['data'], $header_file, $url)) {
+          $download_mechanism = 'curl';
+          $success = TRUE;
         }
-      }
-      if ($filename) {
-        drush_log(dt('%project downloaded from %url.', array('%project' => $name, '%url' => $url)), 'ok');
-        return $this->tmp_path . '/' . $filename;
-      }
-      $filename = dt('file');
-    }
-    else {
-      $url = dt("unspecified location");
-    }
-    drush_make_error('DOWNLOAD_ERROR', dt('Unable to download %filename from %url.', array('%filename' => $filename, '%url' => $url)));
-    return FALSE;
-  }
 
-  function unpack() {
-    $extension = array_pop(explode('.', $this->filename));
-    $gzip = FALSE;
-    switch ($extension) {
-      case 'gz':
-      case 'tgz':
-        // I'd like to just use tar -z, but apparently it breaks on windoze. Why do they always have to ruin everything?
-        $this->unpackGzip();
-        break;
-      case 'tar':
-        $this->unpackTar();
-        break;
-      case 'zip':
-        $this->unpackZip();
-        break;
-      default:
-        drush_make_error('DOWNLOAD_ERROR', dt('Unable to unpack %file', array('%file' => $this->filename)));
-    }
-  }
-
-  protected function unpackTar() {
-    // Tarbomb detection.
-    drush_shell_exec('tar -tf %s', $this->filename);
-    $lines = drush_shell_exec_output();
-    if ($lines && !$this->protectBomb($lines)) {
-      $strip = '';
-    }
-    else {
-      // Detect whether the user uses --strip-path or --strip-components
-      $strip_option = drush_get_option('strip-option', FALSE);
-      if (!$strip_option) {
-        drush_shell_exec("man tar | grep strip-component");
-        $info = drush_shell_exec_output();
-        if ($info) {
-          $strip_option = 'component';
-        }
-        else {
-          drush_shell_exec("tar --help | grep strip-path");
-          $info = drush_shell_exec_output();
-          if ($info) {
-            $strip_option = 'path';
+        drush_shell_exec("ls %s", $download_path);
+        $files_new = drush_shell_exec_output();
+        // Can't use list beacuse it's not guarenteed to be at offset 0.
+        $diff = array_diff($files_new, $files);
+        $filename = $tmp_path . '/__download__/' . array_shift($diff);
+        // Determine the proper filename, or at least, the extension.
+        $header = explode("\n", trim(str_replace("\r", '', file_get_contents($header_file))));
+        $current_header = array();
+        $headers = array();
+        $first = TRUE;
+        foreach ($header as $h) {
+          if ($h == '') {
+            $headers[] = $current_header;
+            $current_header = array();
+            $first = TRUE;
           }
           else {
-            drush_make_error('CONFIGURATION_ERROR', dt('Unable to find a strip option in your version of tar'));
+            if (!$first) {
+              list($name, $value) = explode(': ', $h, 2);
+              $current_header[$name] = $value;
+            }
+            else {
+              $first = FALSE;
+            }
           }
         }
-        drush_set_option('strip-option', $strip_option);
-      }
-      $strip = '--strip-' . $strip_option . ' 1';
-    }
-
-
-    // Untar directly to final resting place -- allows tarballs to be
-    // unpacked directly over an existing structure.
-    drush_shell_exec('tar -x ' . $strip . ' -C %s -f %s', $this->project->download_location, $this->filename);
-
-    // Remove the tarball.
-    if (file_exists($this->filename)) {
-      drush_shell_exec('rm %s', $this->filename);
-    }
-  }
-
-  protected function unpackGzip() {
-    // Find out where contents will end up. Retrieve last column of output using awk.
-    drush_shell_exec("gzip --list %s | awk '{print $4;}'", $this->filename);
-    $info = drush_shell_exec_output();
-    if ($info) {
-      $info = array_pop($info);
-      $matches = array();
-      preg_match('/[a-zA-Z0-9.\-_,]*.tar/', $info, $matches);
-      if (isset($matches[0])) {
-        $file = dirname($this->filename) . '/' . $matches[0];
-        // Unzip it and then delete the tar file.
-        drush_shell_exec('gzip -d %s', $this->filename);
-        $this->filename = $file;
-        return $this->unpackTar();
-      }
-    }
-    drush_make_error('PACKAGE_ERROR', dt('Could not retrieve package information for %filename.', array('%filename' => $this->filename)));
-    return;
-  }
-
-  protected function unpackZip() {
-    // Find the main directory in the zip file.
-    drush_shell_exec("unzip -l %s", $this->filename);
-    $info = drush_shell_exec_output();
-    if ($info) {
-      foreach ($info as $line) {
-        $matches = array();
-        preg_match('/^\s+[0-9]+\s+[0-9-]+\s+[0-9:]+\s+(.*)$/', $line, $matches);
-        if (isset($matches[1])) {
-          $lines[] = $matches[1];
+        if (!empty($current_header)) {
+          $headers[] = $current_header;
         }
       }
-      $directory = $this->protectBomb($lines);
-      if ($directory) {
-        list($main_directory) = array_reverse(explode('/', $this->project->download_location));
-        if ($main_directory == $directory) {
-          // Directory names match up.
-          drush_shell_exec("unzip %s -d %s", $this->filename, dirname($this->project->download_location));
-        }
-        else {
-          // Directories don't match up. Use cp.
-          drush_shell_exec('mkdir -p %s', $this->tmp_path . '/__unzip__');
-          drush_shell_exec('unzip %s -d %s', $this->filename, $this->tmp_path . '/__unzip__');
-          if (file_exists($this->filename)) {
-            drush_shell_exec('rm %s', $this->filename);
+
+      if (!isset($download_mechanism) || $download_mechanism == 'drush_make') {
+        $retry = 5;
+        $url = $download['url'];
+        $filename = $download_path . '/__destination__';
+        $request_type = strtoupper($download['request_type']);
+        $data = (isset($download['data']) ? $download['data'] : '');
+        $headers = array();
+        while ($retry) {
+          $result = drush_make_http_request($url, $filename, array(), $request_type, $data);
+          switch ($result->code) {
+            case 200: // OK
+            case 304: // Not modified
+              $retry = FALSE;
+              break;
+            case 301: // Moved permanently
+            case 302: // Moved temporarily
+            case 307: // Moved temporarily
+              $retry--;
+
+              if ($retry) {
+                $url = $result->headers['Location'];
+                $request_type = 'GET';
+                $data = NULL;
+              }
+              break;
+            default:
+              // Oops, error.
+              drush_make_error('BUILD_ERROR', $result->message);
+              return;
           }
-          if (is_dir($this->tmp_path . '/__unzip__' . $directory . '/__MACOSX')) {
-            drush_shell_exec('rm -rf %s', $this->tmp_path . '/__unzip__' . $directory . '/__MACOSX');
-          }
-          drush_shell_exec('mv %s %s', $this->tmp_path . '/__unzip__/' . $directory, $this->tmp_path . '/__unzip__/' . $main_directory);
-          drush_shell_exec('cp -Rf %s %s', $this->tmp_path . '/__unzip__/' . $main_directory, dirname($this->project->download_location));
-          drush_shell_exec('rm -rf %s', $this->tmp_path . '/__unzip__');
+          $download_mechanism = 'drush_make';
+          $headers[] = $result->headers;
+          $success = TRUE;
         }
       }
-      else {
-        // It's a bomb, so we can just unpack it right at its destination
-        // (warning: don't ever do this in real life).
-        drush_shell_exec("unzip %s -d %s", $this->filename, $this->project->download_location);
-      }
-      if (file_exists($this->filename)) {
-        drush_shell_exec('rm %s', $this->filename);
-      }
-      if (is_dir($this->project->download_location . '/__MACOSX')) {
-        drush_shell_exec('rm -rf %s', $this->project->download_location . '/__MACOSX');
-      }
-    }
-    else {
-      drush_make_error('PACKAGE_ERROR', dt('Could not retrieve package information for %filename.', array('%filename' => $this->filename)));
-    }
-    return;
-  }
 
-  protected function protectBomb($lines) {
-    $directory = FALSE;
-    foreach ($lines as $line) {
-      if (strpos($line, '/') !== FALSE) {
-        list($dir) = explode('/', $line);
-        if (!$directory) {
-          $directory = $dir;
-        }
-        elseif ($dir != $directory) {
-          // More than one root-level item detected. We're not safe - BOMB!
-          return FALSE;
+      if (!$success) {
+        return;
+      }
+      // Much more useful in reverse order.
+      $headers = array_reverse($headers);
+      $content_type = '';
+      $file = '';
+      foreach ($headers as $header) {
+        if (isset($header['Location'])) {
+          $file = basename($header['Location']);
+          break;
         }
       }
+      if (isset($headers[0]['Content-Disposition'])) {
+        $parts = explode(';', $headers[0]['Content-Disposition']);
+        foreach ($parts as $part) {
+          list($name, $value) = explode('=', $part, 2);
+          if ($inner_parts[0] == 'filename') {
+            $file = $value;
+            break;
+          }
+        }
+      }
+      if (isset($headers[0]['Content-Type'])) {
+        // These still need finalizing.
+        switch ($headers[0]['Content-Type']) {
+          case 'application/zip':
+            $content_type = 'zip';
+            break;
+          case 'application/x-gzip':
+            $content_type = 'tar.gz';
+            break;
+          case 'application/x-tar':
+            $content_type = 'tar';
+            break;
+        }
+      }
+      if (!$file) {
+        $file = basename($url);
+      }
+      if ($content_type) {
+        $file .= '.' . $content_type;
+      }
+      drush_shell_exec('mv %s %s', $filename, $tmp_path . '/' . $file);
+      drush_shell_exec('rm -f %s', $tmp_path . '/__header__');
+      drush_shell_exec('rm -rf %s', $tmp_path . '/__download__');
+      return $tmp_path . '/' . $file;
     }
-    if (!$directory) {
-      // If we didn't come upon anything, that is to say, they were only
-      // root-level files, it's a bomb.
-      return FALSE;
-    }
-    return $directory;
+  }
+  return FALSE;
+}
+
+function drush_make_download_file_unpack($filename, $download_location) {
+  $extension = array_pop(explode('.', $filename));
+  $gzip = FALSE;
+  switch ($extension) {
+    case 'gz':
+    case 'tgz':
+      // I'd like to just use tar -z, but apparently it breaks on windoze. Why do they always have to ruin everything?
+      drush_make_download_file_unpack_gzip($filename, $download_location);
+      break;
+    case 'tar':
+      drush_make_download_file_unpack_tar($filename, $download_location);
+      break;
+    case 'zip':
+      drush_make_download_file_unpack_zip($filename, $download_location);
+      break;
+    default:
+      drush_make_error('DOWNLOAD_ERROR', dt('Unable to unpack %file', array('%file' => $filename)));
   }
 }
 
-class DrushMakeDownload_Post extends DrushMakeDownload_Get {
-  protected function downloadFile() {
-    $name = $this->project->name;
-    $filename = dt('file');
-    if (!empty($this->project->download['url'])) {
-      $url = $this->project->download['url'];
-      $post_data = $this->project->download['post_data'];
-      $filename = $this->tmp_path . "/" . basename($url);
-      // Download the project -- try wget, fall back to curl.
-      $filename = (empty($this->project->download['file_type'])) ? $this->path . "/" . basename($url) : $this->path . basename($url) . '.' . trim($this->project->download['file_type'], '.');
-      // Download the project -- try wget, fall back to curl.
-      if (drush_get_context('DRUSH_SIMULATE') || drush_shell_exec('wget --post-data=%s %s -O %s', $post_data, $url, $filename) || drush_shell_exec('curl -d %s -o %s %s', $post_data, $filename, $url)) {
-        drush_log(dt('%project downloaded from %url.', array('%project' => $name, '%url' => $url)), 'ok');
-        return $filename;
-      }
-    }
-    else {
-      $url = dt("unspecified location");
-    }
-    drush_make_error('DOWNLOAD_ERROR', dt('Unable to download %filename from %url.', array('%filename' => $filename, '%url' => $url)));
+function drush_make_download_file_unpack_tar($filename, $download_location) {
+  $tmp_path = drush_make_tmp();
+  // Tarbomb detection.
+  drush_shell_exec('tar -tf %s', $filename);
+  $lines = drush_shell_exec_output();
+  if (!$lines) {
     return FALSE;
   }
+  $directory = drush_make_download_file_protect_bomb($lines);
+  if (!$directory) {
+    drush_shell_exec('tar -x -C %s -f %s', $download_location, $filename);
+  }
+  else {
+    list($main_directory) = array_reverse(explode('/', $download_location));
+    drush_make_mkdir($tmp_path . '/__unzip__');
+    drush_shell_exec('tar -x -C %s -f %s', $tmp_path . '/__unzip__', $filename);
+    if ($directory != $main_directory) {
+      drush_shell_exec('mv %s %s', $tmp_path . '/__unzip__/' . $directory, $tmp_path . '/__unzip__/' . $main_directory);
+    }
+    drush_shell_exec('cp -Rf %s %s', $tmp_path . '/__unzip__/' . $main_directory, dirname($download_location));
+    drush_shell_exec('rm -rf %s', $tmp_path . '/__unzip__');
+  }
+
+  // Remove the tarball.
+  if (file_exists($filename)) {
+    drush_shell_exec('rm %s', $filename);
+  }
 }
 
-class DrushMakeDownload_Git extends DrushMakeDownload {
-  function download() {
-    $download = $this->project->download;
-    $wc       = drush_get_option('working-copy');
+function drush_make_download_file_unpack_gzip($filename, $download_location) {
+  // Find out where contents will end up. Retrieve last column of output using awk.
+  drush_shell_exec("gzip --list %s | awk '{print $4;}'", $filename);
+  $info = drush_shell_exec_output();
+  if ($info) {
+    $info = array_pop($info);
+    $matches = array();
+    preg_match('/[a-zA-Z0-9.\-_,]*.tar/', $info, $matches);
+    if (isset($matches[0])) {
+      $file = dirname($filename) . '/' . $matches[0];
+      // Unzip it and then delete the tar file.
+      drush_shell_exec('gzip -d %s', $filename);
+      $filename = $file;
+      return drush_make_download_file_unpack_tar($filename, $download_location);
+    }
+  }
+  drush_make_error('PACKAGE_ERROR', dt('Could not retrieve package information for %filename.', array('%filename' => $filename)));
+  return;
+}
 
-    // check if branch option is set in info file, otherwise set default to master branch
-    $this->project->download['branch'] = $download['branch'] = isset($download['branch']) ? $download['branch'] : 'master';
-    // check if tag option is set in info file, otherwise we set it to false
-    $this->project->download['tag'] = $download['tag'] = isset($download['tag']) ? $download['tag'] : FALSE;
-    // check if specific revision is set in info file
-    $this->project->download['revision'] = $download['revision'] = isset($download['revision']) ? $download['revision'] : FALSE;
+function drush_make_download_file_unpack_zip($filename, $download_location) {
+  $tmp_path = drush_make_tmp();
+  // Find the main directory in the zip file.
+  drush_shell_exec("unzip -l %s", $filename);
+  $info = drush_shell_exec_output();
+  if ($info) {
+    foreach ($info as $line) {
+      $matches = array();
+      preg_match('/^\s+[0-9]+\s+[0-9-]+\s+[0-9:]+\s+(.*)$/', $line, $matches);
+      if (isset($matches[1])) {
+        $lines[] = $matches[1];
+      }
+    }
+    $directory = drush_make_download_file_protect_bomb($lines);
+    if ($directory) {
+      list($main_directory) = array_reverse(explode('/', $download_location));
+      if ($main_directory == $directory) {
+        // Directory names match up.
+        drush_shell_exec("unzip %s -d %s", $filename, dirname($download_location));
+      }
+      else {
+        // Directories don't match up. Use cp.
+        drush_make_mkdir($tmp_path . '/__unzip__');
+        drush_shell_exec('unzip %s -d %s', $filename, $tmp_path . '/__unzip__');
+        if (file_exists($filename)) {
+          drush_shell_exec('rm %s', $filename);
+        }
+        if (is_dir($tmp_path . '/__unzip__' . $directory . '/__MACOSX')) {
+          drush_shell_exec('rm -rf %s', $tmp_path . '/__unzip__' . $directory . '/__MACOSX');
+        }
+        drush_shell_exec('mv %s %s', $tmp_path . '/__unzip__/' . $directory, $tmp_path . '/__unzip__/' . $main_directory);
+        drush_shell_exec('cp -Rf %s %s', $tmp_path . '/__unzip__/' . $main_directory, dirname($download_location));
+        drush_shell_exec('rm -rf %s', $tmp_path . '/__unzip__');
+      }
+    }
+    else {
+      // It's a bomb, so we can just unpack it right at its destination.
+      drush_shell_exec("unzip %s -d %s", $filename, $download_location);
+    }
+    if (file_exists($filename)) {
+      drush_shell_exec('rm %s', $filename);
+    }
+    if (is_dir($download_location . '/__MACOSX')) {
+      drush_shell_exec('rm -rf %s', $download_location . '/__MACOSX');
+    }
+  }
+  else {
+    drush_make_error('PACKAGE_ERROR', dt('Could not retrieve package information for %filename.', array('%filename' => $filename)));
+  }
+  return;
+}
 
-    // only progress if we have a download url...
-    if (!empty($download['url'])) {
-      // split the given download url into pices
-      $url_array = $this->getUrlParts($download['url']);
+function drush_make_download_file_protect_bomb($lines) {
+  $directory = FALSE;
+  foreach ($lines as $line) {
+    if (strpos($line, '/') !== FALSE) {
+      list($dir) = explode('/', $line);
+      if (!$directory) {
+        $directory = $dir;
+      }
+      elseif ($dir != $directory) {
+        // More than one root-level item detected. We're not safe - BOMB!
+        return FALSE;
+      }
+    }
+  }
+  if (!$directory) {
+    // If we didn't come upon anything, that is to say, they were only
+    // root-level files, it's a bomb.
+    return FALSE;
+  }
+  return $directory;
+}
 
+
+// Backwards compatibility.
+function drush_make_download_get($name, $download, $download_location) {
+  return drush_make_download_file($name, $download, $download_location);
+}
+
+function drush_make_download_post($name, $download, $download_location) {
+  $download['request_type'] = 'post';
+  $download['data'] = $download['post_data'];
+  return drush_make_download_file($name, $download, $download_location);
+}
+
+function drush_make_download_git($name, $download, $download_location) {
+  $tmp_path = drush_make_tmp();
+  $wc = drush_get_option('working-copy');
+
+  // check if branch option is set in info file, otherwise set default to master branch
+  $download['branch'] = isset($download['branch']) ? $download['branch'] : 'master';
+  // check if tag option is set in info file, otherwise we set it to false
+  $download['tag'] = isset($download['tag']) ? $download['tag'] : FALSE;
+  // check if specific revision is set in info file
+  $download['revision'] = isset($download['revision']) ? $download['revision'] : FALSE;
+
+  // only progress if we have a download url...
+  if (!empty($download['url'])) {
+    // split the given download url into pieces
+    $url_array = array();
+
+    // Get the protocol, site and resource parts of the URL
+    // original url = http://example.com/blog/index?name=foo
+    // protocol = http://
+    // site = example.com/
+    // resource = blog/index?name=foo
+    $regex = '#^(.*?//)*([\w\.\d]*)(:(\d+))*(/*)(.*)$#';
+    $matches = array();
+    preg_match($regex, $download['url'], $matches);
+
+    // Assign the matched parts of url to the result array
+    $url_array['protocol'] = $matches[1];
+    $url_array['port']     = $matches[4];
+    $url_array['host']     = $matches[2];
+    $url_array['resource'] = $matches[6];
+
+    // clean up the site portion by removing the trailing /
+    $url_array['host'] = preg_replace('#/$#', '', $result['host']);
+
+    // clean up the protocol portion by removing the trailing ://
+    $url_array['protocol'] = preg_replace('#://$#', '', $result['protocol']);
+
+    if (empty($url_array['protocol'])) {
+      // If protocol is not given, assume an SSH URL.
+      $url = $download['url'];
+    }
+    else {
       // build url for git clone to support different protocols
       // currently all protocols seems to use the same url schema
       switch ($url_array['protocol']) {
@@ -355,194 +450,170 @@ class DrushMakeDownload_Git extends DrushMakeDownload {
           drush_make_error('DOWNLOAD_ERROR', dt('unknown protocol @protocol in %project', array('@protocol' => $url_array['protocol'], '%project' => $name)));
           return false;
       }
+    }
 
-      $tmp_location = $this->tmp_path . '/__git__/' . basename($this->project->download_location);
+    $tmp_location = $tmp_path . '/__git__/' . basename($download_location);
 
-      drush_shell_exec('mkdir -p %s', $this->tmp_path . '/__git__/');
+    drush_make_mkdir($tmp_path . '/__git__/');
 
-      // clone the given repository
-      if (drush_shell_exec("git clone %s %s", $url, $tmp_location)) {
-        drush_log(dt('%project cloned from %url.', array('%project' => $this->project->name, '%url' => $url)), 'ok');
+    // clone the given repository
+    if (drush_shell_exec("git clone %s %s", $url, $tmp_location)) {
+      drush_log(dt('%project cloned from %url.', array('%project' => $name, '%url' => $url)), 'ok');
 
-        // GIT Checkout only work on a ready cloned repo. So we switch to branch or to tag (only if we have no branch) after cloneing.
-        if ($download['branch'] !== 'master' || $download['tag'] || $download['revision']) {
+      // GIT Checkout only work on a ready cloned repo. So we switch to branch or to tag (only if we have no branch) after cloneing.
+      if ($download['branch'] !== 'master' || $download['tag'] || $download['revision'] || !empty($download['submodule'])) {
 
-          // get current directory (for move back later)
-          $cwd = getcwd();
-          // change path to working copy of cloned repo
-          chdir($tmp_location);
+        // get current directory (for move back later)
+        $cwd = getcwd();
+        // change path to working copy of cloned repo
+        chdir($tmp_location);
 
-          // Progress branch / tag / revision download. Ensure that only one option ist set (branch OR tag OR revision)
-          // check if branch a other than master
-          if ($download['branch'] !== 'master' && !$download['tag'] && !$download['revision']) {
-            if (drush_shell_exec("git checkout -b %s origin/%s", $download['branch'], $download['branch'])) {
-              drush_log(dt("Checked out branch %branch.", array('%branch' => $download['branch'])), 'ok');
-            }
-            else {
-              drush_make_error('DOWNLOAD_ERROR', dt("Unable to check out branch %branch.", array('%branch' => $download['branch'])));
-            }
+        // Progress branch / tag / revision download. Ensure that only one option ist set (branch OR tag OR revision)
+        // check if branch a other than master
+        if ($download['branch'] !== 'master' && !$download['tag'] && !$download['revision']) {
+          if (drush_shell_exec("git checkout -b %s %s", $download['branch'], 'origin/' . $download['branch'])) {
+            drush_log(dt("Checked out branch %branch.", array('%branch' => $download['branch'])), 'ok');
           }
-          // progress if: tag is set but not the others
-          elseif ($download['branch'] == 'master' && $download['tag'] && !$download['revision']) {
-            // @TODO: change checkout to refs path
-            if (drush_shell_exec("git checkout refs/tags/%s", $download['tag'])) {
-              drush_log(dt("Checked out tag %tag.", array('%tag' => $download['tag'])), 'ok');
-            }
-            else {
-              drush_make_error('DOWNLOAD_ERROR', dt("Unable to check out tag %tag.", array('%tag' => $download['tag'])));
-            }
-          }
-          // progress if: revision is set but not the others
-          elseif ($download['branch'] == 'master' && !$download['tag'] && $download['revision']) {
-            if (drush_shell_exec("git checkout %s", $download['revision'])) {
-              drush_log(dt("Checked out revision %revision.", array('%revision' => $download['revision'])), 'ok');
-            }
-            else {
-              drush_make_error('DOWNLOAD_ERROR', dt("Unable to checkout revision %revision", array('%revision' => $download['revision'])));
-            }
-          }
-          // more than one option is set so we throw a error message
           else {
-            drush_make_error('DOWNLOAD_ERROR', dt("You can only specific branch or tag or revision but not combined in make file."));
-            return false;
+            drush_make_error('DOWNLOAD_ERROR', dt("Unable to check out branch %branch.", array('%branch' => $download['branch'])));
           }
-          // move back to last current directory (first line)
-          chdir($cwd);
         }
+        // progress if: tag is set but not the others
+        elseif ($download['branch'] == 'master' && $download['tag'] && !$download['revision']) {
+          // @TODO: change checkout to refs path
+          if (drush_shell_exec("git checkout %s", 'refs/tags/' . $download['tag'])) {
+            drush_log(dt("Checked out tag %tag.", array('%tag' => $download['tag'])), 'ok');
+          }
+          else {
+            drush_make_error('DOWNLOAD_ERROR', dt("Unable to check out tag %tag.", array('%tag' => $download['tag'])));
+          }
+        }
+        // progress if: revision is set but not the others
+        elseif ($download['branch'] == 'master' && !$download['tag'] && $download['revision']) {
+          if (drush_shell_exec("git checkout %s", $download['revision'])) {
+            drush_log(dt("Checked out revision %revision.", array('%revision' => $download['revision'])), 'ok');
+          }
+          else {
+            drush_make_error('DOWNLOAD_ERROR', dt("Unable to checkout revision %revision", array('%revision' => $download['revision'])));
+          }
+        }
+        // more than one option is set so we throw a error message
+        elseif ($download['branch'] !== 'master' || $download['tag'] || $download['revision']) {
+          drush_make_error('DOWNLOAD_ERROR', dt("You can only specific branch or tag or revision but not combined in make file."));
+          return false;
+        }
+        if (!empty($download['submodule'])) {
+          $command = 'git submodule update';
+          foreach ($download['submodule'] as $option) {
+            $command .= ' --%s';
+          }
+          if (call_user_func_array('drush_shell_exec', array_merge(array($command), $download['submodule']))) {
+            drush_log(dt('Initialized registered submodules.'), 'ok');
+          }
+          else {
+            drush_make_error('DOWNLOAD_ERROR', dt('Unable to initialize submodules.'));
+          }
+        }
+        // move back to last current directory (first line)
+        chdir($cwd);
+      }
 
-        // Remove .git/ directory if working-copy flag was not specified.
-        if (!$wc && file_exists($tmp_location . '/.git')) {
-          drush_shell_exec("rm -rf %s", $tmp_location . '/.git');
-        }
-        drush_shell_exec('cp -Rf %s %s', $tmp_location, dirname($this->project->download_location));
-        drush_shell_exec("rm -rf %s", dirname($tmp_location));
-        return $name;
+      // Remove .git/ directory if working-copy flag was not specified.
+      if (!$wc && file_exists($tmp_location . '/.git')) {
+        drush_shell_exec("rm -rf %s", $tmp_location . '/.git');
       }
-      else {
-        drush_make_error('DOWNLOAD_ERROR', dt('Unable to clone %project from %url.', array('%project' => $name, '%url' => $url)));
-      }
+      drush_shell_exec('cp -Rf %s %s', $tmp_location, dirname($download_location));
+      drush_shell_exec("rm -rf %s", dirname($tmp_location));
+      return dirname($tmp_location);
     }
     else {
-      $download['url'] = dt("unspecified location");
+      drush_make_error('DOWNLOAD_ERROR', dt('Unable to clone %project from %url.', array('%project' => $name, '%url' => $url)));
     }
-    return FALSE;
   }
-
-  /**
-   * private helper function to split the given url into parts
-   * protocol / port / site / resource
-   */
-  protected function getUrlParts($url) {
-    $result = array();
-
-    // Get the protocol, site and resource parts of the URL
-    // original url = http://example.com/blog/index?name=foo
-    // protocol = http://
-    // site = example.com/
-    // resource = blog/index?name=foo
-    $regex = '#^(.*?//)*([\w\.\d]*)(:(\d+))*(/*)(.*)$#';
-    $matches = array();
-    preg_match($regex, $url, $matches);
-
-    // Assign the matched parts of url to the result array
-    $result['protocol'] = $matches[1];
-    $result['port']     = $matches[4];
-    $result['host']     = $matches[2];
-    $result['resource'] = $matches[6];
-
-    // clean up the site portion by removing the trailing /
-    $result['host'] = preg_replace('#/$#', '', $result['host']);
-
-    // clean up the protocol portion by removing the trailing ://
-    $result['protocol'] = preg_replace('#://$#', '', $result['protocol']);
-
-    return $result;
+  else {
+    $download['url'] = dt("unspecified location");
   }
+  return FALSE;
 }
 
-class DrushMakeDownload_Bzr extends DrushMakeDownload {
-  function download() {
-    $name = $this->project->name;
-    $download = $this->project->download;
-    $tmp_location = $this->tmp_path . '/__bzr__/' . basename($this->project->download_location);
-    drush_shell_exec('mkdir -p %s', dirname($tmp_location));
-    if (!empty($download['url'])) {
-      $args = array();
-      $command = 'bzr';
-      if (drush_get_option('working-copy')) {
-        $command .= ' branch  --use-existing-dir';
-      }
-      else {
-        $command .= ' export';
-      }
-      if (isset($download['revision'])) {
-        $command .= ' -r %s';
-        $args[] = $download['revision'];
-      }
-      $command .= ' %s %s';
-      if (drush_get_option('working-copy')) {
-        $args[] = $download['url'];
-        $args[] = $tmp_location;
-      }
-      else {
-        $args[] = $tmp_location;
-        $args[] = $download['url'];
-      }
-      array_unshift($args, $command);
-      if (call_user_func_array('drush_shell_exec', $args)) {
-        drush_log(dt('%project downloaded from %url.', array('%project' => $name, '%url' => $download['url'])), 'ok');
-        drush_shell_exec('cp -Rf %s %s', $tmp_location, dirname($this->project->download_location));
-        drush_shell_exec('rm -rf %s', dirname($tmp_location));
-        return $name;
-      }
+function drush_make_download_bzr($name, $download, $download_location) {
+  $tmp_path = drush_make_tmp();
+  $tmp_location = $tmp_path . '/__bzr__/' . basename($download_location);
+  drush_make_mkdir(dirname($tmp_location));
+  if (!empty($download['url'])) {
+    $args = array();
+    $command = 'bzr';
+    if (drush_get_option('working-copy')) {
+      $command .= ' branch  --use-existing-dir';
     }
     else {
-      $download['url'] = dt("unspecified location");
+      $command .= ' export';
     }
-    drush_make_error('DOWNLOAD_ERROR', dt('Unable to download %project from %url.', array('%project' => $name, '%url' => $download['url'])));
-    drush_shell_exec('rm -rf %s', dirname($tmp_location));
-    return FALSE;
-  }
-}
-
-class DrushMakeDownload_SVN extends DrushMakeDownload {
-  function download() {
-    $name = $this->project->name;
-    $download = $this->project->download;
-    $command = 'svn  --force --non-interactive export';
-    if (!empty($download['url'])) {
-      if (drush_get_option('working-copy')) {
-        $command = 'svn  --force --non-interactive checkout';
-      }
-      $args = array();
-
-      if (isset($download['revision'])) {
-        $command .= ' -r%s';
-        $args[] = $download['revision'];
-      }
-
-      $command .= ' %s %s';
+    if (isset($download['revision'])) {
+      $command .= ' -r %s';
+      $args[] = $download['revision'];
+    }
+    $command .= ' %s %s';
+    if (drush_get_option('working-copy')) {
       $args[] = $download['url'];
-      $args[] = $this->project->download_location;
-
-      if (!empty($download['username'])) {
-        $command .= '--username %s --password %s';
-        $args[] = $download['username'];
-        $args[] = $download['password'];
-      }
-      array_unshift($args, $command);
-      $result = call_user_func_array('drush_shell_exec', $args);
-      if ($result) {
-        drush_log(dt('%project @command from %url.', array('%project' => $name, '@command' => $command, '%url' => $download['url'])), 'ok');
-        return $this->project->download_location;
-      }
-      else {
-        $download['url'] = dt("unspecified location");
-      }
+      $args[] = $tmp_location;
     }
     else {
-      drush_make_error('DOWNLOAD_ERROR', dt('Unable to download %project from %url.', array('%project' => $name, '%url' => $download['url'])));
-      return FALSE;
+      $args[] = $tmp_location;
+      $args[] = $download['url'];
+    }
+    array_unshift($args, $command);
+    if (call_user_func_array('drush_shell_exec', $args)) {
+      drush_log(dt('%project downloaded from %url.', array('%project' => $name, '%url' => $download['url'])), 'ok');
+      drush_shell_exec('cp -Rf %s %s', $tmp_location, dirname($download_location));
+      drush_shell_exec('rm -rf %s', dirname($tmp_location));
+      return dirname($download_location);
     }
   }
+  else {
+    $download['url'] = dt("unspecified location");
+  }
+  drush_make_error('DOWNLOAD_ERROR', dt('Unable to download %project from %url.', array('%project' => $name, '%url' => $download['url'])));
+  drush_shell_exec('rm -rf %s', dirname($tmp_location));
+  return FALSE;
 }
+
+
+function drush_make_download_svn($name, $download, $download_location) {
+  $command = 'svn  --force --non-interactive export';
+  if (!empty($download['url'])) {
+    if (drush_get_option('working-copy')) {
+      $command = 'svn  --force --non-interactive checkout';
+    }
+    $args = array();
+
+    if (isset($download['revision'])) {
+      $command .= ' -r%s';
+      $args[] = $download['revision'];
+    }
+
+    $command .= ' %s %s';
+    $args[] = $download['url'];
+    $args[] = $download_location;
+
+    if (!empty($download['username'])) {
+      $command .= ' --username %s --password %s';
+      $args[] = $download['username'];
+      $args[] = $download['password'];
+    }
+    array_unshift($args, $command);
+    $result = call_user_func_array('drush_shell_exec', $args);
+    if ($result) {
+      drush_log(dt('%project @command from %url.', array('%project' => $name, '@command' => $command, '%url' => $download['url'])), 'ok');
+      return $download_location;
+    }
+    else {
+      $download['url'] = dt("unspecified location");
+    }
+  }
+  else {
+    drush_make_error('DOWNLOAD_ERROR', dt('Unable to download %project from %url.', array('%project' => $name, '%url' => $download['url'])));
+    return FALSE;
+  }
+}
+

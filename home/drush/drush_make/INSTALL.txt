@@ -1,3 +1,5 @@
+$Id: INSTALL.txt,v 1.1.2.4 2010/09/04 16:11:37 dmitrig01 Exp $
+
 Installation
 ------------
 Drush make depends on drush (the DRUpal SHell). To use drush_make, you

@@ -1,3 +1,5 @@
+; $Id: EXAMPLE.make,v 1.1.2.4 2010/09/04 16:11:37 dmitrig01 Exp $
+;
 ; Example makefile
 ; ----------------
 ; This is an example makefile to introduce new users of drush_make to the
