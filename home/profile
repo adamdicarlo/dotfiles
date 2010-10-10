@@ -26,21 +26,23 @@ export CVSROOT=:pserver:bikko@cvs.drupal.org:/cvs/drupal-contrib
 export EDITOR=vim
 export VISUAL=vim
 
-if [ "$(/bin/hostname)" == "skippy.local" ]; then
+export PATH=$PATH:$HOME/bin:$HOME/.drush/drush:/usr/local/bin:/usr/local/sbin
+
+if [ -d "/Users" ]; then
   # MacBook
-  echo Skippy
+  echo "OS X, eh?"
   export PS1='\[\033[01;32m\]\u@\h \[\033[01;34m\]\w\[\033[00m\]$ '
-  alias ls='ls -F --color=auto'
-  alias ll='ls -lagh'
+  alias ls='gls -F --color=auto'
+  alias ll='gls -lagh'
   alias hibernate_on='sudo pmset -a hibernatemode 5'
   alias hibernate_off='sudo pmset -a hibernatemode 3'
   alias photoshop='open -a "Adobe Photoshop CS4"'
 
-  export PATH=$HOME/.drush/drush:/opt/local/bin:/usr/local/bin:/usr/local/git/bin:/opt/local/sbin:~/bin:$PATH:/Applications/MAMP/Library/bin
-  export MANPATH=/opt/local/share/man:/usr/local/share/man:$MANPATH:/Library/Framework/Mono.framework/Versions/Current/man
+  export PATH=/usr/local/git/bin:~/bin:$PATH
+  export MANPATH=/usr/local/share/man:$MANPATH:/Library/Framework/Mono.framework/Versions/Current/man
 
 else
   # Linux
-  export PATH="$HOME/bin:$HOME/.drush/drush:/var/lib/gems/1.8/bin:$PATH"
+  export PATH=/var/lib/gems/1.8/bin:$PATH
 fi
 

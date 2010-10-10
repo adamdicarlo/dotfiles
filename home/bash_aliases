@@ -1,3 +1,18 @@
+# If on Mac, set up the coreutils aliases
+if [ -d "/Users" ]; then
+  for UTIL in /usr/local/Cellar/coreutils/8.5/bin/*; do
+    # e.g.: alias ls=gls
+    UTIL=$(basename $UTIL)
+
+    # aliasing [ is madness
+    if [ $UTIL == "g[" ]; then
+      continue
+    fi
+
+    alias "${UTIL:1}"="$UTIL"
+  done
+fi
+
 alias cbt='rdesktop -g1396x906 -u test -p ie6.die.die.die 10.0.0.155 &'
 alias tun='pkill -f tunnels;autossh -fN oolon-tunnels'
 alias css-aggregation-on='drush vset --yes preprocess_css 1 && drush cc all'
