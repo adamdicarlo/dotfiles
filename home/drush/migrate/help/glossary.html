@@ -1,0 +1,38 @@
+<!-- $Id: glossary.html,v 1.1.2.2 2009/12/11 02:02:42 mikeryan Exp $ -->
+
+<p>To get the most out of the migrate module, one should understand the following concepts:</p>
+
+<dl>
+  <dt>Content set</dt>
+    <dd>This represents a set of source content (embodied in a view) to be migrated.
+        It includes mappings from columns in the view
+        to fields within Drupal objects.</dd>
+  <dt>Destination</dt>
+    <dd>A Drupal object designated to receive migrated data from a source view.
+        Most destinations are simple - roles, terms, users - but nodes are more
+        complex - each distinct node type defined in your Drupal site is a
+        distinct destination in the migrate module.</dd>
+  <dt>Clear</dt>
+    <dd>An operation which deletes previously-migrated content, generally in
+        preparation for remigration.</dd>
+  <dt>Import</dt>
+    <dd>An operation which imports content represented by a content set into
+        Drupal objects. By default this operation only processes source data
+        which has not yet been migrated, but optionally it can also update
+        previously-imported destination objects with the current source data.</dd>
+  <dt>Map tables</dt>
+    <dd>A table associated with each content set, holding mappings from the unique
+        ID of a source view row to the unique ID of the Drupal object created from
+        that row. This is used to keep track of which rows have been processed, and
+        can also be used to develop audit views directly comparing source data to
+        resulting Drupal data.</dd>
+  <dt>Primary key</dt>
+    <dd>In relational databases, a table's <em>primary key</em> consists of one or more
+        columns which are unique for each row and never null, explicitly designated
+        to uniquely identify each row. The migrate module uses this term to
+        describe a unique non-null column for a source view - in most cases, this
+        will actually be the primary key of the base table of the view, but you
+        may designate another unique column to function as a primary key for
+        the purpose of migration. This column is used as the source ID in map
+        tables.</dd>
+</dl>

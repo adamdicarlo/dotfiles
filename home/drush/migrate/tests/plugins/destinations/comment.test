@@ -1,0 +1,126 @@
+<?php
+// $Id: comment.test,v 1.1.4.8 2010/09/12 19:19:40 mikeryan Exp $
+
+/**
+ * Test comment migration.
+ */
+class MigrateCommentUnitTest extends DrupalWebTestCase {
+  public static function getInfo() {
+    return array(
+      'name' => 'Comment migration',
+      'description' => 'Test migration of comment data',
+      'group' => 'Migrate',
+    );
+  }
+
+  function setUp() {
+    parent::setUp('dbtng', 'autoload', 'taxonomy', 'content', 'text', 'number',
+       'date_api', 'date_timezone', 'date', 'filefield', 'imagefield',
+       'migrate', 'migrate_extras', 'migrate_example', 'comment');
+    autoload_flush_caches();
+    // Create and login user
+    $migrate_user = $this->drupalCreateUser(array('access content',
+      'administer nodes', 'create page content', 'delete any page content',
+      'post comments', 'administer comments'));
+    $this->drupalLogin($migrate_user);
+  }
+
+  function testCommentImport() {
+    $migration = Migration::getInstance('WineVarietyMigration');
+    $result = $migration->processImport();
+    $this->assertEqual($result, Migration::RESULT_COMPLETED,
+      t('Variety term import returned RESULT_COMPLETED'));
+    $migration = Migration::getInstance('WineRegionMigration');
+    $result = $migration->processImport();
+    $this->assertEqual($result, Migration::RESULT_COMPLETED,
+      t('Region term import returned RESULT_COMPLETED'));
+    $migration = Migration::getInstance('WineBestWithMigration');
+    $result = $migration->processImport();
+    $this->assertEqual($result, Migration::RESULT_COMPLETED,
+      t('"Best With" term import returned RESULT_COMPLETED'));
+    $migration = Migration::getInstance('WineUserMigration');
+    $result = $migration->processImport();
+    $this->assertEqual($result, Migration::RESULT_COMPLETED,
+      t('User import returned RESULT_COMPLETED'));
+    $migration = Migration::getInstance('WineProducerMigration');
+    $result = $migration->processImport();
+    $this->assertEqual($result, Migration::RESULT_COMPLETED,
+      t('Producer node import returned RESULT_COMPLETED'));
+    $migration = Migration::getInstance('WineWineMigration');
+    $result = $migration->processImport();
+    $this->assertEqual($result, Migration::RESULT_COMPLETED,
+      t('Wine node import returned RESULT_COMPLETED'));
+    $migration = Migration::getInstance('WineCommentMigration');
+    $result = $migration->processImport();
+    $this->assertEqual($result, Migration::RESULT_COMPLETED,
+      t('Comment import returned RESULT_COMPLETED'));
+
+    $result = db_select('migrate_example_wine_comment', 'wc')
+              ->fields('wc', array('commentid', 'comment_parent', 'name', 'mail',
+                'accountid', 'body', 'wineid', 'subject', 'commenthost', 'userpage',
+                'posted', 'lastchanged'))
+              ->orderBy('comment_parent')
+              ->execute();
+    $rows = array();
+    foreach ($result as $row) {
+      $rows[$row->subject] = $row;
+    }
+
+    $result = db_select('comments', 'c')
+              ->fields('c', array('cid', 'pid', 'nid', 'uid', 'subject', 'comment',
+                'hostname', 'timestamp', 'status', 'format', 'thread', 'name',
+                'mail', 'homepage'))
+              ->orderBy('pid')
+              ->execute();
+    $comments = array();
+    foreach ($result as $row) {
+      $comments[$row->subject] = $row;
+    }
+
+    $this->assertEqual(count($comments), count($rows),
+      t('Counts of comments and input rows match'));
+
+    $comment = $comments['im second'];
+    $row = $rows['im second'];
+    $this->assertEqual($comment->mail, $row->mail, t('Mail matches'));
+    $this->assertEqual($comment->name, $row->name, t('Name matches'));
+    $this->assertEqual($comment->status, COMMENT_PUBLISHED, t('Status matches'));
+    $wine_migration = MigrationBase::getInstance('WineWineMigration');
+    $destid = $wine_migration->getMap()->lookupDestinationID(array($row->wineid), $migration);
+    $this->assertEqual($comment->nid, reset($destid), t('Nid matches'));
+    $this->assertEqual($comment->comment, $row->body, t('Body matches'));
+    $this->assertEqual($comment->hostname, $row->commenthost, t('Hostname matches'));
+    $this->assertEqual($comment->homepage, $row->userpage, t('Homepage matches'));
+    $this->assertEqual($comment->timestamp, $row->lastchanged, t('Changed matches'));
+
+    $comment = $comments['im child'];
+    $row = $rows['im child'];
+    $user_migration = MigrationBase::getInstance('WineUserMigration');
+    $destid = $user_migration->getMap()->lookupDestinationID(array($row->accountid), $migration);
+    $this->assertEqual($comment->uid, reset($destid), t('Uid matches'));
+    $this->assertEqual($comment->pid, $comments['im parent']->cid, t('Parent matches'));
+
+    // Test rollback
+    $result = $migration->processRollback();
+    $this->assertEqual($result, Migration::RESULT_COMPLETED,
+      t('Comment rollback returned RESULT_COMPLETED'));
+    $count = db_select('comments', 'c')
+              ->fields('c', array('cid'))
+              ->countQuery()
+              ->execute()
+              ->fetchField();
+    $this->assertEqual($count, 0, t('Comments cleared'));
+    $count = db_select('migrate_map_winecomment', 'map')
+              ->fields('map', array('sourceid1'))
+              ->countQuery()
+              ->execute()
+              ->fetchField();
+    $this->assertEqual($count, 0, t('Map cleared'));
+    $count = db_select('migrate_message_winecomment', 'msg')
+              ->fields('msg', array('sourceid1'))
+              ->countQuery()
+              ->execute()
+              ->fetchField();
+    $this->assertEqual($count, 0, t('Messages cleared'));
+  }
+}

@@ -1,0 +1,24 @@
+<!-- $Id: settings.html,v 1.1.2.2 2009/12/11 02:02:42 mikeryan Exp $ -->
+
+<p>These options affect migration processes:</p>
+
+<dl>
+  <dt>Display timers when processing</dt>
+    <dd>When developing large, complex migration processes (where you are implementing
+        your own hooks), it's important to optimize processing as best you can. To help
+        diagnose performance problems, enable this checkbox to display cumulative
+        timers upon completion of an interactive migration. The migrate module's own
+        hooks use Drupal's timer_start() and timer_stop() functions to track their timing -
+        you can also add these calls to your own hooks.</dd>
+  <dt>Cache content set counts</dt>
+    <dd>With large amounts of data, particularly when your source views join
+        multiple tables, loading the Dashboard page can become quite slow populating
+        the <strong>Rows in set</strong> column. Checking this box saves the current
+        row count in the database, and the dashboard will retrieve this value rather than
+        recounting the rows every time. To update the counts, return to the settings page,
+        check the <strong>Refresh cached content set counts</strong> toggle, and Submit.</dd>
+  <dt>Ignore missing advanced help module</dt>
+    <dd>Checking this toggle disables messages displayed when the advanced help module
+        is not active. If you're reading this advanced help page, this toggle is
+        irrelevant to you.</dd>
+</dl>

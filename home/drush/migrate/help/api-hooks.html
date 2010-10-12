@@ -1,0 +1,131 @@
+<!-- $Id: api-hooks.html,v 1.1.2.4 2010/01/07 21:15:58 mikeryan Exp $ -->
+
+<p>For non-trivial migrations, you will find the need to go beyond simply mapping fields
+  through the admin interface - the translation of a field may require some runtime logic,
+  or you may be migrating into a destination not already supported by the migrate module.
+  To accomplish these things, you will need to implement one or more of the following
+  hooks.</p>
+
+<h3>hook_migrate_init()</h3>
+<p>This hook is called by the migrate module the first time it prepares to call any hook.
+  The purpose is to allow modules implementing the hooks to do any one-time initialization.
+  In particular, by implementing all of your hooks and migration support in a separate .inc
+  file, and including it in hook_migrate_init() in your .module file, you can minimize the
+  code size impact of your migration support except when it is actually needed.</p>
+  <pre>
+function example_migrate_init() {
+  $path = drupal_get_path('module', 'example') . '/example_migrate.inc';
+  include_once($path);
+}</pre>
+
+<h3>hook_migrate_types()</h3>
+<p>Implement this hook to set up custom destinations. It should return an array in which
+  each key is to be used to form other hook names, and each value is the user-friendly name
+  of the destination. If your module is going to support subtypes (as the node module has
+  various content types), then the key will the the destination name followed by a slash,
+  followed by the subtype (e.g., 'node/article').</p>
+  <pre>
+function example_migrate_types() {
+  $types = array('sub' =&gt; t('Subscription'));
+  return $types;
+}</pre>
+
+<h3>hook_migrate_fields_{destination}($desttype = NULL)</h3>
+<p>Having told the migrate module what destinations you are supporting, next you need
+  to tell it what fields each destination supports (i.e. the right side of the mappings
+  section of the content set editor). This hook returns an array in which each key is
+  the index of the field (usually the database column name from the table where the value
+  will ultimately be stored) and the value is a user-friendly name for the field. If the
+  destination supports subtypes, the specific subtype is passed as an argument. Note
+  that you can implement this hook for destinations you are not defining - for example,
+  if your module adds fields to nodes, you can implement hook_migrate_fields_node() to
+  expose those fields to migration.</p>
+<p>The primary key of the destination should be indicated by enclosing its index
+  in square brackets (see <em>subid</em> below).</p>
+  <pre>
+function example_migrate_fields_sub($type) {
+  return array(
+    '[subid]' =&gt; t('Subscription: Unique subscription identifier'),
+    'userid' =&gt; t('Subscription: User id'),
+  );
+}</pre>
+
+<h3>hook_migrate_delete_{destination}($destid)</h3>
+<p>This hook is called on a clearing operation to delete a given destination object.</p>
+<pre>
+function example_migrate_delete_sub($subid) {
+  db_query("DELETE FROM {example_subs} WHERE subid=%d", $subid);
+}</pre>
+
+<h3>hook_migrate_import_{destination}($tblinfo, $row)</h3>
+<p>When processing an import (or scan) operation, the migrate module will call this
+hook for each previously-unimported row of the sourceview. $tblinfo will contain metadata
+about the content set (most importantly the mapping info), and $row will contain the
+source data row. The import hook will create the corresponding destination object from
+this information, and return an array of message objects (typically empty if nothing
+unusual has happened).</p>
+<pre>
+function example_migrate_import_sub($tblinfo, $row) {
+  $sub = new stdClass;
+  // Initially populate the new object according to the mappings
+  foreach ($tblinfo-&gt;fields as $destfield =&gt; $values) {
+    if ($values['srcfield'] && $row->$values['srcfield']) {
+      $sub->$destfield = $row->$values['srcfield'];
+    }
+    else {
+      $sub->$destfield = $values['default_value'];
+    }
+  }
+
+  // Give other modules a shot at manipulating the object
+  $errors = migrate_destination_invoke_all('prepare_sub', $sub, $tblinfo, $row);
+
+  $success = TRUE;
+  foreach ($errors as $error) {
+    if ($error['level'] != MIGRATE_MESSAGE_INFORMATIONAL) {
+      $success = FALSE;
+      break;
+    }
+  }
+  if ($success) {
+    $newid = example_sub_save($sub);
+    // Call completion hooks, for any processing which needs to be done after node_save
+    $errors = migrate_destination_invoke_all('complete_sub', $sub, $tblinfo, $row);
+
+    $sourcekey = $tblinfo->sourcekey;
+    migrate_add_mapping($tblinfo->mcsid, $row->$sourcekey, $newid);
+  }
+  return $errors;
+}</pre>
+
+<h3>hook_migrate_xlat_{destination}($destid)</h3>
+<p>Given the ID of a destination object, return the URI of the object.</p>
+<pre>
+function example_migrate_xlat_sub($subid) {
+  return "example/sub/$subid";
+}</pre>
+
+<h3>hook_migrate_prepare_{destination}(&amp;$node, $tblinfo, $row)</h3>
+<p>As you can see from the import hook sample above, a prepare hook is called
+after the destination object has been filled in using the specified mappings, but
+before it is actually created - this allows other modules to perform their
+own manipulations on the object.</p>
+<pre>
+function example_migrate_prepare_node(&amp;$node, $tblinfo, $row) {
+  $errors = array();
+  $node->our_custom_time = time();
+  return $errors;
+}</pre>
+
+
+<h3>hook_migrate_complete_{destination}</h3>
+<p>The complete hook is called after successfully saving the migrated object -
+  this allows other modules to perform operations that require the object to
+  already exist (and have an ID), such as save data related to that object.</p>
+<pre>
+function example_migrate_complete_node(&amp;$node, $tblinfo, $row) {
+  $errors = array();
+  db_query("INSERT INTO {example_related} (nid, our_customer_time) VALUES(%d, %d)",
+    $node->nid, $node->our_custom_time);
+  return $errors;
+}</pre>

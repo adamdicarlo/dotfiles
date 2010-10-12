@@ -1,0 +1,37 @@
+<!-- $Id: api-utility.html,v 1.1.2.1 2009/10/05 03:20:16 mikeryan Exp $ -->
+
+<h3>migrate_invoke_all($hook)</h3>
+<p>Invokes all implemented hook_migrate_$hook functions, return a merged array of their 
+  return values. The first time it is called, in invokes hook_migrate_init(), allowing
+  implementing modules to do any one-time initialization they require (such as including
+  required files).</p>
+
+<h3>migrate_destination_invoke_all($hook, &amp;$object, $tblinfo, $row)</h3>
+<p>Invokes all implemented hook_migrate_$hook functions, with the specific signature
+  <code>hook_migrate_$hook(&amp;object, $tblinfo, $row)</code> (the point being to support
+  passing $object as reference to all hook implementations).</p>
+
+<h3>migrate_message($message, $type = MIGRATE_MESSAGE_ERROR)</h3>
+<p>For use in prepare and complete hooks. These hooks return an array of
+message arrays - to generate an element of the message array, pass a message
+and an optional message type. Types MIGRATE_MESSAGE_ERROR, MIGRATE_MESSAGE_WARNING,
+and MIGRATE_MESSAGE_NOTICE will abort creation of the destination object, while
+MIGRATE_MESSAGE_INFORMATIONAL will allow creation to proceed.</p>
+
+<h3>migrate_add_mapping($mcsid, $sourceid, $destid)</h3>
+<p>For use in import hooks - if creation of the destination object succeeded,
+  pass the source view primary key and the resulting destination ID to this
+  function to be recorded in the content set's map table.</p>
+
+<h3>migrate_xlat($contenttype, $oldid)</h3>
+<p>For a given destination and an ID from the source ID, return the corresponding
+  destination ID.</p>
+
+<h3>migrate_map_table_name($mcsid)</h3>
+<p>Returns the name of the map table for the specified content set (useful for
+  generating queries and views including the map table).</p>
+
+<h3>migrate_message_table_name($mcsid)</h3>
+<p>Returns the name of the message table for the specified content set (useful for
+  generating queries and views including the message table).</p>
+

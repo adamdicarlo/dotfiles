@@ -1,0 +1,98 @@
+<!-- $Id: dashboard.html,v 1.1.2.2 2009/12/11 02:02:42 mikeryan Exp $ -->
+
+<p>The <a href="admin/content/migrate/dashboard">dashboard page</a> is used to monitor
+   and control migration processes.</p>
+
+<h3>Processes</h3>
+
+<p>All content sets are listed here in order of weight. For each content set listed,
+   you will see the following items:</p>
+
+<dl>
+  <dt>Clear/Import</dt>
+    <dd>These toggles enable processes to run - see the glossary for details.</dd>
+  <dt>Content Set</dt>
+    <dd>The name of the content set. This name can be used to specify a particular content
+        set in a drush command. It is linked to the edit page for the content set.</dd>
+  <dt>Total rows</dt>
+    <dd>A count of the total rows in the source view.</dd>
+  <dt>Imported</dt>
+    <dd>A count of the Drupal objects successfully created for this content set. If
+        any of these objects generated informational messages (conditions interesting
+        enough to report, but not severe enough to prevent successful import) there
+        will be a link to the messages here.</dd>
+  <dt>Unimported</dt>
+    <dd>A count of source rows which have not yet been migrated, or which failed to migrate
+        successfully. If there were any failures, there will be links to the messages here.</dd>
+  <dt>Last imported</dt>
+    <dd>The date and time that the last import or scan completed.</dd>
+</dl>
+
+<p>Any content set currently being processed is
+  <span class="migrate-running">highlighted</span>.</p>
+
+<h3>Execute</h3>
+
+<p><a href="http://drupal.org/project/drush">Drush</a> is the preferred means of running
+  migration processes. However,
+  particularly while developing your migration processes, you may want to run processes
+  directly in the browser. To do so, open the <strong>Execute</strong> fieldset and submit
+  the form. You may set the following parameters for an interactive run:</p>
+<dl>
+  <dt>Update previously-imported content</dt>
+  <dd>Equivalent to the --update option in drush, this causes previously-imported content
+      to be remigrated from the current source data, in addition to new content being imported.</dd>
+  <dt>Sample size</dt>
+  <dd>If set, this number of rows of each checked content set will be processed before completion.</dd>
+  <dt>Source IDs</dt>
+  <dd>If set to a comma-separated list of primary keys from the source view, those specific
+    IDs will be run through each checked process. This is useful when determining a problem
+    processing a specific row of source data.</dd>
+</dl>
+<p>When executing interactively, first any Clear actions are run in reverse order,
+then any Import actions are run in forward order.</p>
+<p><strong>Stop all running tasks</strong> can be used to cleanly exit any processes
+running elsewhere (i.e., any processes that are <span class="migrate-running">highlighted</span>).</p>
+
+<p>In the lower area of the page, you may create a new content set, providing these
+   parameters:</p>
+
+<dl>
+  <dt>Description</dt>
+    <dd>A user-friendly name for the content set, used for display in various places. It
+        also may be used to specify which content set to process on a drush command.</dd>
+  <dt>Destination</dt>
+    <dd>The Drupal object which this content set will populate. The migrate module has
+        builtin support for the following Drupal objects, and you can also use hooks
+        to define customer destinations:
+        <ul>
+          <li>Comment</li>
+          <li>Node (a separate destination is provided for each different content type
+              defined on your site)</li>
+          <li>Taxonomy term</li>
+          <li>User</li>
+          <li>Role</li>
+        </ul>
+    </dd>
+  <dt>Source view</dt>
+    <dd>A <a href="http://drupal.org/project/views">view</a> containing the source data
+        for this content set. This view must contain a single row for each destination
+        object to be created (e.g., a single row per user, or per Page node). It also
+        must have at least one unique data column.</dd>
+  <dt>View arguments</dt>
+    <dd>It may be that you want to use a single view as the source for multiple content
+        sets - for example, you might have an incoming "content" table which contains
+        both articles and blog entries. In this case, you would add an argument to the
+        view definition to distinguish the cases, and create separate content sets
+        for the different cases. Here you specify the distinct argument used to select
+        rows from the view for this content set.</dd>
+  <dt>Weight</dt>
+    <dd>A numerical value used to order content sets in listings, and when processing
+        multiple content sets in a single operation. For example, if you are migrating
+        roles, then assigned migrated roles to users, you should give your role content
+        set a lower weight than the user content set so it is processed first.</dd>
+</dl>
+
+<p>When you click the <strong>Add</strong> button, the content set is created, with its
+   primary key defaulted to the primary key of its base table (if there is one), and the
+   content set's edit page is displayed to allow you to add mappings.</p>

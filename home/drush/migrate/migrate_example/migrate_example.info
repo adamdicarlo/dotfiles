@@ -1,0 +1,19 @@
+; $Id: migrate_example.info,v 1.1.4.9 2010/07/16 19:41:23 mikeryan Exp $
+name = "Migrate Example"
+description = "Example migration data."
+package = "Development"
+core = 6.x
+php = 5.2
+dependencies[] = taxonomy
+dependencies[] = imagefield
+dependencies[] = comment
+dependencies[] = migrate
+dependencies[] = content
+dependencies[] = date
+dependencies[] = migrate_extras
+files[] = migrate_example.module
+files[] = beer.inc
+files[] = wine.inc
+
+; For testing table_copy plugin. Since is infrequently used, we comment it out.
+; files[] = example.table_copy.inc

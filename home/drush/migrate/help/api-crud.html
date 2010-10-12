@@ -1,0 +1,88 @@
+<!-- $Id: api-crud.html,v 1.1.2.2 2009/11/07 16:20:14 mikeryan Exp $ -->
+
+<h3>migrate_save_content_set(&$content_set, $options = array())</h3>
+
+<p>Saves a new or updated content set returning the unique ID (mcsid) of the
+content set, or NULL if there was a failure. The associated map and message
+tables are created or modified as necessary.</p>
+
+<dl>
+  <dt><strong>$content_set</strong></dt>
+    <dd>An array or object representing the content set. This is passed by reference (so
+        when adding a new content set the ID can be set). Fields include:
+      <dl>
+        <dt><strong>mcsid</strong></dt>
+        <dd>The unique ID of the content set. If present, the existing content set
+            with this ID is updated. If absent, a new content set is created and
+            this field is filled in with the new ID.</dd>
+        <dt><strong>view_name</strong></dt>
+        <dd>The name of the view containing the source data for this content set.</dd>
+        <dt><strong>view_args</strong></dt>
+        <dd>Arguments to be applied to the view when processing a content set, separated by '/'.</dd>
+        <dt><strong>sourcekey</strong></dt>
+        <dd>The primary key of <em>view_name</em>.</dd>
+        <dt><strong>contenttype</strong></dt>
+        <dd>The base destination of the migration (e.g., 'node' or 'user').</dd>
+        <dt><strong>desttype</strong></dt>
+        <dd>A destination may support subtypes - in particular, nodes come in different
+          content types. The subtype is specified here (e.g., 'page' or 'story').</dd>
+        <dt><strong>description</strong></dt>
+        <dd>The name of the content set.</dd>
+        <dt><strong>clearing</strong></dt>
+        <dd>TRUE to enable the content set for clearing, FALSE otherwise.</dd>
+        <dt><strong>importing</strong></dt>
+        <dd>TRUE to enable the content set for importing, FALSE otherwise.</dd>
+        <dt><strong>scanning</strong></dt>
+        <dd>TRUE to enable the content set for scanning, FALSE otherwise.</dd>
+        <dt><strong>weight</strong></dt>
+        <dd>Numerical value determining what order the content set will be displayed in,
+          or processed in.</dd>
+      </dl>
+    </dd>
+  <dt><strong>$options</strong></dt>
+    <dd>An array of additional options for saving the content set. Currently:
+        <dl>
+          <dt><strong>base_table</strong></dt>
+            <dd>The base table of the view - if provided, we don't need
+                to load the view to determine the table.</dd>
+          <dt><strong>base_database</strong></dt>
+            <dd>The database of the base table - if base_table is present
+                and base_database omitted, it defaults to 'default'</dd>
+        </dl>
+    </dd>
+</dl>
+
+<h3>migrate_delete_content_set($mcsid)</h3>
+<p>Deletes the given content set, including associated map and message tables.</p>
+
+<h3>migrate_save_content_mapping(&$mapping)</h3>
+
+<p>Saves a new or updated content mapping returning the unique ID (mapping) of the
+mapping, or NULL if there was a failure.</p>
+
+<dl>
+  <dt><strong>$mapping</strong></dt>
+    <dd>An array or object representing the mapping. This is passed by reference (so
+        when adding a new mapping the ID can be set). Fields include:
+      <dl>
+        <dt><strong>mcmid</strong></dt>
+        <dd>The unique ID of the mapping. If present, the existing mapping
+            with this ID is updated. If absent, a new mapping is created and
+            this field is filled in with the new ID.
+        <dt><strong>mcsid</strong></dt>
+        <dd>The unique ID of the content set this mapping applies to.</dd>
+        <dt><strong>srcfield</strong></dt>
+        <dd>The name of the source column from the view. This is not the column title
+          as displayed in the view, it is the field name from the view query. If you
+          edit the view and preview it, you can find the field name in the SELECT clause.</dd>
+        <dt><strong>destfield</strong></dt>
+        <dd>The Drupal field name serving as the destination of the mapping.</dd>
+        <dt><strong>default_value</strong></dt>
+        <dd>The default value to be used if there is no srcfield specified, or if
+          the specified srcfield is empty.</dd>
+      </dl>
+    </dd>
+</dl>
+
+<h3>migrate_delete_content_mapping($mcmid)</h3>
+<p>Deletes the given content mapping.</p>

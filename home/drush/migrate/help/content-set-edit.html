@@ -1,0 +1,58 @@
+<!-- $Id: content-set-edit.html,v 1.1.2.3 2010/02/27 20:24:12 mikeryan Exp $ -->
+
+<p>This page allows you to view and edit a content set, in particular to add mappings
+   from source data to Drupal fields. The content set attributes are as follows (note
+   that the source view and destination are inherent to the content set and cannot
+   be changed after it is created):</p>
+
+<dl>
+  <dt>Description</dt>
+    <dd>A user-friendly name for the content set, used for display in various places. It
+        also may be used to specify which content set to process on a drush command.</dd>
+  <dt>Source view</dt>
+    <dd>A <a href="http://drupal.org/project/views">view</a> containing the source data
+        for this content set. This view must contain a single row for each destination
+        object to be created (e.g., a single row per user, or per Page node). It also
+        must have at least one unique data column. Views with exposed filters will not
+        work with migration - they will always return 0 rows.</dd>
+  <dt>View arguments</dt>
+    <dd>It may be that you want to use a single view as the source for multiple content
+        sets - for example, you might have an incoming "content" table which contains
+        both articles and blog entries. In this case, you would add an argument to the
+        view definition to distinguish the cases, and create separate content sets
+        for the different cases. Here you specify the distinct argument used to select
+        rows from the view for this content set.</dd>
+  <dt>Destination</dt>
+    <dd>The Drupal object which this content set will populate. The migrate module has
+        builtin support for the following Drupal objects, and you can also use hooks
+        to define customer destinations:
+        <ul>
+          <li>Comment</li>
+          <li>Node (a separate destination is provided for each different content type
+              defined for your site)</li>
+          <li>Taxonomy term</li>
+          <li>User</li>
+          <li>Role</li>
+        </ul>
+    </dd>
+  <dt>Primary key</dt>
+    <dd>A unique non-null column from the source view, which the migrate module will
+        use in maintaining a map between source rows and resulting Drupal objects.</dd>
+  <dt>Weight</dt>
+    <dd>A numerical value used to order content sets in listings, and when processing
+        multiple content sets in a single operation. For example, if you are migrating
+        roles, then assigned migrated roles to users, you should give your role content
+        set a lower weight than the user content set so it is processed first.</dd>
+</dl>
+
+<h2>Content mappings</h2>
+
+<p>Here is the crux of the process - specifying what source fields map to what Drupal
+fields. For each destination field, you may choose a column from the the source view,
+an explicit default value, both, or neither. If you specify only a source field, that
+value will be copied to the mapped Drupal field on import. If you specify only a
+default value, that value will be copied. If both are specified, the value of the
+source field will be used if present - if it is not (the value is NULL), the default
+value will be used. If nothing is specified, the destination field will default according
+to its own rules - generally it will be left empty, but some fields may receive default
+values (for example, <em>Node: Authored on</em> will default to the current date and time).

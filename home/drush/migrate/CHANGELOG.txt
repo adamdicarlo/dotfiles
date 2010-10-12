@@ -1,0 +1,25 @@
+//$Id: CHANGELOG.txt,v 1.1.2.111.2.2 2010/06/03 15:03:18 mikeryan Exp $
+
+Migrate 2.0 dev release
+===========
+Version 2 of the Migrate module is an entirely new implementation. Documentation
+has not yet begun - for now, review the migrate_example module for information 
+on how to implement migrations. The first priority is developing the API and
+drush commands for managing migrations - the UI is provided by a distinct 
+module: migrate_ui.
+
+6/2/10
+------
+Major refactoring. Largely behind-the-scenes as long as you're operating at the
+level of migrate_example (e.g., not retrieving $migration->mapTableName), but
+for each migration you must now also instantiate a MigrateMap object along with
+the source and destination (see migrate_example).
+
+
+5/25/10
+-------
+Field handler classes now need to define a constructor, passing an array of
+the field types they handle to parent::__construct($field_types). Destination 
+handler classes should now be derived from MigrateDestinationHandler
+instead of MigrateHandler, and pass an array of the destination types they handle
+to parent::__construct($types). See plugins/destinations/fields.inc for examples.

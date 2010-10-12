@@ -1,0 +1,38 @@
+<!-- $Id: about.html,v 1.1.2.4 2009/12/11 02:02:42 mikeryan Exp $ -->
+
+<p>The Migrate module provides a flexible framework for migrating content into Drupal
+from other sources (for example, when converting a web site from another CMS to Drupal).
+It comes with support for creating most core Drupal objects (nodes, users, comments,
+taxonomy terms, roles...) plus support for some contrib modules. Hooks are provided to
+support migration of other types of content.</p>
+
+<p>The combination of the <a href="http://drupal.org/project/tw">Table Wizard</a> and
+<a href="http://drupal.org/project/migrate">Migrate</a> modules is designed to support
+a migration process along these lines:</p>
+
+<ol>
+<li>Import - Table Wizard can be used to import external data into tables in your
+Drupal database. Any tables in your Drupal database, or in other databases on the
+same server, can be made available to <a href="http://drupal.org/project/views">Views</a>
+for review and migration.</li>
+<li>Analysis - Table Wizard performs analysis of table data (ranges, sizes, etc.), and
+supports collaborative documentation of table fields.</li>
+<li>Content sets - Use the views Table Wizard creates by default for your source tables,
+or create more complex views joining data in multiple tables, as the basis for a
+<strong>content set</strong>. Configure the content set to map fields in the view to
+fields in Drupal objects such as nodes and users.</li>
+<li>Migration - Migrate takes rows from the content sets and creates
+Drupal objects from them. Migration is reversible - migrated data can be quickly backed out and
+migrated again. A dashboard is provided to easily manage the process. Background processing
+via <a href="http://drupal.org/project/drush">drush</a> is supported for large migrations.</li>
+<li>Auditing - Errors and other conditions reported during migration are flagged and can
+be reviewed in Views. Also, Migrate maintains mapping tables from the source data to the
+resulting Drupal objects, enabling the creation of comparison views.</li>
+</ol>
+
+<h3>Acknowledgements</h3>
+
+<p>Much of the Migrate module functionality was sponsored by
+<a href="http://www.genomeweb.com">GenomeWeb</a> and
+<a href="http://www.economist.com/">The Economist</a>. The original code was based
+on <a href="http://drupal.org/project/node_import">node_import</a>.</p>

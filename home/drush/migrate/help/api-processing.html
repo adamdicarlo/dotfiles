@@ -1,0 +1,60 @@
+<!-- $Id: api-processing.html,v 1.1.2.3 2009/12/15 17:36:54 mikeryan Exp $ -->
+
+<p>These functions programmtically process one or more migration operations. The
+   arguments are as follows:</p>
+
+<dl>
+  <dt>$options</dt>
+  <dd>Keyed array of optional options:
+    <dl>
+      <dt>itemlimit</dt>
+      <dd>Maximum number of items to process</dd>
+      <dt>timelimit</dt>
+      <dd>Unix timestamp after which to stop processing</dd>
+      <dt>idlist</dt>
+      <dd>Comma-separated list of source IDs to process, instead of proceeding through
+          all unmigrated rows</dd>
+      <dt>feedback</dt>
+      <dd>Keyed array controlling status feedback to the caller:
+        <dl>
+          <dt>function</dt>
+          <dd>PHP function to call, passing a message to be displayed</dd>
+          <dt>frequency</dt>
+          <dd>How often to call the function</dd>
+          <dt>frequency_unit</dt>
+          <dd>How to interpret frequency (items or seconds)</dd>
+        </dl>
+      </dd>
+    </dl>
+  </dd>
+  <dt>$messages</dt>
+  <dd>Array of messages to (ultimately) be displayed by the caller.</dd>
+</dl>
+
+<p>These functions all return one of the following status code:</p>
+
+<dl>
+  <dt>MIGRATE_RESULT_COMPLETED</dt>
+  <dd>The operation succeeded - all specified items were processed.</dd>
+  <dt>MIGRATE_RESULT_INCOMPLETE</dt>
+  <dd>The operation has proceeded to the point a resource limit (time or memory)
+      was reached. The caller is expected to resume the operation in a fresh
+      process.</dd>
+  <dt>MIGRATE_RESULT_STOPPED</dt>
+  <dd>The operation has cleanly terminated upon an external request (e.g.,
+      a <strong>drush migrate stop</strong> command).</dd>
+  <dt>MIGRATE_RESULT_FAILED</dt>
+  <dd>The operation failed - e.g. the source view for the content set
+      no longer exists.</dd>
+  <dt>MIGRATE_RESULT_IN_PROGRESS</dt>
+  <dd>There was another process already in progress on this content set,
+      so this one cannot proceed.</dd>
+</dl>
+
+<h3>migrate_content_process_clear($mcsid, &amp;$options = array())</h3>
+<p>Clear all previously-migrated items in the specified content set (subject to the
+   provided options).</p>
+
+<h3>migrate_content_process_import($mcsid, &amp;$options = array())</h3>
+<p>Import all unimported content for the specified content set (subject to the
+   provided options).</p>

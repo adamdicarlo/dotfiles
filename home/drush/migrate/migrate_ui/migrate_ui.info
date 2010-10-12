@@ -1,0 +1,10 @@
+; $Id: migrate_ui.info,v 1.1.4.4 2010/06/03 21:28:49 mikeryan Exp $
+name = "Migrate UI"
+description = "UI for managing migration processes"
+package = "Development"
+;configure = admin/config/development/migrate
+core = 6.x
+php = 5.2
+dependencies[] = migrate
+files[] = migrate_ui.module
+;files[] = migrate_ui.pages.inc
