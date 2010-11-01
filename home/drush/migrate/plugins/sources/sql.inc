@@ -268,7 +268,9 @@ class MigrateSourceSQL extends MigrateSource {
 
     // Only works for single-field key
     if ($migration->getOption('idlist')) {
-      $this->query->condition($keys[0], explode(',', $migration->getOption('idlist')), 'IN');
+      $fields = $migration->getSource()->fields();
+      $alias = $fields[$keys[0]];
+      $this->query->condition($alias, explode(',', $migration->getOption('idlist')), 'IN');
     }
 
     migrate_instrument_start('MigrateSourceSQL execute');

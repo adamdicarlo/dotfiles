@@ -108,12 +108,6 @@ class MigrateDestinationUser extends MigrateDestinationEntity {
         throw new MigrateException(t('System-of-record is DESTINATION, but no destination uid provided'));
       }
     }
-    else {
-      // Prevents notice in user_save()
-      if (!isset($account->uid)) {
-        $account->uid = NULL;
-      }
-    }
 
     $this->prepare($account, $row);
     migrate_instrument_start('user_save');
