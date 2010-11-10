@@ -197,6 +197,8 @@ $options['structure-tables'] = array(
 # $command_specific['rsync'] = array('verbose' => TRUE);
 # $command_specific['dl'] = array('cvscredentials' => 'user:pass');
 
+$command_specific['pm-enable'] = array('yes' => TRUE);
+
 // Specify additional directories to search for scripts
 // Use POSIX path separator (':')
 # $command_specific['script']['script-path'] = 'sites/all/scripts:profiles/myprofile/scripts';
