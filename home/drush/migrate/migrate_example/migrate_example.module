@@ -1,5 +1,0 @@
-<?php
-// $Id: migrate_example.module,v 1.1.4.3 2010/06/03 15:03:19 mikeryan Exp $
-
-// Just move on, nothing to see here... The implementation is autoloaded
-// from the .inc file.
