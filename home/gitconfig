@@ -13,3 +13,10 @@
 	status = auto
 [core]
 	excludesfile = /home/ajd/.gitignore
+[diff]
+	tool = meld
+[merge]
+	tool = meld
+[cola]
+	fontdiff = Droid Sans Mono,10,-1,5,50,0,0,0,0,0
+	fontui = Nimbus Sans L,12,-1,5,50,0,0,0,0,0
