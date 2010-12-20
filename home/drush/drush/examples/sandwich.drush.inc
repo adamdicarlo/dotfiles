@@ -1,5 +1,5 @@
 <?php
-// $Id: sandwich.drush.inc,v 1.1 2010/04/22 19:37:56 weitzman Exp $
+// $Id: sandwich.drush.inc,v 1.5 2010/12/05 07:27:32 greg1anderson Exp $
 
 /**
  * @file
@@ -27,7 +27,7 @@
  * Notice how this structure closely resembles how
  * you define menu hooks.
  *
- * @See drush_parse_command() for a list of recognized keys.
+ * See `drush topic docs-commands` for a list of recognized keys.
  *
  * @return
  *   An associative array describing your command(s).
@@ -35,6 +35,7 @@
 function sandwich_drush_command() {
   $items = array();
 
+  // The 'make-me-a-sandwich' command
   $items['make-me-a-sandwich'] = array(
     'description' => "Makes a delicious sandwich.",
     'arguments' => array(
@@ -44,10 +45,22 @@ function sandwich_drush_command() {
       'spreads' => 'Comma delimited list of spreads (e.g. mayonnaise, mustard)',
     ),
     'examples' => array(
-      'drush make-me-a-sandwich turkey --spreads=ketchup,mustard',
+      'drush mmas turkey --spreads=ketchup,mustard' => 'Make a terrible-tasting sandwich that is lacking in pickles.',
     ),
     'aliases' => array('mmas'),
     'bootstrap' => DRUSH_BOOTSTRAP_DRUSH, // No bootstrap at all.
+  );
+  
+  // Commandfiles may also add topics.  These will appear in
+  // the list of topics when `drush topic` is executed.
+  // To view this topic, run `drush --include=/full/path/to/examples topic`
+  $items['sandwich-exposition'] = array(
+    'description' => dt('Ruminations on the true meaning and philosophy of sandwiches.'),
+    'hidden' => TRUE,
+    'topic' => TRUE,
+    'bootstrap' => DRUSH_BOOTSTRAP_DRUSH,
+    'callback' => 'drush_print_file',
+    'callback arguments' => array(dirname(__FILE__) . '/sandwich-topic.txt'),
   );
 
   return $items;
@@ -72,7 +85,7 @@ function sandwich_drush_help($section) {
   }
 }
 
-/*
+/**
  * Implementation of drush_hook_COMMAND_validate().
  */
 function drush_sandwich_make_me_a_sandwich_validate() {
@@ -99,13 +112,15 @@ function drush_sandwich_make_me_a_sandwich_validate() {
  * after your command, you may define a 'callback' item in your command
  * object that specifies the exact name of the function that should be
  * called.  However, the specified callback function must still begin
- * with "drush_commandfile_" (e.g. 'callback' => "drush_example_foo_execute").
- * All hook functions are still called (e.g. drush_example_pre_foo_execute,
- * and so on.)
+ * with "drush_commandfile_" (e.g. 'callback' => "drush_example_foo_execute")
+ * if you want that all hook functions are still called (e.g.
+ * drush_example_pre_foo_execute, and so on).
  *
  * In this function, all of Drupal's API is (usually) available, including
  * any functions you have added in your own modules/themes.
  *
+ * @see drush_invoke()
+ * @see drush.api.php
  */
 function drush_sandwich_make_me_a_sandwich($filling = 'ascii') {
   $str_spreads = '';

@@ -1,5 +1,5 @@
 <?php
-// $Id: site_install.drush.inc,v 1.4 2010/06/21 18:55:08 weitzman Exp $
+// $Id: site_install.drush.inc,v 1.13 2010/12/08 14:58:47 greg1anderson Exp $
 
 // Perform setup tasks for installation.
 function drush_core_pre_site_install() {
@@ -9,8 +9,15 @@ function drush_core_pre_site_install() {
     return;
   }
 
-  // TODO: not needed?
-  $sites_subdir = drush_get_option('sites-subdir', 'default');
+  
+  if ($sites_subdir = drush_get_option('sites-subdir')) {
+    // Needed so that we later bootstrap into the right site.
+    drush_set_option('uri', $sites_subdir);
+  }
+ else {
+    $sites_subdir = 'default';
+  }
+
   $conf_path = "sites/$sites_subdir";
   $files = "$conf_path/files";
   $settingsfile = "$conf_path/settings.php";
@@ -41,8 +48,11 @@ function drush_core_pre_site_install() {
       drush_set_error(dt('Failed to copy sites/default/default.settings.php to  @settingsfile', array('@settingsfile' => $settingsfile)));
       return;
     }
+    elseif (drush_drupal_major_version() == 6) {
+      // On D6, we have to write $db_url ourselves. On D7+, the installer does it.
+      file_put_contents($settingsfile, "\n" . '$db_url = \'' . drush_get_option('db-url') . "';\n", FILE_APPEND);
+    }
   }
-
 
   // Add a files dir if needed
   if (!file_exists($files)) {
@@ -56,61 +66,62 @@ function drush_core_pre_site_install() {
   drush_bootstrap(DRUSH_BOOTSTRAP_DRUPAL_SITE);
 
   // Drop and create DB if needed.
-  // TODO: support db-su like sql sync.
+  // @TODO: support db-su like sql sync.
+
   // Can't use drush_sql_query() since might not have a DB.
-  $exec = 'mysql ' . _drush_sql_get_credentials($db_spec);
-  // Strip DB name from credentials. Soon it won't exist anymore. We do
-  // need a DB name to connect to so use built-in mysql DB.
-  $replacement_db = 'information_schema';
-  // Make sure we are only replacing the database name,
-  // and not a username or password that is the same as the database name.
-  $exec = str_replace(" {$db_spec['database']}", " {$replacement_db}", $exec) . ' -e ';
-  if (drush_op('system', $exec . ' "DROP DATABASE IF EXISTS ' . $db_spec['database'] . '"') && !drush_get_context('DRUSH_SIMULATE')) {
-    drush_set_error(dt('Could not drop database: @name', array('@name' => $db_spec['database'])));
+  // Get credentials to connect to the server, but not the database which we
+  // are about to DROP.
+
+  // Save the database name before we unset() it.
+  $db_name = $db_spec['database'];
+  $scheme = _drush_sql_get_scheme($db_spec);
+  $simulate = drush_get_context('DRUSH_SIMULATE');
+
+  if ($scheme === 'sqlite') {
+    // With SQLite, we don't DROP DATABASEs. Each database is in a single file,
+    // so we just remove the file. We also don't CREATE DATABASEs; it is created
+    // when SQLite attempts to open a database file which doesn't exist.
+    if (file_exists($db_spec['database']) && !$simulate) {
+      if (!unlink($db_spec['database'])) {
+        drush_set_error(dt('Could not drop database: @name', array('@name' => $db_name)));
+      }
+    }
+    // Nothing else to do for SQLite installations, so return.
     return;
   }
+  // _drush_sql_get_credentials() will set a default database according to
+  // the scheme if one is not set.
+  unset($db_spec['database']);
+  $credentials = _drush_sql_get_credentials($db_spec);
 
-  if (drush_op('system', $exec . '"CREATE DATABASE ' . $db_spec['database'] . '"') && !drush_get_context('DRUSH_SIMULATE')) {
-    drush_set_error(dt('Could not create new database: @name', array('@name' => $db_spec['database'])));
+  $db_quoted_name = "\"$db_name\"";
+  $scheme_command = $scheme;
+  switch ($scheme) {
+    case 'mysql':
+      $command_parameter_name = 'execute';
+      $db_quoted_name = "`$db_name`";
+      break;
+    case 'pgsql':
+      $scheme_command = 'psql --dbname=template1';
+      $command_parameter_name = 'command';
+      break;
+  }
+  $execute = "$scheme_command $credentials --$command_parameter_name";
+  
+  if (drush_op_system("$execute='DROP DATABASE IF EXISTS $db_quoted_name'")) {
+    drush_set_error(dt('Could not drop database: @name', array('@name' => $db_name)));
+    return;
+  }
+  if (drush_op_system("$execute='CREATE DATABASE $db_quoted_name'")) {
+    drush_set_error(dt('Could not create new database: @name', array('@name' => $db_name)));
     return;
   }
 }
 
-function drush_core_site_install($profile = 'standard') {
-  define('MAINTENANCE_MODE', 'install');
-  require_once DRUPAL_ROOT . '/includes/install.core.inc';
-
-  $db_spec = drush_core_site_install_db_spec();
-
-  $account_pass = drush_get_option('account-pass', 'admin');
-  $settings = array(
-    'parameters' => array(
-      'profile' => $profile,
-      'locale' => drush_get_option('locale', 'en'),
-    ),
-    'forms' => array(
-      'install_settings_form' => $db_spec,
-      'install_configure_form' => array(
-        'site_name' => drush_get_option('site-name', 'Site-Install'),
-        'site_mail' => drush_get_option('site-mail', 'admin@example.com'),
-        'account' => array(
-          'name' => drush_get_option('account-name', 'admin'),
-          'mail' => drush_get_option('account-mail', 'admin@example.com'),
-          'pass' => array(
-            'pass1' => $account_pass,
-            'pass2' => $account_pass,
-          ),
-        ),
-        'update_status_module' => array(
-          1 => TRUE,
-          2 => TRUE,
-        ),
-        'clean_url' => drush_get_option('clean-url', TRUE),
-      ),
-    ),
-  );
-  drush_log(dt('Starting Drupal installation. This takes 30 seconds or so ...'), 'ok');
-  install_drupal($settings);
+// Command callback.
+function drush_core_site_install($profile = NULL) {
+  drush_include_engine('drupal', 'site_install', drush_drupal_major_version());
+  drush_core_site_install_version($profile);
 }
 
 // Return a db_spec based on supplied db_url/db_prefix options or

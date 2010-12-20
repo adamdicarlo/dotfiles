@@ -1,5 +1,5 @@
 <?php
-// $Id: drupal_7.inc,v 1.7 2010/04/13 05:13:49 weitzman Exp $
+// $Id: drupal_7.inc,v 1.10 2010/11/24 10:00:02 jonhattan Exp $
 
 function pm_update_filter(&$project) {
   $update = FALSE;
@@ -44,7 +44,7 @@ function pm_update_last_check() {
  */
 function _pm_refresh() {
   drush_print(dt("Refreshing update status information ..."));
-  update_get_available(TRUE);
+  update_refresh(TRUE);
   drush_print(dt("Done."));
 }
 
@@ -55,12 +55,19 @@ function _pm_refresh() {
  */
 function _pm_get_update_info($projects = NULL) {
   // We force a refresh if the cache is not available.
-  if (!cache_get('update_info', 'cache_update')) {
+  if (!cache_get('update_available_releases', 'cache_update')) {
     _pm_refresh();
   }
-  $info = update_get_available();
+
+  $info = update_get_available(TRUE);
+
+  // Force to invalidate some update_status caches that are only cleared
+  // when visiting update status report page.
+  _update_cache_clear('update_project_data');
+  _update_cache_clear('update_project_projects'); 
   $data = update_calculate_project_data($info);
-  $data = pm_get_project_path($data, 'includes');
+  $data = _pm_get_project_path($data, 'includes');
+
   return $data;
 }
 

@@ -1,5 +1,5 @@
 <?php
-// $Id: update_6.inc,v 1.17 2010/04/12 14:37:10 weitzman Exp $
+// $Id: update_6.inc,v 1.19 2010/12/01 15:53:15 jonhattan Exp $
 /**
  * @file
  *   Update.php for provisioned sites.
@@ -335,7 +335,7 @@ function update_main_prepare() {
   foreach ($themes as $theme) {
     unset($theme->status);
   }
-  drush_get_projects();
+  drush_get_extensions();
 
   include_once './includes/batch.inc';
   drupal_load_updates();
@@ -403,7 +403,7 @@ function update_main() {
       }
     }
     if (!drush_confirm(dt('Do you wish to run all pending updates?'))) {
-      drush_die('Aborting.');
+      drush_user_abort();
     }
     // Proceed with running all pending updates.
     $operations = array();

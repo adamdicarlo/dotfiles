@@ -1,4 +1,4 @@
-; $Id: EXAMPLE.make,v 1.1.2.4 2010/09/04 16:11:37 dmitrig01 Exp $
+; $Id: EXAMPLE.make,v 1.1.2.8 2010/11/12 07:40:02 dmitrig01 Exp $
 ;
 ; Example makefile
 ; ----------------
@@ -16,6 +16,13 @@
 
 core = 6.x
 
+; API version
+; ------------
+; Every makefile needs to declare it's Drush Make API version. This version of
+; drush make uses API version `2`.
+
+api = 2
+
 ; Core project
 ; ------------
 ; In order for your makefile to generate a full Drupal site, you must include
@@ -25,7 +32,7 @@ core = 6.x
 
 ; Use pressflow instead of Drupal core:
 ; projects[pressflow][type] = "core"
-; projects[pressflow][download][type] = "get"
+; projects[pressflow][download][type] = "file"
 ; projects[pressflow][download][url] = "http://launchpad.net/pressflow/6.x/6.15.73/+download/pressflow-6.15.73.tar.gz"
 
 ; CVS checkout of Drupal 6.x core:
@@ -50,7 +57,9 @@ projects[] = drupal
 ; declared under the `projects` key. The simplest declaration of a project
 ; looks like this:
 
-projects[] = views
+; To include the most recent views module:
+
+projects[] = views	
 
 ; This will, by default, retrieve the latest recommended version of the project
 ; using its update XML feed on Drupal.org. If any of those defaults are not

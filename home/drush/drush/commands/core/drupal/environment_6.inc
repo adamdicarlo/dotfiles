@@ -1,8 +1,8 @@
 <?php
-// $Id: environment_6.inc,v 1.9 2010/04/06 13:07:19 weitzman Exp $
+// $Id: environment_6.inc,v 1.11 2010/09/10 19:58:06 weitzman Exp $
 /**
  * @file
- *   Specific functions for a drupal 5 environment.
+ *   Specific functions for a drupal 6 environment.
  *   drush_include_engine() magically includes either this file
  *   or environment_X.inc depending on which version of drupal drush
  *   is called from.
@@ -41,7 +41,7 @@ function drush_get_modules() {
 function drush_check_module_dependencies($modules, $module_info) {
   $status = array();
   foreach ($modules as $key => $module) {
-    $dependencies = $module_info[$module]->info['dependencies'];
+    $dependencies = array_reverse($module_info[$module]->info['dependencies']);
     $unmet_dependencies = array_diff($dependencies, array_keys($module_info));
     if (!empty($unmet_dependencies)) {
       $status[$key]['error'] = array(

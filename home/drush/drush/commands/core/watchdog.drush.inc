@@ -265,8 +265,8 @@ function drush_core_watchdog_delete($arg = NULL) {
     if (!drush_confirm(dt('Do you really want to continue?'))) {
       return drush_log(dt('Aborting.'));
     }
-    $affected_rows = drush_db_delete('watchdog');
-    drush_log(dt('!affected watchdog messages have been deleted.', array('!affected' => $affected_rows)), 'ok');
+    drush_db_delete('watchdog');
+    drush_log(dt('All watchdog messages have been deleted.'), 'ok');
   }
   else if (is_numeric($arg)) {
     drush_print(dt('Watchdog message #!wid will be deleted.', array('!wid' => $arg)));
@@ -287,11 +287,11 @@ function drush_core_watchdog_delete($arg = NULL) {
     if ((is_null($arg))&&(is_null($type))&&(is_null($severity))) {
       return drush_set_error(dt('No options provided.'));
     }
-    $where = core_watchdog_query($type, $severity, $filter, 'OR');
+    $where = core_watchdog_query($type, $severity, $arg, 'OR');
     if ($where === FALSE) {
       return drush_log(dt('Aborting.'), 'error');
     }
-    drush_print(dt('All messages matching "!where" will be deleted.', array('!where' => strtr($where['where'], $where['args']))));
+    drush_print(dt('All messages with !where will be deleted.', array('!where' => preg_replace("/message LIKE %$arg%/", "message body containing '$arg'" , strtr($where['where'], $where['args'])))));
     if(!drush_confirm(dt('Do you really want to continue?'))) {
       return drush_log(dt('Aborting.'));
     }
@@ -320,7 +320,7 @@ function core_watchdog_query($type = NULL, $severity = NULL, $filter = NULL, $cr
   if ($type) {
     $types = core_watchdog_message_types();
     if (array_search($type, $types) === FALSE) {
-      $msg = "Unknown message type: !type.\nValid types are: !types.";
+      $msg = "Unrecognized message type: !type.\nRecognized types are: !types.";
       return drush_set_error(dt($msg, array('!type' => $type, '!types' => implode(', ', $types))));
     }
     $conditions[] = "type = :type";

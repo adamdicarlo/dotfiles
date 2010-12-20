@@ -1,8 +1,8 @@
 <?php
-// $Id: environment_7.inc,v 1.12 2010/03/17 20:33:25 weitzman Exp $
+// $Id: environment_7.inc,v 1.16 2010/10/15 09:04:37 jonhattan Exp $
 /**
  * @file
- *   Specific functions for a drupal 5 environment.
+ *   Specific functions for a drupal 7 environment.
  *   drush_include_engine() magically includes either this file
  *   or environment_X.inc depending on which version of drupal drush
  *   is called from.
@@ -12,7 +12,7 @@
  * Get complete information for all available modules.
  *
  * @return
- *   An array containing module info for all installed modules.
+ *   An array containing module info for all available modules.
  */
 function drush_get_modules() {
   return system_rebuild_module_data();
@@ -31,7 +31,7 @@ function drush_get_modules() {
 function drush_check_module_dependencies($modules, $module_info) {
   $status = array();
   foreach ($modules as $key => $module) {
-    $dependencies = $module_info[$module]->requires;
+    $dependencies = array_reverse($module_info[$module]->requires);
     $unmet_dependencies = array_diff(array_keys($dependencies), array_keys($module_info));
     if (!empty($unmet_dependencies)) {
       $status[$key]['error'] = array(
@@ -71,7 +71,7 @@ function drush_check_module_dependencies($modules, $module_info) {
 function drush_module_dependents($modules, $module_info) {
   $dependents = array();
   foreach ($modules as $module) {
-    $dependents = array_merge($dependents, array_keys($module_info[$module]->required_by));
+    $dependents = array_merge($dependents, drupal_map_assoc(array_keys($module_info[$module]->required_by)));
   }
 
   return array_unique($dependents);
@@ -119,6 +119,10 @@ function drush_system_modules_form_submit($active_modules) {
   module_load_include('inc', 'system', 'system.admin');
   $form_state = array('values' => array('status' => $active_modules));
   drupal_form_submit('system_modules', $form_state);
+  // Because normally system_modules_submit would call this function if modules
+  // had been changed, in this case we are submitting the module form without
+  // any changes, so we need to clear caches manually.
+  drupal_flush_all_caches();
 }
 
 /**

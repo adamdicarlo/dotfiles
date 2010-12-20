@@ -1,5 +1,5 @@
 <?php
-// $Id: rsync.core.inc,v 1.2 2010/06/11 19:17:42 greg1anderson Exp $
+// $Id: rsync.core.inc,v 1.9 2010/12/08 14:58:47 greg1anderson Exp $
 
 /**
  * Entrypoint for drush rsync.
@@ -47,7 +47,7 @@ function drush_core_rsync($source, $destination, $additional_options = array()) 
       drush_print(dt("You will destroy data from !target and replace with data from !source", array('!source' => $source_path, '!target' => $destination_path)));
       if (!drush_confirm(dt('Do you really want to continue?'))) {
         // was: return drush_set_error('CORE_SYNC_ABORT', 'Aborting.');
-        drush_die('Aborting.');
+        drush_user_abort();
       }
     }
 
@@ -87,13 +87,19 @@ function drush_core_rsync($source, $destination, $additional_options = array()) 
  *   TRUE on success, FALSE on failure.
  */
 function drush_core_call_rsync($source, $destination, $additional_options = array(), $include_settings_is_default = TRUE, $live_output = TRUE) {
-  $options = ' --exclude="*.svn*"';
+  // Exclude vcs reserved files.
+  $options = '';
+  $vcs_files = drush_version_control_reserved_files();
+  foreach ($vcs_files as $file) {
+    $options .= ' --exclude="'.$file.'"';
+  }
+
   $mode = '-az';
   // Process --include-path and --exclude-path options the same way
   foreach (array('include', 'exclude') as $include_exclude) {
-    // Get the option --include-path or --exclude path and explode to an array of paths
+    // Get the option --include-path or --exclude-path and explode to an array of paths
     // that we will translate into an --include or --exclude option to pass to rsync
-    $inc_ex_path = explode(',', drush_get_option($include_exclude . '-path', ''));
+    $inc_ex_path = explode(PATH_SEPARATOR, drush_get_option(array($include_exclude . '-path', $include_exclude . '-paths'), ''));
     foreach ($inc_ex_path as $one_path_to_inc_ex) {
       if (!empty($one_path_to_inc_ex)) {
         $options .= ' --' . $include_exclude . '="' . $one_path_to_inc_ex . '"';
@@ -191,7 +197,10 @@ function drush_core_call_rsync($source, $destination, $additional_options = arra
     'skip-compress',
     'filter',
     'exclude',
+    'exclude-from',
     'include',
+    'include-from',
+    'files-from',
     'address',
     'port',
     'sockopts',
@@ -209,9 +218,22 @@ function drush_core_call_rsync($source, $destination, $additional_options = arra
     'out-format',
     'protocol',
     );
+  // Check if the user has set $options['rsync-version'] to enable rsync legacy version support.
+  // Drush was written for rsync 2.6.9 or later, so assume that version if nothing was explicitly set.
+  $rsync_version = drush_get_option(array('rsync-version','source-rsync-version','target-rsync-version'), '2.6.9');
   foreach ($rsync_available_options as $test_option) {
     $value = drush_get_option_override($additional_options, $test_option);
-    if (isset($value)) {
+    // Downgrade some options for older versions of rsync
+    if ($test_option == 'remove-source-files') {
+      if (version_compare($rsync_version, '2.6.4', '<')) {
+        $test_option = NULL;
+        drush_log('Rsync does not support --remove-sent-files prior to version 2.6.4; some temporary files may remain undeleted.', 'warning');
+      }
+      elseif (version_compare($rsync_version, '2.6.9', '<')) {
+        $test_option = 'remove-sent-files';
+      }
+    }
+    if ((isset($test_option)) && (isset($value))) {
       if ($value === TRUE) {
         $options .= " --$test_option";
       }
@@ -225,13 +247,13 @@ function drush_core_call_rsync($source, $destination, $additional_options = arra
   $exec = "rsync -e 'ssh $ssh_options' $mode$options $source $destination";
 
   if ($live_output) {
-    $exec_result = drush_op('system', $exec) !== FALSE;
+    $exec_result = drush_op_system($exec);
   }
   else {
     $exec_result = drush_shell_exec($exec);
   }
 
-  return $exec_result;
+  return $exec_result == 0;
 }
 
 function _drush_rsync_option_exists($option, $additional_options) {

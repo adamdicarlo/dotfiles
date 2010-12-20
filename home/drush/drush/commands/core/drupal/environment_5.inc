@@ -1,5 +1,5 @@
 <?php
-// $Id: environment_5.inc,v 1.10 2010/04/06 13:07:19 weitzman Exp $
+// $Id: environment_5.inc,v 1.13 2010/11/10 02:55:41 weitzman Exp $
 /**
  * @file
  *   Specific functions for a drupal 5 environment.
@@ -7,6 +7,15 @@
  *   or environment_X.inc depending on which version of drupal drush
  *   is called from.
  */
+
+/**
+ * Return the list of modules required by drupal.
+ *
+ * We use that function name for onward compatibility with drupal 6 and 7.
+ */
+function drupal_required_modules() {
+  return array('block', 'filter', 'node', 'system', 'user', 'watchdog');
+}
 
 /**
  * Get complete information for all available modules.
@@ -48,7 +57,7 @@ function drush_get_modules() {
 function drush_check_module_dependencies($modules, $module_info) {
   $status = array();
   foreach ($modules as $key => $module) {
-    $dependencies = $module_info[$module]->info['dependencies'];
+    $dependencies = array_reverse($module_info[$module]->info['dependencies']);
     $unmet_dependencies = array_diff($dependencies, array_keys($module_info));
     if (!empty($unmet_dependencies)) {
       $status[$key]['error'] = array(
@@ -138,7 +147,7 @@ function drush_module_uninstall($modules) {
  * the form submit (such as admin_role) are completed.
  */
 function drush_system_modules_form_submit($active_modules) {
-  require_once('./'. drupal_get_path('module', 'system') .'/system.module');
+  require_once './'. drupal_get_path('module', 'system') .'/system.module';
   $form_state = array('values' => array('status' => $active_modules));
   drupal_execute('system_modules', $form_state);
 }

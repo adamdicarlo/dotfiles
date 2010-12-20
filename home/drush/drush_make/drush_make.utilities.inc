@@ -1,23 +1,16 @@
 <?php
-// $Id: drush_make.utilities.inc,v 1.1.2.49 2010/09/09 07:11:00 dmitrig01 Exp $
+// $Id: drush_make.utilities.inc,v 1.1.2.55 2010/11/12 08:19:52 dmitrig01 Exp $
 
 function drush_make_ensure_version() {
-  // Check version 4:
   if (function_exists('drush_get_global_options')) {
-    return '4.0';
+    return TRUE;
   }
-  // Check version 2.1 or up:
   $options = drush_get_option_help();
-  if (isset($options['-n, --nocolor'])) {
-    return '2.1';
-  }
-
-  if (isset($options['--nocolor'])) {
-    return '2.2';
+  if (isset($options['-n, --nocolor']) || isset($options['--nocolor'])) {
+    return TRUE;
   }
 
   drush_set_error(dt('Drush version 2.1 or higher is required for drush make to work.'));
-  return;
 }
 
 /**
@@ -29,7 +22,7 @@ function drush_make_ensure_version() {
  */
 function drush_make_parse_info_file($makefile, $parsed = TRUE) {
   if (!($data = drush_make_get_data($makefile))) {
-    return FALSE;
+    return drush_set_error(dt('Invalid or empty make file: %makefile', array('%makefile' => $makefile)));
   }
   if (!($info = _drush_make_parse_info_file($data))) {
     return FALSE;
@@ -147,10 +140,10 @@ function drush_make_validate_info_file($info) {
   }
 
   if (!isset($info['api'])) {
-    $info['api'] = 2;
-    drush_log(dt("You need to specify an API version of two in your makefile:\napi = 2"), 'warning');
+    $info['api'] = DRUSH_MAKE_API;
+    drush_log(dt("You need to specify an API version of two in your makefile:\napi = !api", array("!api" => DRUSH_MAKE_API)), 'warning');
   }
-  elseif ($info['api'] != 2) {
+  elseif ($info['api'] != DRUSH_MAKE_API) {
     drush_make_error('BUILD_ERROR', dt("The specified API attribute is incompatible with this version of Drush Make."));
     $errors = TRUE;
   }
@@ -164,6 +157,9 @@ function drush_make_validate_info_file($info) {
       $errors = TRUE;
     }
     else {
+      // Filter out entries that have been forcibly removed via [foo] = FALSE
+      $info['projects'] = array_filter($info['projects']);
+
       foreach ($info['projects'] as $project => $project_data) {
         // Project has an attributes array.
         if (is_string($project) && is_array($project_data)) {
@@ -216,6 +212,9 @@ function drush_make_validate_info_file($info) {
       $errors = TRUE;
     }
     else {
+      // Filter out entries that have been forcibly removed via [foo] = FALSE
+      $info['libraries'] = array_filter($info['libraries']);
+
       foreach($info['libraries'] as $library => $library_data) {
         if (is_array($library_data)) {
           foreach($library_data as $attribute => $value) {
@@ -386,6 +385,41 @@ if (!function_exists('drush_shell_cd_and_exec')) {
   }
 }
 
+if (!function_exists('drush_shell_exec_interactive')) {
+  /**
+   * Copy of drush_shell_exec() that allows for interactive commands.
+   */
+  function drush_shell_exec_interactive($cmd) {
+    $args = func_get_args();
+  
+    //do not change the command itself, just the parameters.
+    for ($x = 1; $x < sizeof($args); $x++) {
+      $args[$x] = escapeshellarg($args[$x]);
+    }
+    $command = call_user_func_array('sprintf', $args);
+  
+    if (drush_get_context('DRUSH_VERBOSE') || drush_get_context('DRUSH_SIMULATE')) {
+      drush_log('Executing: ' . $command);
+    }
+  
+    if (!drush_get_context('DRUSH_SIMULATE')) {
+      exec($command, $output, $result);
+  
+      if (drush_get_context('DRUSH_DEBUG')) {
+        foreach ($output as $line) {
+          drush_print($line, 2);
+        }
+      }
+  
+      // Exit code 0 means success.
+      return ($result == 0);
+    }
+    else {
+      return 0;
+    }
+  }
+}
+
 /**
  * Get data based on the source.
  *
@@ -400,7 +434,7 @@ if (!function_exists('drush_shell_cd_and_exec')) {
 function drush_make_get_data($data_source) {
   if ($data_source == '-') {
     // See http://drupal.org/node/499758 before changing this.
-    $stdin = fopen("php://stdin","r");
+    $stdin = fopen('php://stdin', 'r');
     $data = '';
     $has_input = FALSE;
   
@@ -414,8 +448,15 @@ function drush_make_get_data($data_source) {
     }
     return FALSE;
   }
-  else {
+  // Local file.
+  elseif (!strpos($data_source, '://')) {
     $data = file_get_contents($data_source);
+  }
+  // Remote file.
+  else {
+    $file = _drush_make_download_file(array('url' => $datasource));
+    $data = file_get_contents($file);
+    drush_op('unlink', $file);
   }
   return $data;
 }

@@ -1,8 +1,9 @@
 <?php
-// $Id: drush_make.drush.inc,v 1.11.2.71 2010/09/04 16:17:42 dmitrig01 Exp $
+// $Id: drush_make.drush.inc,v 1.11.2.83 2010/11/23 08:08:00 dmitrig01 Exp $
 
 define('DRUSH_MAKE_UPDATE_DEFAULT_URL', 'http://updates.drupal.org/release-history');
 define('DRUSH_MAKE_VERSION_BEST', 'best');
+define('DRUSH_MAKE_API', 2);
 
 include_once 'drush_make.utilities.inc';
 include_once 'drush_make.download.inc';
@@ -34,6 +35,7 @@ function drush_make_drush_command() {
       '--version' => 'Print the version and exit.',
       '--contrib-destination=path' => 'Specify a path under which modules and themes should be placed. Defaults to sites/all.',
       '--force-complete' => 'Force a complete build even if errors occur.',
+      '--ignore-checksums' => 'Ignore md5 checksums for downloads.',
       '--md5' => 'Output an md5 hash of the current build after completion.',
       '--no-clean' => 'Leave temporary build directories in place instead of cleaning up after completion.',
       '--no-core' => 'Do not require a Drupal core project to be specified.',
@@ -56,12 +58,21 @@ function drush_make_drush_command() {
       'drush make-test svn' => 'Run tests for SVN integration.',
     ),
   );
-
-  $items['generate-makefile'] = array(
+  $items['make-generate'] = array(
     'bootstrap' => DRUSH_BOOTSTRAP_DRUPAL_FULL,
-    'description' => 'Attempts to generate a makefile from the current drupal install.',
+    'description' => 'Attempts to generate a makefile from the current Drupal install, specifying project version numbers unless not known or otherwise specified. Unversioned projects will be interpreted later by drush make as "most recent stable release"',
+    'examples' => array(
+      'drush generate-makefile example.make' => 'Generate a makefile with ALL projects versioned (should a project have a known version number)',
+      'drush generate-makefile example.make --exclude-versions' => 'Generate a makefile with NO projects versioned',
+      'drush generate-makefile example.make --exclude-versions=drupal,views,cck' => 'Generate a makefile with ALL projects versioned EXCEPT core, Views and CCK',
+      'drush generate-makefile example.make --include-versions=admin_menu,og,ctools (--exclude-versions)' => 'Generate a makefile with NO projects versioned EXCEPT Admin Menu, OG and CTools.',
+    ),
+    'options' => array(
+      '--exclude-versions(="list")' => 'Exclude all version numbers (default is include all version numbers) or optionally specify a list of projects to exclude from versioning',
+      '--include-versions="list"' => 'Include a specific list of projects, while all other projects remain unversioned in the makefile (so implies --exclude-versions)',
+    ),
+    'aliases' => array('generate-makefile'),
   );
-
   return $items;
 }
 
@@ -74,27 +85,30 @@ function drush_make_drush_help($section) {
       return dt('Turns a makefile into a working drupal install. For a full description of options and makefile syntax, see the README.txt included with drush make.');
     case 'drush:make-test':
       return dt('Run a drush make test.');
-    case 'drush:generate-makefile':
+    case 'drush:make-generate':
       return dt('Attempts to generate a makefile from the current drupal install.');
   }
+}
+
+function drush_drush_make_make_validate() {
+  drush_make_ensure_version();
 }
 
 /**
  * Drush callback; make based on the makefile.
  */
 function drush_drush_make_make($makefile = NULL, $build_path = NULL) {
-  if (!drush_make_ensure_version()) {
-    return;
-  }
   if (drush_get_option('version', FALSE)) {
     drush_print(drush_make_version());
     return;
   }
+
   if (!($build_path = drush_make_build_path($build_path))) {
     return;
   }
-  if (!($info = drush_make_validate_info_file(drush_make_parse_info_file($makefile)))) {
-    return;
+  $info = drush_make_parse_info_file($makefile);
+  if ( $info === FALSE || ($info = drush_make_validate_info_file($info)) === FALSE) {
+    return FALSE;
   }
 
   drush_make_projects(FALSE, drush_get_option('contrib-destination', 'sites/all'), $info, $build_path);
@@ -125,7 +139,12 @@ function drush_make_projects($recursion, $contrib_destination, $info, $build_pat
   if (empty($info['projects'])) {
     return;
   }
+  $ignore_checksums = drush_get_option('ignore-checksums');
   foreach ($info['projects'] as $key => $project) {
+    $md5 = '';
+    if (isset($project['md5'])) {
+      $md5 = $project['md5'];
+    }
     // Merge the known data onto the project info.
     $project += array(
       'name'                => $key,
@@ -138,8 +157,19 @@ function drush_make_projects($recursion, $contrib_destination, $info, $build_pat
       'directory_name'      => '',
     );
     $project = drush_make_updatexml($project);
+    if (!empty($md5)) {
+      $project['download']['md5'] = $md5;
+    }
+    if ($ignore_checksums) {
+      unset($project['download']['md5']);
+    }
     $class_name = 'DrushMakeProject_' . $project['type'];
-    $projects[($project['type'] == 'core' ? 'core' : 'contrib')][$project['name']] = new $class_name($project);
+    if (class_exists($class_name)) {
+      $projects[($project['type'] == 'core' ? 'core' : 'contrib')][$project['name']] = new $class_name($project);
+    }
+    else {
+      drush_make_error(dt('Non-existent project type %type on project %project', array('%type' => $project['type'], '%project' => $key)));
+    }
   }
 
   if (!empty($projects['core'])) {
@@ -177,24 +207,29 @@ function drush_make_projects($recursion, $contrib_destination, $info, $build_pat
 }
 
 function drush_make_libraries($contrib_destination, $info, $build_path) {
-  if (!empty($info['libraries'])) {
-    foreach ($info['libraries'] as $key => $library) {
-      if (!is_string($key) || !is_array($library)) {
-        // TODO Print a prettier message
-        continue;
-      }
-      // Merge the known data onto the library info.
-      $library += array(
-        'name'                => $key,
-        'core'                => $info['core'],
-        'build_path'          => $build_path,
-        'contrib_destination' => $contrib_destination,
-        'subdir'              => '',
-        'directory_name'      => $key,
-      );
-      $class = new DrushMakeProject_Library($library);
-      $class->make();
+  if (empty($info['libraries'])) {
+    return;
+  }
+  $ignore_checksums = drush_get_option('ignore-checksums');
+  foreach ($info['libraries'] as $key => $library) {
+    if (!is_string($key) || !is_array($library)) {
+      // TODO Print a prettier message
+      continue;
     }
+    // Merge the known data onto the library info.
+    $library += array(
+      'name'                => $key,
+      'core'                => $info['core'],
+      'build_path'          => $build_path,
+      'contrib_destination' => $contrib_destination,
+      'subdir'              => '',
+      'directory_name'      => $key,
+    );
+    if ($ignore_checksums) {
+      unset($library['download']['md5']);
+    }
+    $class = new DrushMakeProject_Library($library);
+    $class->make();
   }
 }
 
@@ -335,11 +370,12 @@ function drush_make_build_path($build_path) {
 
 function drush_make_move_build($build_path) {
   $tmp_path = drush_make_tmp();
+  $ret = TRUE;
   if ($build_path == '.') {
     drush_shell_exec('ls -A %s', $tmp_path . '/__build__');
     $info = drush_shell_exec_output();
     foreach ($info as $file) {
-      drush_shell_exec("cp -Rf %s %s", $tmp_path . '/__build__/' . $file, $build_path);
+      $ret = $ret && drush_shell_exec("cp -Rf %s %s", $tmp_path . '/__build__/' . $file, $build_path);
     }
   }
   else {
@@ -347,19 +383,22 @@ function drush_make_move_build($build_path) {
     drush_shell_exec("mv %s %s", $tmp_path . '/__build__', $tmp_path . '/' . basename($build_path));
     drush_shell_exec("cp -Rf %s %s", $tmp_path . '/' . basename($build_path), dirname($build_path));
   }
-  return TRUE;
+  if (!$ret) {
+    drush_set_error(dt("Cannot move build into place"));
+  }
+  return $ret;
 }
 
 function drush_make_version() {
-  return '2.0-dev';
+  return '2.0-beta10';
 }
 
 /**
  * Drush callback; make a makefile from the current install.
  */
-function drush_drush_make_generate_makefile($file) {
+function drush_drush_make_make_generate($file) {
   include_once 'drush_make.generate.inc';
-  _drush_generate_makefile($file);
+  _drush_make_generate($file);
 }
 
 /**

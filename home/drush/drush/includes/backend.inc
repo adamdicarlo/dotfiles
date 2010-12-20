@@ -1,5 +1,5 @@
 <?php
-// $Id: backend.inc,v 1.30.2.1 2010/08/07 12:56:07 weitzman Exp $
+// $Id: backend.inc,v 1.34 2010/12/09 01:10:11 greg1anderson Exp $
 
 /**
  * @file Drush backend API
@@ -149,7 +149,7 @@ function _drush_backend_integrate($data) {
     }
   }
   // Output will either be printed, or buffered to the drush_backend_output command.
-  if (drush_cmp_error('DRUSH_APPLICATION_ERROR')) {
+  if (drush_cmp_error('DRUSH_APPLICATION_ERROR') && !empty($data['output'])) {
     drush_set_error("DRUSH_APPLICATION_ERROR", dt("Output from failed command :\n !output", array('!output' => $data['output'])));
   }
   else {
@@ -242,6 +242,9 @@ function _drush_proc_open($cmd, $data = NULL, $context = NULL) {
  * @param username
  *    Optional. Defaults to the current user. If you specify this, you can choose which module to send.
  *
+ * @deprecated Command name includes arguments, and these are not quote-escaped in any way.
+ * @see drush_backend_invoke_args and @see drush_invoke_process for better options.
+ *
  * @return
  *   If the command could not be completed successfully, FALSE.
  *   If the command was completed, this will return an associative array containing the data from drush_backend_output().
@@ -252,7 +255,7 @@ function drush_backend_invoke($command, $data = array(), $method = 'GET', $integ
   return drush_backend_invoke_args($command, $args, $data, $method, $integrate, $drush_path, $hostname, $username);
 }
 
-/*
+/**
  * A variant of drush_backend_invoke() which specifies command and arguments separately.
  */
 function drush_backend_invoke_args($command, $args, $data = array(), $method = 'GET', $integrate = TRUE, $drush_path = NULL, $hostname = NULL, $username = NULL, $ssh_options = NULL) {

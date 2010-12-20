@@ -1,13 +1,11 @@
 <?php
-// $Id: upgrade.drush.inc,v 1.17 2010/04/29 19:05:37 weitzman Exp $
-
-/* TODO
- * - upgrade to specific releases.
-/*
+// $Id: upgrade.drush.inc,v 1.21 2010/11/04 17:27:32 weitzman Exp $
 
 /**
  * @file
  *   Refine your Drupal major version upgrade.
+ *
+ * @todo Upgrade to specific releases.
  */
 
 /**
@@ -21,7 +19,7 @@ function upgrade_drush_command() {
     'drupal dependencies' => array('update'),
     'core' => array(6), // Remove once 3.0 is released.
     'arguments' => array(
-      'target' => 'The name of a sitealias, which points to the destination site. root, uri, and db-url keys are required. See examples/aliases.drushrc.php for more information.'),
+      'target' => 'The name of a sitealias, which points to the destination site. root, uri, and db-url keys are required. See examples/aliases.drushrc.php for more information about creating a site alias.'),
     'examples' => array(
       'drush site-upgrade @onward' => 'Upgrade from the current site to the site specified by @onward alias.'
     ),
@@ -42,7 +40,7 @@ function upgrade_drush_command() {
 function upgrade_drush_help($section) {
   switch ($section) {
     case 'drush:site-upgrade':
-      return dt("Execute a major version upgrade for Drupal core and enabled contrib modules. Command will download next version of Drupal and all available contrib modules that have releases (if not already downloaded). It prepares a settings.php for the target site, and copies the prior version's database to the target site. Finally, updatedb is run. The intent is for developers to keep re-running this command until they are satisfied with the resulting site.");
+      return dt("Execute a major version upgrade for Drupal core and enabled contrib modules. Command will download next version of Drupal and all available contrib modules that have releases (if not already downloaded). It prepares a settings.php for the target site, and copies the prior version's database to the target site. Finally, updatedb is run. The intent is for developers to keep re-running this command until they are satisfied with the resulting site. Run this command from within your source site (D6).");
   }
 }
 
@@ -110,9 +108,10 @@ function drush_upgrade_site_upgrade($target_key) {
   // Create sites subdirectory in target if needed.
   $settings_source = conf_path() . '/settings.php';
   $settings_destination = $destination_core . '/' . $settings_source;
-  if (!file_exists(dirname($settings_destination))) {
-    if (!drush_op('mkdir', $settings_destination) && !drush_get_context('DRUSH_SIMULATE')) {
-      drush_set_error(dt('Failed to create directory @settings_destination', array('@settings_destination' => $settings_destination)));
+  $settings_destination_folder = dirname($settings_destination);
+  if (!file_exists($settings_destination_folder)) {
+    if (!drush_op('mkdir', $settings_destination_folder) && !drush_get_context('DRUSH_SIMULATE')) {
+      drush_set_error(dt('Failed to create directory @settings_destination', array('@settings_destination' => $settings_destination_folder)));
       return;
     }
   }
@@ -136,7 +135,7 @@ function drush_upgrade_site_upgrade($target_key) {
   // Always blow away the target database so we start fresh.
   drush_set_option('create-db', TRUE);
   drush_include(DRUSH_BASE_PATH . '/commands/sql', 'sync.sql');
-  drush_sql_sync('@self', $target_key);
+  drush_invoke('sql_sync', '@self', $target_key);
   if (drush_get_error()) return -1; // Early exit if we see an error.
 
   // Run update.php in a subshell. It is run on @target site whereas this request was on @self.

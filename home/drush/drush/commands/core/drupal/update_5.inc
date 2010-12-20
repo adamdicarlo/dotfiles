@@ -1,5 +1,5 @@
 <?php
-// $Id: update_5.inc,v 1.8 2009/12/06 12:53:38 weitzman Exp $
+// $Id: update_5.inc,v 1.9 2010/11/10 02:55:41 weitzman Exp $
 
 /**
  * @file
@@ -80,7 +80,7 @@ function update_main() {
       }
     }
     if (!drush_confirm(dt('Do you wish to run all pending updates?'))) {
-      drush_die('Aborting.');
+      drush_user_abort();
     }
 
     $update_results = array();

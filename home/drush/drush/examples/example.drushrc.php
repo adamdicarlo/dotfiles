@@ -1,5 +1,5 @@
 <?php
-// $Id: example.drushrc.php,v 1.8 2010/06/05 15:18:16 weitzman Exp $
+// $Id: example.drushrc.php,v 1.14 2010/12/09 21:43:33 jonhattan Exp $
 
 /*
  * Examples of valid statements for a drushrc.php file. Use this file to cut down on
@@ -44,15 +44,10 @@
  * load the configuration file for the site specified by the
  * destination parameter, nor do they load configuration files
  * for remote sites.
+ *
+ * See `drush topic docs-bootstrap` for more information on how
+ * bootstrapping affects the loading of drush configuration files.
  */
-
-// DEPRECATED:  Allow command names to contain spaces.
-// This feature will be removed shortly; drush-3 will
-// require commands to be named with dashes instead of
-// spaces (e.g. "cache-clear" instead of "cache clear").
-// During the transition period, uncomment the line below
-// to allow commands with spaces to be used.
-# $options['allow-spaces-in-commands'] = 1;
 
 // Specify a particular multisite.
 # $options['l'] = 'http://example.com/subir';
@@ -70,7 +65,7 @@
 # $options['cvscredentials'] = 'name:password';
 
 // Specify additional directories to search for *.drush.inc files
-// Use POSIX path separator (':')
+// Separate by : (Unix-based systems) or ; (Windows).
 # $options['i'] = 'sites/default:profiles/myprofile';
 
 // Specify additional directories to search for *.alias.drushrc.php
@@ -82,6 +77,18 @@
 // when the database is rsync'ed to a remote system.  If a dump directory
 // is not specified, then sql-sync will store dumps in temporary files.
 # $options['dump-dir'] = '/path/to/dumpdir';
+
+// Specify directory where sql-dump should store backups of database
+// dumps.  @DATABASE is replaced with the name of the database being
+// dumped, and @DATE is replaced with the current time and date of the
+// dump.  TRUE will cause sql-dump to use the same backup directory that
+// pm-updatecode does.
+//
+// If set, this can be explicitly overridden by specifying --result-file
+// on the commandline.  The default behavior of dumping to
+// STDOUT can be achieved via --result-file=0
+# $options['result-file'] = '/path/to/backup/dir/@DATABASE_@DATE.sql';
+# $options['result-file'] = TRUE;
 
 // Enable verbose mode.
 # $options['v'] = 1;
@@ -96,6 +103,19 @@
 
 // Specify options to pass to ssh in backend invoke. (Default is to prohibit password authentication; uncomment to change)
 # $options['ssh-options'] = '-o PasswordAuthentication=no';
+
+// rsync version 2.6.8 or earlier will give an error message:
+// "--remove-source-files: unknown option".  To fix this, set
+// $options['rsync-version'] = '2.6.8'; (replace with the lowest
+// version of rsync installed on any system you are using with
+// drush).  Note that drush requires at least rsync version 2.6.4
+// for some functions to work correctly.
+// 
+// Note that this option can also be set in a site alias.  This
+// is preferable if newer versions of rsync are available on some
+// of the systems you use.
+// See: http://drupal.org/node/955092
+# $options['rsync-version'] = '2.6.9';
 
 /*
 * The output charset suitable to pass to iconv PHP function as out_charset
@@ -147,8 +167,12 @@ $options['skip-tables'] = array(
 # $command_specific['dl'] = array('cvscredentials' => 'user:pass');
 
 // Specify additional directories to search for scripts
-// Use POSIX path separator (':')
+// Separate by : (Unix-based systems) or ; (Windows).
 # $command_specific['script']['script-path'] = 'sites/all/scripts:profiles/myprofile/scripts';
+
+// Always show release notes when running pm-update or pm-updatecode
+# $command_specific['pm-update'] = array('notes' => TRUE);
+# $command_specific['pm-updatecode'] = array('notes' => TRUE);
 
 /**
  * Variable overrides:

@@ -1,4 +1,4 @@
-$Id: README.txt,v 1.1.2.19 2010/09/09 06:43:06 dmitrig01 Exp $
+$Id: README.txt,v 1.1.2.29 2010/11/12 07:40:02 dmitrig01 Exp $
 
 Drush make
 ----------
@@ -38,6 +38,10 @@ where `drush make` can be used within an existing Drupal site.
     --force-complete
 
       Force a complete build even if errors occur.
+
+    --ignore-checksums
+
+      Do not verify md5 checksums for downloaded files.
 
     --md5
 
@@ -112,11 +116,20 @@ The make file always begins by specifying the core version of Drupal for which
     core = 6.x
 
 
+### API version
+
+The make file must specify which Drush Make API version it uses. This version
+of Drush Make uses API version `2`
+
+    api = 2
+
+
 ### Projects
 
-An array of the projects to be retrieved. Each project name can be specified as
-a single string value. If further options need to be provided for a project, the
-project should be specified as the key.
+An array of the projects (e.g. modules, themes, libraries, and drupal) to be
+retrieved. Each project name can be specified as a single string value. If
+further options need to be provided for a project, the project should be
+specified as the key.
 
 **Project with no further options:**
 
@@ -146,9 +159,13 @@ Do not use both types of declarations for a single project in your makefile.
 
 - `patch`
 
-  One ore more patches to apply to this project. An array of URLs from which
+  One or more patches to apply to this project. An array of URLs from which
   each patch should be retrieved.
 
+        projects[calendar][patch][rfc-fixes][url] = "http://drupal.org/files/issues/cal-760316-rfc-fixes-2.diff"
+        projects[calendar][patch][rfc-fixes][md5] = "e4876228f449cb0c37ffa0f2142"
+
+        ; shorthand syntax if no md5 checksum is specified
         projects[adminrole][patch][] = "http://drupal.org/files/issues/adminrole_exceptions.patch"
 
 - `subdir`
@@ -201,34 +218,28 @@ Do not use both types of declarations for a single project in your makefile.
   Use an alternative download method instead of retrieval through update XML.
   The following methods are available:
 
-- `download[type][get]`
+- `download[type] = file`
 
   Retrieve a project as a direct download. Options:
 
   `url` - the URL of the file. Required.
 
-- `download[type][post]`
+  `md5` - the md5 checksum for the file. Optional.
 
-  Retrieve a project as a direct download using an HTTP POST request. Options:
+  `request_type` - the request type - get or post. Defaults to get. Optional.
 
-  `url` - the URL of the file. Required.
-
-  `post_data` - The post data to be submitted with the request. Should be a
+  `data` - The post data to be submitted with the request. Should be a
   valid URL query string. Required.
 
-  `file_type` - A file type extension to use for the retrieved file. Optional.
+  `filename` - What to name the file, if it's not an archive. Optional.
 
-     projects[mytheme][download][type] = "post"
-     projects[mytheme][download][url] = "http://example.com/download/mytheme"
-     projects[mytheme][download][post_data] = "format=zip&version=1.0"
-
-- `download[type][bzr]`
+- `download[type] = bzr`
 
   Use a bazaar repository as the source for this project. Options:
 
   `url` - the URL of the repository. Required.
 
-- `download[type][cvs]`
+- `download[type] = cvs`
 
   Use a CVS repository as the source for this project. Options:
 
@@ -246,7 +257,7 @@ Do not use both types of declarations for a single project in your makefile.
      projects[mytheme][download][type] = "cvs"
      projects[mytheme][download][module] = "mytheme"
 
-- `download[type][git]`
+- `download[type] = git`
 
   Use a git repository as the source for this project. Options:
 
@@ -261,11 +272,15 @@ Do not use both types of declarations for a single project in your makefile.
      projects[mytheme][download][type] = "git"
      projects[mytheme][download][url] = "git://github.com/jane_doe/mytheme.git"
 
-- `download[type][svn]`
+- `download[type] = svn`
 
   Use an SVN repository as the source for this project. Options:
 
   `url` - the URL of the repository. Required.
+
+  `interactive` - whether to prompt the user for authentication credentials
+  when using a private repository. Allows username and/or password options to
+  be omitted. Optional.
 
   `username` - the username to use when retrieving an SVN project as a working
   copy or from a private repository. Optional.
@@ -285,8 +300,9 @@ array of options in the libraries array.
 
 **Example:**
 
-    libraries[jquery_ui][download][type] = "get"
+    libraries[jquery_ui][download][type] = "file"
     libraries[jquery_ui][download][url] = "http://jquery- ui.googlecode.com/files/jquery.ui-1.6.zip"
+    libraries[jquery_ui][download][md5] = "c177d38bc7af59d696b2efd7dda5c605"
 
 
 ### Library options
@@ -316,6 +332,40 @@ makefiles.
     includes[remote] = "http://www.example.com/remote.make"
 
 
+### Overriding properties
+
+Makefiles which include others may override the included makefiles properties.
+Properties in the includer takes precedence over the includee.
+
+**Example:**
+
+`base.make`
+
+    core = "6.x"
+    projects[views][subdir] = "contrib"
+    projects[cck][subdir] = "contrib"
+
+`extender.make`
+
+    includes[base] = "base.make"
+
+    ; This line overrides the included makefile's 'subdir' option
+    projects[views][subdir] = "patched"
+
+    ; This line overrides the included makefile, switching the download type
+    ; to a CVS checkout
+    projects[views][type] = "module"
+    projects[views][download][type] = "cvs"
+    projects[views][download][module] = "contributions/modules/views"
+    projects[views][download][revision] = "DRUPAL-6--2"
+
+A project or library entry of an included makefile can be removed entirely by
+setting the corresponding key to FALSE:
+
+    ; This line removes CCK entirely which was defined in base.make
+    projects[cck] = FALSE
+
+
 Recursion
 ---------
 If a project that is part of a build contains a `.make` itself, drush make will
@@ -338,8 +388,11 @@ For example, a full build tree may look something like this:
         - etc.
 
 Recursion can be used to nest an install profile build in a Drupal site, easily
-build multiple install profiles on the same site, fetch library dependencies for
-a given module, or bundle a set of module and its dependencies together.
+build multiple install profiles on the same site, fetch library dependencies
+for a given module, or bundle a set of module and its dependencies together.
+For Drush Make to recognize a makefile embedded within a project, the makefile
+itself must have the same name as the project. For instance, the makefile
+embedded within the managingnews profile must be called "managingnews.make".
 
 **Build a full Drupal site with the Managing News install profile:**
 
@@ -397,3 +450,4 @@ Co-maintainers
 - Chad Phillips (hunmonk)
 - Jeff Miccolis (jmiccolis)
 - Young Hahn (yhahn)
+

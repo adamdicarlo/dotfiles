@@ -1,5 +1,5 @@
 <?php
-// $Id: context.inc,v 1.31 2010/05/27 13:36:41 weitzman Exp $
+// $Id: context.inc,v 1.36 2010/12/09 15:54:39 greg1anderson Exp $
 /**
  * @file
  * The Drush context API implementation.
@@ -74,8 +74,8 @@
  */
 function drush_context_names() {
   static $contexts = array(
-    'process', 'options', 'stdin', 'alias', 'specific',
-    'custom', 'site', 'drupal', 'user', 'home.drush', 'system',
+    'process', 'options', 'stdin', 'specific',
+    'custom', 'site', 'drupal', 'alias', 'user', 'home.drush', 'system',
     'drush', 'default');
 
   return $contexts;
@@ -181,9 +181,16 @@ function drush_set_config_options($context, $options, $override = array()) {
   drush_set_context($context, $options);
 
   // Instruct core not to store queries since we are not outputting them.
-  // This can be overridden by a command or a drushrc file if needed.
-  if (!isset($drush_conf_override['dev_query'])) {
-    $drush_conf_override['dev_query'] = FALSE;
+  // Don't run poormanscron during drush request (D7+).
+  $defaults = array(
+    'dev_query' => FALSE,
+    'cron_safe_threshold' => 0,
+  );
+  foreach ($defaults as $key => $value) {
+    // This can be overridden by a command or a drushrc file if needed.
+    if (!isset($drush_conf_override[$key])) {
+      $drush_conf_override[$key] = $value;
+    }
   }
 
   /**
@@ -222,8 +229,9 @@ function drush_set_config_special_contexts(&$options) {
 
     // Copy site aliases and command-specific options into their
     // appropriate caches.
-    foreach (array('site-aliases', 'command-specific') as $option_name) {
-      if ((isset($options)) && (array_key_exists($option_name, $options))) {
+    $special_contexts = drush_get_special_keys();
+    foreach ($special_contexts as $option_name) {
+      if (isset($options[$option_name])) {
         $cache =& drush_get_context($option_name);
         $cache = array_merge($cache, $options[$option_name]);
         unset($options[$option_name]);
@@ -300,7 +308,7 @@ function &drush_get_context($context = null, $default = null) {
  *
  * This function will set the 'arguments' context of the current running script.
  *
- * When initially called by drush_parse_options, the entire list of arguments will
+ * When initially called by drush_parse_args, the entire list of arguments will
  * be populated, once the command is dispatched, this will be set to only the remaining
  * arguments to the command.
  *
@@ -314,7 +322,7 @@ function drush_set_arguments($arguments) {
 /**
  * Get the arguments passed to the drush.php script.
  *
- * When drush_set_arguments is initially called by drush_parse_options,
+ * When drush_set_arguments is initially called by drush_parse_args,
  * the entire list of arguments will be populated.
  * Once the command has been dispatched, this will be return only the remaining
  * arguments to the command.
@@ -384,6 +392,30 @@ function drush_get_option($option, $default = NULL, $context = NULL) {
   }
 
   return $default;
+}
+
+/**
+ * Get the value for an option and return it as a list.  If the 
+ * option in question is passed on the command line, its value should
+ * be a comma-separated list (e.g. --flag=1,2,3).  If the option
+ * was set in a drushrc.php file, then its value may be either a
+ * comma-separated list or an array of values (e.g. $option['flag'] = array('1', '2', '3')).
+ *
+ * @param option
+ *   The name of the option to get
+ * @param default
+ *   Optional. The value to return if the option has not been set
+ * @param context
+ *   Optional. The context to check for the option. If this is set, only this context will be searched.
+ */
+function drush_get_option_list($option, $default = array(), $context = NULL) {
+  $result = drush_get_option($option, $default, $context);
+  
+  if (!is_array($result)) {
+    $result = explode(',', $result);
+  }
+  
+  return $result;
 }
 
 /**

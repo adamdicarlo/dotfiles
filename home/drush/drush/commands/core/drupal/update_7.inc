@@ -1,5 +1,5 @@
 <?php
-// $Id: update_7.inc,v 1.26 2010/06/21 19:18:01 weitzman Exp $
+// $Id: update_7.inc,v 1.29 2010/11/10 02:55:41 weitzman Exp $
 /**
  * @file
  *   Update.php for provisioned sites.
@@ -187,10 +187,6 @@ function update_main_prepare() {
 
   drush_errors_on();
 
-  // Rescan and repopulate the system table to ensure we have a full picture
-  // of the platform.
-  drush_get_projects();
-
   include_once DRUPAL_ROOT . '/includes/batch.inc';
   drupal_load_updates();
 
@@ -238,7 +234,7 @@ function update_main() {
     }
 
     if (!drush_confirm(dt('Do you wish to run all pending updates?'))) {
-      drush_die('Aborting.');
+      drush_user_abort();
     }
 
     drush_update_batch($start);
@@ -316,7 +312,6 @@ function drush_update_batch($start) {
 
 
 function drush_update_finished($success, $results, $operations) {
-  // Clear the caches in case the data has been updated.
-  drupal_flush_all_caches();
+  // Nothing to do here. All caches already cleared. Kept as documentation of 'finished' callback.
 }
 

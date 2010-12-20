@@ -1,5 +1,5 @@
 <?php
-// $Id: drush_make.test.inc,v 1.1.2.19 2010/09/09 06:43:06 dmitrig01 Exp $
+// $Id: drush_make.test.inc,v 1.1.2.27 2010/10/25 05:37:14 dmitrig01 Exp $
 
 /**
  * Main drush make-test callback.
@@ -8,7 +8,7 @@ function drush_make_test($test) {
   if (empty($test)) {
     $rows = array();
     $rows[] = array(dt('Command'), dt('Description'));
-    $rows[] = array('-------', '-----------');
+    $rows[] = array(   '-------',     '-----------');
     foreach (drush_make_test_get_tests() as $id => $info) {
       $rows[] = array($id, $info['name']);
     }
@@ -43,7 +43,7 @@ function drush_make_test_get_tests($id = NULL) {
       'makefile' => 'tests/get.make',
       'build'    => TRUE,
       'messages' => array(
-        'Build hash: de88b6acfca95f19ae5ae852bc6bbbe4',
+        'Build hash: 4bf18507da89bed601548210c22a3bed',
       ),
       'options'  => array('no-core' => TRUE),
     ),
@@ -52,7 +52,7 @@ function drush_make_test_get_tests($id = NULL) {
       'makefile' => 'tests/post.make',
       'build'    => TRUE,
       'messages' => array(
-        'Build hash: 175b3ba2031a30b31775a70e4c23522e',
+        'Build hash: df331bdead0bfa3a040279e3dbfc1c3f',
       ),
       'options'  => array('no-core' => TRUE),
     ),
@@ -84,11 +84,11 @@ function drush_make_test_get_tests($id = NULL) {
       'options'  => array('no-core' => TRUE),
     ),
     'include' => array(
-      'name'     => 'Including files',
+      'name'     => 'Including files and property overrides',
       'makefile' => 'tests/include.make',
       'build'    => TRUE,
       'messages' => array(
-        'Build hash: a20c3f4f4167c6577156fa616f542120',
+        'Build hash: e2e230ec5eccaf5618050559ab11510d',
       ),
       'options'  => array(),
     ),
@@ -124,7 +124,7 @@ function drush_make_test_get_tests($id = NULL) {
       'makefile' => 'tests/translations.make',
       'build'    => TRUE,
       'messages' => array(
-        'Build hash: 93272917b39388289075c4a6e2f5dd58',
+        'Build hash: de43204a48b68e36cc63740551385d4b',
       ),
       'options'  => array('translations' => 'es,pt-br'),
     ),
@@ -136,6 +136,42 @@ function drush_make_test_get_tests($id = NULL) {
         'Build hash: d615d004adfa8ebfe44e91119b88389c',
       ),
       'options'  => array('no-core' => TRUE, 'contrib-destination' => '.'),
+    ),
+    'file' => array(
+      'name'     => 'File extraction',
+      'makefile' => 'tests/file.make',
+      'build'    => TRUE,
+      'messages' => array(
+        'Build hash: ab8cb79508e9c992dace2e40c6435e5b',
+      ),
+      'options'  => array('no-core' => TRUE),
+    ),
+    'md5-succeed' => array(
+      'name'     => 'MD5 validation',
+      'makefile' => 'tests/md5-succeed.make',
+      'build'    => TRUE,
+      'messages' => array(
+        'Build hash: ab8cb79508e9c992dace2e40c6435e5b',
+      ),
+      'options'  => array('no-core' => TRUE),
+    ),
+    'md5-fail' => array(
+      'name'     => 'Failed MD5 validation test',
+      'makefile' => 'tests/md5-fail.make',
+      'build'    => FALSE,
+      'messages' => array(
+        'Checksum verification failed for README.txt?revision=1.1.2.22&view=co&pathrev=DRUPAL-6--2. Expected - fail -, received 6ac9eb759bc6834c50cc646caea00ea7.'
+      ),
+      'options'  => array('no-core' => TRUE),
+    ),
+    'ignore-checksums' => array(
+      'name'     => 'Ignore invalid checksum/s',
+      'makefile' => 'tests/md5-fail.make',
+      'build'    => TRUE,
+      'messages' => array(
+        'Build hash: ab8cb79508e9c992dace2e40c6435e5b',
+      ),
+      'options'  => array('no-core' => TRUE, 'ignore-checksums' => TRUE),
     ),
   );
   if (isset($id)) {
