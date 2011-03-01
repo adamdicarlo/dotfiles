@@ -1,0 +1,6 @@
+[submodule "home/drush/drush_make"]
+	path = home/drush/drush_make
+	url = adamdicarlo@git.drupal.org:project/drush_make
+[submodule "home/drush/drush"]
+	path = home/drush/drush
+	url = adamdicarlo@git.drupal.org:project/drush
