@@ -1,3 +1,0 @@
-Some projects (migrate, at least) have been patched. Look for PATCHES.txt files in projects' root directories to find which patches were applied.
-
-Don't forget to update (rename) the zero-byte version indicator files when upgrading projects in here.
