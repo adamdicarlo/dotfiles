@@ -1,5 +1,5 @@
 <?php
-// $Id: sitealias.drush.inc,v 1.23 2010/11/28 04:50:54 greg1anderson Exp $
+// $Id: sitealias.drush.inc,v 1.28 2011/01/25 19:32:08 greg1anderson Exp $
 
 /**
  * @file
@@ -24,19 +24,21 @@ function sitealias_drush_command() {
       'site' => 'Site specification alias to print',
     ),
     'options' => array(
-      '--full' => 'Print the full alias record for each site.  Default when aliases are specified on the command line.',
-      '--short' => 'Print only the site alias name.  Default when not command line arguments are specified.',
-      '--pipe' => 'Print the long-form site specification for each site.',
-      '--with-db' => 'Include the databases structure in the full alias record.',
-      '--with-db-url' => 'Include the short-form db-url in the full alias record.',
-      '--no-db' => 'Do not include the database record in the full alias record (default).',
-      '--with-optional' => 'Include optional default items.',
+      'full' => 'Print the full alias record for each site.  Default when aliases are specified on the command line.',
+      'component' => 'Print only the specified element from the full alias record.',
+      'short' => 'Print only the site alias name.  Default when not command line arguments are specified.',
+      'pipe' => 'Print the long-form site specification for each site.',
+      'with-db' => 'Include the databases structure in the full alias record.',
+      'with-db-url' => 'Include the short-form db-url in the full alias record.',
+      'no-db' => 'Do not include the database record in the full alias record (default).',
+      'with-optional' => 'Include optional default items.',
     ),
     'aliases' => array('sa'),
     'examples' => array(
       'drush site-alias' => 'List all alias records known to drush.',
       'drush site-alias @dev' => 'Print an alias record for the alias \'dev\'.',
     ),
+    'topics' => array('docs-aliases'),
   );
   return $items;
 }
@@ -120,7 +122,10 @@ function _drush_sitealias_user_specified_list() {
  * specified.
  */
 function drush_sitealias_print() {
-  drush_bootstrap_max();
+  // Call bootstrap max, unless the caller requested short output
+  if (!drush_get_option('short', FALSE)) {
+    drush_bootstrap_max();
+  }
   
   $site_list = _drush_sitealias_user_specified_list();
   $full_output = drush_get_option('full');
@@ -133,7 +138,18 @@ function drush_sitealias_print() {
       $site_specs[] = drush_sitealias_alias_record_to_spec($alias_record, $with_db);
     }
     if (isset($full_output)) {
-      _drush_sitealias_print_record($alias_record, $site);
+      $component = drush_get_option('component');
+      if ($component) {
+        if (array_key_exists($component, $alias_record)) {
+	  drush_print($alias_record[$component]);
+	}
+	else {
+	  drush_set_error('DRUSH_NO_SUCH_ELEMENT', dt('The element @component was not found in the alias record for @site.', array('@component' => $component, '@site' => $site)));
+	}
+      }
+      else {
+        _drush_sitealias_print_record($alias_record, $site);
+      }
     }
     else {
       drush_print($site);
@@ -202,6 +218,7 @@ function _drush_sitealias_print_record($alias_record, $site_alias = '') {
 
   // We don't want the name to go into the output
   unset($alias_record['name']);
+  unset($alias_record['#hidden']);
 
   // We only want to output the 'root' item; don't output the '%root' path alias
   if (array_key_exists('path-aliases', $alias_record) && array_key_exists('%root', $alias_record['path-aliases'])) {

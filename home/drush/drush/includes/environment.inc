@@ -1,5 +1,5 @@
 <?php
-// $Id: environment.inc,v 1.107 2010/12/06 21:57:08 jonhattan Exp $
+// $Id: environment.inc,v 1.121 2011/01/29 20:16:35 weitzman Exp $
 
 /**
  * @file
@@ -223,7 +223,7 @@ function drush_bootstrap($phase, $phase_max = FALSE) {
  */
 function drush_has_boostrapped($phase) {
   $phase_index = drush_get_context('DRUSH_BOOTSTRAP_PHASE');
-  
+
   return isset($phase_index) && ($phase_index >= $phase);
 }
 
@@ -466,29 +466,64 @@ function _drush_postmortem() {
  * begins.  If the php environment is too restrictive, then
  * notify the user that a setting change is needed and abort.
  */
-function _drush_environment_preflight_checks() {
+function _drush_environment_check_php_ini() {
+  $ini_checks = array('safe_mode' => '', 'open_basedir' => '', 'disable_functions' => array('exec', 'system'), 'disable_classes' => '');
+
   // Test to insure that certain php ini restrictions have not been enabled
   $prohibited_list = array();
-  foreach (array('safe_mode', 'open_basedir', 'disable_functions', 'disable_classes') as $prohibited_mode) {
-    if (ini_get($prohibited_mode)) {
+  foreach ($ini_checks as $prohibited_mode => $disallowed_value) {
+    $ini_value = ini_get($prohibited_mode);
+    $invalid_value = FALSE;
+    if (empty($disallowed_value)) {
+      $invalid_value = !empty($ini_value);
+    }
+    else {
+      foreach ($disallowed_value as $test_value) {
+        if (strstr($ini_value, $test_value) !== FALSE) {
+          $invalid_value = TRUE;
+        }
+      }
+    }
+    if ($invalid_value) {
       $prohibited_list[] = $prohibited_mode;
     }
   }
   if (!empty($prohibited_list)) {
-    return drush_bootstrap_error('DRUSH_PHP_INI_RESTRICTIONS', dt('The following restricted PHP modes have non-empty values: !prohibited_list. This configuration is incompatible with drush.  !php_ini_msg', array('!prohibited_list' => implode(' and ', $prohibited_list), '!php_ini_msg' => _drush_php_ini_loaded_file_message())));
+    drush_log(dt('The following restricted PHP modes have non-empty values: !prohibited_list. This configuration is incompatible with drush.  !php_ini_msg', array('!prohibited_list' => implode(' and ', $prohibited_list), '!php_ini_msg' => _drush_php_ini_loaded_file_message())), 'error');
   }
-  
+
   return TRUE;
 }
 
 /**
- * Validate initial Drush bootstrap phase.
+ * Validate that Drush is running in a suitable environment.
  */
 function _drush_bootstrap_drush_validate() {
-  if (($preflight_result = _drush_environment_preflight_checks()) !== TRUE) {
-    return $preflight_result;
+  // @todo _drush_environment_php_ini_checks() always returns TRUE.
+  $return = _drush_environment_check_php_ini();
+  if ($return !== TRUE) {
+    return $return;
   }
-  
+
+  if (drush_environment_table_inc() === FALSE) {
+    return FALSE;
+  }
+
+  return TRUE;
+}
+
+/*
+ * To disable the warning about Windows support, set $options['check_os'] = FALSE
+ * in drushrc.php. See examples/example.drushrc.php.
+ */
+function drush_environment_check_os() {
+  if (substr(PHP_OS, 0, 3) == 'WIN' && drush_get_option('check_os', TRUE)) {
+    $msg = 'Drush has significant limitations on Windows. We seek a co-maintainer to remedy them. See http://drupal.org/project/drush for more information, and for instructions on disabling this warning.';
+    drush_log(dt($msg), 'warning');
+  }
+}
+
+function drush_environment_table_inc() {
   // try using the PEAR installed version of Console_Table
   $tablefile = 'Console/Table.php';
   if (@file_get_contents($tablefile, FILE_USE_INCLUDE_PATH) === FALSE) {
@@ -507,6 +542,10 @@ function _drush_bootstrap_drush_validate() {
       }
       if (!file_exists($tablefile)) {
         drush_shell_exec("wget -q --timeout=30 -O $tablefile " . DRUSH_TABLE_URL);
+        // wget creates an empty file on timeout. We remove it here.
+        if (file_exists($tablefile) && !drush_file_not_empty($tablefile)) {
+          unlink($tablefile);
+        }
         if (!file_exists($tablefile)) {
           drush_shell_exec("curl -s  --connect-timeout 30 -o $tablefile " . DRUSH_TABLE_URL);
           if (!file_exists($tablefile)) {
@@ -517,8 +556,6 @@ function _drush_bootstrap_drush_validate() {
     }
   }
   require_once $tablefile;
-  
-  return TRUE;
 }
 
 /**
@@ -551,9 +588,15 @@ function _drush_bootstrap_drush() {
     // If stty failed, or we couldn't parse it's output, we assume 80 columns.
     if ($stty_status || !$stty_count) $columns = 80;
   }
+  // If a caller wants to reserve some room to add additional
+  // information to the drush output via post-processing, the
+  // --reserve-margin flag can be used to declare how much
+  // space to leave out.  This only affects drush functions
+  // such as drush_print_table that wrap the output.
+  $columns -= drush_get_option('reserve-margin', 0);
   drush_set_context('DRUSH_COLUMNS', $columns);
 
-  // statically define a way to call drush again
+  // Statically define a way to call drush again.
   define('DRUSH_COMMAND', drush_find_drush());
 
   $drush_info = drush_read_drush_info();
@@ -565,7 +608,7 @@ function _drush_bootstrap_drush() {
   // Load a drushrc.php file in the $ETC_PREFIX/etc/drush directory.
   drush_load_config('system');
 
-  // Load a drushrc.php file at ~/.drushrc.php
+  // Load a drushrc.php file at ~/.drushrc.php.
   drush_load_config('user');
 
   // Load a drushrc.php file in the ~/.drush directory.
@@ -769,6 +812,7 @@ function _drush_bootstrap_do_drupal_site() {
 
   drush_log(dt("Initialized Drupal site !site at !site_root", array('!site' => $site, '!site_root' => $conf_path)));
   drush_load_config('site');
+
   _drush_bootstrap_global_options();
 }
 
@@ -781,6 +825,9 @@ function _drush_bootstrap_do_drupal_site() {
 function _drush_bootstrap_drupal_site() {
   _drush_bootstrap_do_drupal_site();
   _drush_bootstrap_redo_drupal_site();
+
+  // Set warning for Windows users. We have already loaded site-specific drushrc.
+  drush_environment_check_os();
 }
 
 /**
@@ -859,6 +906,14 @@ function _drush_bootstrap_drupal_configuration() {
      default:
        if (!empty($GLOBALS['databases']['default']['default'])) {
          $conn = $GLOBALS['databases']['default']['default'];
+         // Fill in defaults to prevent notices.
+         $conn += array(
+           'username' => NULL,
+           'host' => NULL,
+           'port' => NULL,
+           'password' => NULL,
+           'database' => NULL,
+         );
          $creds['driver'] = $conn['driver'];
          $creds['user'] = $conn['username'];
          $creds['host'] = $conn['host'];
@@ -1114,11 +1169,18 @@ function drush_valid_db_credentials() {
       // Verify connection settings.
       switch ($type) {
         case 'mysql':
-        case 'mysqli':
           $hostspec = $creds['port'] ? $creds['host'] . ':' . $creds['port'] : $creds['host'];
           $connection = @mysql_connect($hostspec, $creds['user'], $creds['pass']);
           if (!$connection || !mysql_select_db($creds['name'])) {
             drush_log(mysql_error(), 'bootstrap');
+            return FALSE;
+          }
+          break;
+        case 'mysqli':
+          $connection = mysqli_init();
+          @mysqli_real_connect($connection, $creds['host'], $creds['user'], $creds['pass'], $creds['name'], (int)$creds['port']);
+          if (mysqli_connect_errno() > 0) {
+            drush_log(mysqli_connect_error(), 'bootstrap');
             return FALSE;
           }
           break;
@@ -1304,4 +1366,3 @@ function drush_theme_get_default() {
 function drush_theme_get_admin() {
   return variable_get('admin_theme', drush_theme_get_default());
 }
-

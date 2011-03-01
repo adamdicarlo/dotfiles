@@ -1,5 +1,5 @@
 <?php
-// $Id: drupal_6.inc,v 1.10 2010/11/24 10:00:02 jonhattan Exp $
+// $Id: drupal_6.inc,v 1.13 2011/01/23 20:12:22 jonhattan Exp $
 
 function pm_update_filter(&$project) {
   $update = FALSE;
@@ -67,6 +67,11 @@ function _pm_get_update_info($projects = NULL) {
   _update_cache_clear('update_project_projects');
 
   $data = update_calculate_project_data($info);
+  foreach ($data as $project_name => $project) {
+    if (in_array($project['project_type'], array('disabled-module', 'disabled-theme'))) {
+      $data[$project_name]['project_type'] = substr($project['project_type'], strpos($project['project_type'], '-') + 1);
+    }
+  }
   $data = _pm_get_project_path($data, 'includes');
 
   return $data;

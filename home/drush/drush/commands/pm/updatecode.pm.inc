@@ -1,5 +1,5 @@
 <?php
-// $Id: updatecode.pm.inc,v 1.32 2010/12/09 21:43:33 jonhattan Exp $
+// $Id: updatecode.pm.inc,v 1.46 2011/01/11 05:04:09 weitzman Exp $
 
 /**
  * Command callback. Displays update status info and allows to update installed
@@ -152,49 +152,50 @@ function drush_pm_updatecode() {
     }
   }
 
+  // First check to see if there is a newer drush.
+  $drush_update_available = NULL;
+  if (drush_get_option('self-update', TRUE)) {
+    $drush_update_available = drush_self_update(FALSE, FALSE);
+  }
+  
   // Do no updates in simulated mode
   if (drush_get_context('DRUSH_SIMULATE')) {
     return drush_log(dt('No action taken in simulated mode.'), 'ok');
     return TRUE;
   }
 
+  $core_update_available = FALSE;
   if (isset($updateable['drupal'])) {
     $drupal_project = $updateable['drupal'];
     unset($update_info['drupal']);
     unset($updateable['drupal']);
-    $module_list = array_keys($update_info);
 
-    // We can only upgrade drupal core if there are no non-core
-    // modules enabled.  _pm_update_core will disable the
-    // modules passed in, and insure that they are enabled again
-    // when we're done.  However, each run of pm-updatecode will
-    // update -either- core, or the non-core modules; never both.
-    // This simplifies rollbacks.
+    // At present we need to update drupal core after non-core projects
+    // are updated.
     if (empty($updateable)) {
-      return _pm_update_core($drupal_project, $module_list, $tmpfile);
+      return _pm_update_core($drupal_project, $tmpfile);
     }
-    // If there are modules other than drupal core enabled, then go
-    // ahead and print instructions on how to upgrade core.  We will
-    // also continue, allowing the user to upgrade any upgradable
-    // modules if desired.
+    // If there are modules other than drupal core enabled, then update them
+    // first.
     else {
+      $core_update_available = TRUE;
       if ($drupal_project['status'] == UPDATE_NOT_SECURE) {
         drush_print(dt("NOTE: A security update for the Drupal core is available."));
       }
       else {
         drush_print(dt("NOTE: A code update for the Drupal core is available."));
       }
-      if (drush_get_context('DRUSH_PM_UPDATE_ALL', FALSE)) {
-        drush_print(dt("Drupal core will be updated after all of the non-core modules are updated.\n"));
-      }
-      else {
-        drush_print(dt("Drupal core cannot be updated at the same time that non-core modules are updated.  In order to update Drupal core with this tool, first allow the update of the modules listed above to complet, and then run pm-updatecode again.\n"));
-      }
-      drush_set_context('DRUSH_PM_CORE_UPDATE_AVAILABLE', TRUE);
+      drush_print(dt("Drupal core will be updated after all of the non-core modules are updated.\n"));
     }
   }
 
+  // If there are no releases to update, then print a final
+  // exit message.  Supress the message if we already printed
+  // a message about a drush update being available.
   if (empty($updateable)) {
+    if ($drush_update_available === TRUE) {
+      return FALSE;
+    }
     if ($security_only) {
       return drush_log(dt('No security updates available.'), 'ok');
     }
@@ -203,8 +204,16 @@ function drush_pm_updatecode() {
     }
   }
 
-  // Offer to update to the identified releases
-  return pm_update_packages($updateable, $tmpfile);
+  // Offer to update to the identified releases.
+  if (!pm_update_packages($updateable, $tmpfile)) {
+    return FALSE;
+  }
+
+  // After projects are updated we can update core.
+  if ($core_update_available) {
+    drush_print();
+    return _pm_update_core($drupal_project, $tmpfile);
+  }
 }
 
 /**
@@ -213,11 +222,8 @@ function drush_pm_updatecode() {
  * @param $project
  *   The drupal project information from the drupal.org update service,
  *   copied from $update_info['drupal'].  @see drush_pm_updatecode.
- * @param $module_list
- *   A list of the non-core modules that are enabled.  These must be disabled
- *   before core can be updated.
  */
-function _pm_update_core(&$project, $module_list = array(), $tmpfile) {
+function _pm_update_core(&$project, $tmpfile) {
   drush_include_engine('package_handler', drush_get_option('package-handler', 'wget'));
   $drupal_root = drush_get_context('DRUSH_DRUPAL_ROOT');
 
@@ -230,7 +236,7 @@ function _pm_update_core(&$project, $module_list = array(), $tmpfile) {
     _drush_pm_releasenotes(array('drupal'), TRUE, $tmpfile);
   }
   if(!drush_confirm(dt('Do you really want to continue?'))) {
-    drush_user_abort();
+    return drush_user_abort();
   }
 
   // We need write permission on $drupal_root.
@@ -242,12 +248,11 @@ function _pm_update_core(&$project, $module_list = array(), $tmpfile) {
   $project['path'] = 'drupal-' . $project['candidate_version'];
   $project['full_project_path'] = $drupal_root . '/' . $project['path'];
   if (!is_dir($project['full_project_path'])) {
-    drush_op('mkdir', $project['full_project_path']);
+    drush_mkdir($project['full_project_path']);
   }
 
   // Create a list of directories to exclude from the update process.
   $skip_list = array('sites', $project['path']);
-  $skip_list = array_merge($skip_list, drush_version_control_reserved_files());
   // Add non-writable directories: we can't move them around.
   // We will also use $items_to_test later for $version_control check.
   $items_to_test = drush_scan_directory($drupal_root, '/.*/', array_merge(array('.', '..'), $skip_list), 0, FALSE, 'basename', 0, TRUE);
@@ -290,6 +295,9 @@ function _pm_update_core(&$project, $module_list = array(), $tmpfile) {
   // the drupal root
   _pm_update_move_files($project['full_project_path'], $drupal_root, $project['skip_list']);
   drush_delete_dir($project['full_project_path']);
+  
+  // Version control engines expect full_project_path to exist and be accurate.
+  $project['full_project_path'] = $project['base_project_path'];
 
   // If there is a backup target, then find items
   // in the backup target that do not exist at the
@@ -314,7 +322,7 @@ function _pm_update_move_files($src_dir, $dest_dir, $skip_list, $remove_conflict
       drush_delete_dir($dest_dir . '/' . basename($filename));
     }
     if (!file_exists($dest_dir . '/' . basename($filename))) {
-      $move_result = rename($filename,  $dest_dir . '/' . basename($filename));
+      $move_result = drush_move_dir($filename,  $dest_dir . '/' . basename($filename));
     }
   }
   return TRUE;
@@ -362,7 +370,6 @@ function pm_update_packages($update_info, $tmpfile) {
 
   // We print some warnings before the user confirms the update.
   drush_print();
-  drush_print(dt("Note: Updated projects can potentially break your site. It is NOT recommended to update production sites without prior testing."));
   if (drush_get_option('no-backup', FALSE)) {
     drush_print(dt("Note: You have selected to not store backups."));
   }
@@ -371,7 +378,7 @@ function pm_update_packages($update_info, $tmpfile) {
     drush_print(dt('Note: If you have made any modifications to any file that belongs to one of these projects, you will have to migrate those modifications after updating.'));
   }
   if(!drush_confirm(dt('Do you really want to continue with the update process?'))) {
-    drush_user_abort();
+    return drush_user_abort();
   }
 
   // Now we start the actual updating.
@@ -406,8 +413,8 @@ function pm_update_packages($update_info, $tmpfile) {
     }
     pm_update_complete($project, $version_control);
   }
-  // Clear the cache, since some projects could have moved around.
-  drush_drupal_cache_clear_all();
+
+  return TRUE;
 }
 
 /**
@@ -522,10 +529,12 @@ function pm_project_filter(&$update_info, &$rows, $security_only) {
     // Special checking:  if drush decides that the candidate version is older
     // than the installed version, then we will set the candidate version to
     // the installed version.
-    if ($project['releases'][$project['candidate_version']]['date'] < $project['releases'][$project['existing_version']]['date']) {
-      $project['candidate_version'] = $project['existing_version'];
+    if (isset($project['candidate_version'], $project['releases'][$project['candidate_version']], $project['releases'][$project['existing_version']])) {
+      if ($project['releases'][$project['candidate_version']]['date'] < $project['releases'][$project['existing_version']]['date']) {
+        $project['candidate_version'] = $project['existing_version'];
+      }
     }
-    
+
     if (isset($project['locked'])) {
       $status = $project['locked'] . " ($status)";
     }

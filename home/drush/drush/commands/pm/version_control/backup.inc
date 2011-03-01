@@ -1,5 +1,5 @@
 <?php
-// $Id: backup.inc,v 1.13 2010/12/09 21:50:28 jonhattan Exp $
+// $Id: backup.inc,v 1.20 2011/01/29 03:14:40 weitzman Exp $
 
 /**
  * @file Drush pm directory copy backup extension
@@ -12,7 +12,7 @@ class drush_pm_version_control_backup implements drush_pm_version_control {
    */
   public function pre_update(&$project, $items_to_test = array()) {
     if (drush_get_option('no-backup', FALSE)) {
-      return;
+      return TRUE;
     }
     if ($backup_target = $this->prepare_backup_dir()) {
       if ($project['project_type'] != 'core') {
@@ -44,7 +44,7 @@ class drush_pm_version_control_backup implements drush_pm_version_control {
     if (drush_get_option('no-backup', FALSE)) {
       return;
     }
-    if (drush_op('rename', $project['backup_target'], $project['full_project_path']) && is_dir($project['full_project_path'])) {
+    if (drush_move_dir($project['backup_target'], $project['full_project_path'])) {
       return drush_log(dt("Backups were restored successfully."), 'ok');
     }
     return drush_set_error('DRUSH_PM_BACKUP_ROLLBACK_FAILED', dt('Could not restore backup and rollback from failed upgrade. You will need to resolve manually.'));
@@ -68,22 +68,10 @@ class drush_pm_version_control_backup implements drush_pm_version_control {
   public function post_download($project) {
    // NOOP
   }
-  
+
   // Helper for pre_update.
-  public function prepare_backup_dir() {  
-    $drupal_root = drush_get_context('DRUSH_DRUPAL_ROOT');
-
-    // Save the date to be used in the backup directory's path name.
-    $date = date('YmdHis', $_SERVER['REQUEST_TIME']);
-
-    $backup_dir = drush_get_option('backup-dir', $_SERVER['HOME'] . '/' . '.drush-backups');
-    if (strpos($backup_dir, $drupal_root) === 0) {
-      return drush_set_error('DRUSH_PM_BACKUP_FAILED', dt('It\'s not allowed to store backups inside the Drupal root directory.'));
-    }
-    $backup_dir = rtrim($backup_dir, DIRECTORY_SEPARATOR) . '/' . $date;
-    if (drush_mkdir($backup_dir)) {
-      return $backup_dir;
-    }
+  public function prepare_backup_dir($subdir = NULL) {
+    return drush_prepare_backup_dir($subdir);
   }
 
   public static function reserved_files() {

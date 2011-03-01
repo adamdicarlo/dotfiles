@@ -1,5 +1,5 @@
 <?php
-// $Id: update_7.inc,v 1.29 2010/11/10 02:55:41 weitzman Exp $
+// $Id: update_7.inc,v 1.30 2010/12/30 18:28:08 greg1anderson Exp $
 /**
  * @file
  *   Update.php for provisioned sites.
@@ -234,7 +234,7 @@ function update_main() {
     }
 
     if (!drush_confirm(dt('Do you wish to run all pending updates?'))) {
-      drush_user_abort();
+      return drush_user_abort();
     }
 
     drush_update_batch($start);

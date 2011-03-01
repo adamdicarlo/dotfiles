@@ -1,4 +1,4 @@
-// $Id: README.txt,v 1.53 2010/12/06 06:00:28 greg1anderson Exp $
+// $Id: README.txt,v 1.60 2011/01/22 19:44:03 jonhattan Exp $
 
 DESCRIPTION
 -----------
@@ -8,16 +8,16 @@ for your shell (e.g. man bash) or reading an online tutorial (e.g. search
 for "bash tutorial") will help you get the most out of Drush.
 
 Drush core ships with lots of useful commands for interacting with code
-like modules/themes/profiles/translations. Similarly, it runs update.php, executes sql
+like modules/themes/profiles. Similarly, it runs update.php, executes sql
 queries and DB migrations, and misc utilities like run cron or clear cache.
 
 REQUIREMENTS
 ------------
 * To use drush from the command line, you'll need a CLI-mode capable PHP
   binary. The minimum PHP version is 5.2.
-* drush also runs on Windows; however, drush commands make use of
-  unix command line tools, so to use it effectively, you have to install
-  some of them, e.g. from GnuWin32 (http://gnuwin32.sourceforge.net/). More info
+* Some drush commands run on Windows. We recommend you use a Unix-like OS (e.g Linux, OSX).
+  If you must run Drush on Windows, you have to install Unix Tools from
+  GnuWin32 (http://gnuwin32.sourceforge.net/). More info
   about Drush on Windows available at http://drupal.org/node/594744.
 * Drush works with Drupal 5, Drupal 6 and Drupal 7.  However, occasionally
   recent changes to the most recent version of Drupal can introduce issues
@@ -88,9 +88,10 @@ For Linux/Unix/Mac:
     If you have troubles, try using the -l and -r options when invoking drush. See below.
 
 For Windows:
+  - Consider using on Linux/Unix/OSX using Virtualbox or other VM. Windows support is lacking.
   - Follow step 1. Use drush by navigating to /path/to/drush
     and running 'drush.bat'.
-  - You have to install gzip, libarchive, tar and wget executables. Go to
+  - You have to install gzip, libarchive, tar, wget, ncurses, and less executables. Go to
     http://gnuwin32.sourceforge.net/packages.html and install the packages.
     Add the folder %ProgramFiles%\GnuWin32\bin to your PATH.
     Documentation can be found at http://drupal.org/node/594744
@@ -99,6 +100,8 @@ For Windows:
     by 'drush.bat'.
   - If drush.bat is not working for you, either add the directory in which your
     php.exe resides to your PATH or edit drush.bat to point to your php.exe.
+  - To disable the warning about Windows support, set $options['check_os'] = FALSE
+    in drushrc.php. See examples/example.drushrc.php.
 
 USAGE
 -----
@@ -132,11 +135,11 @@ NOTE: If you do not specify a URI with -l and drush falls back to the default
 site configuration, Drupal's $GLOBAL['base_url'] will be set to http://default.
 This may cause some functionality to not work as expected.
 
-The drush cli command provide a customized bash shell with support for handy new
-functions like cdd which whisks you to any directory in your drupal site.
+The drush core-cli command provide a customized bash shell or lets you enhance
+your usual shell with its --pipe option.
 
 Many commands support a --pipe option which returns machine readable output. See
-`drush pm-list --status=enabled --pipe` as an example
+`drush pm-list --status=enabled --pipe` as an example.
 
 Very intensive scripts can exhaust your available PHP memory. One remedy is to 
 just restart automatically using bash. For example:
@@ -200,4 +203,4 @@ CREDITS
 Originally developed by Arto Bendiken <http://bendiken.net/> for Drupal 4.7.
 Redesigned by Franz Heinzmann (frando) <http://unbiskant.org/> in May 2007 for Drupal 5.
 Maintained by Moshe Weitzman <http://drupal.org/moshe> with much help from
-Owen Barton, Adrian Rossouw, greg.1.anderson.
+Owen Barton, Adrian Rossouw, greg.1.anderson, jonhattan.

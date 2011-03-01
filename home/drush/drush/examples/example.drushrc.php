@@ -1,5 +1,5 @@
 <?php
-// $Id: example.drushrc.php,v 1.14 2010/12/09 21:43:33 jonhattan Exp $
+// $Id: example.drushrc.php,v 1.20 2011/01/05 06:28:44 greg1anderson Exp $
 
 /*
  * Examples of valid statements for a drushrc.php file. Use this file to cut down on
@@ -57,6 +57,15 @@
 
 // Load a drushrc.php configuration file from the current working directory.
 # $options['c'] = '.';
+
+// Disable the nag warning for Windows.
+// Consider improving Windows support: http://drupal.org/node/766080. 
+# $options['check_os'] = FALSE;
+
+// Control automatically check for updates in pm-updatecode and drush version.
+// FALSE = never check for updates.  'head' = allow updates to drush-HEAD.
+// TRUE (default) = allow updates to latest stable release.
+# $options['self-update'] = FALSE;
 
 // Specify CVS for checkouts
 # $options['package-handler'] = 'cvs';
@@ -128,6 +137,15 @@
 # $options['output_charset'] = 'ISO-8859-1//TRANSLIT';
 
 /*
+ * Multiple command execution options
+ */
+// By default, drush will prepend the name of the
+// site to the output of any multiple-site command 
+// execution.  To disable this behavior, set the
+// --no-label option
+# $options['no-label'] = TRUE;
+
+/*
  * Customize this associative array with your own tables. This is the list of
  * tables whose *data* is skipped by the 'sql-dump' and 'sql-sync' commands when
  * a structure-tables-key is provided. You may add new tables to the existing
@@ -173,6 +191,19 @@ $options['skip-tables'] = array(
 // Always show release notes when running pm-update or pm-updatecode
 # $command_specific['pm-update'] = array('notes' => TRUE);
 # $command_specific['pm-updatecode'] = array('notes' => TRUE);
+
+// List of drush commands or aliases that should override built-in 
+// shell functions and commands; otherwise, built-ins override drush 
+// commands. Default is help,dd,sa.
+// Warning:  bad things can happen if you put the wrong thing here
+// (e.g. eval, grep), so be cautious.
+// If a drush command overrides a built-in command (e.g. bash help),
+// then you can use the `builtin` operator to run the built-in version
+// (e.g. `builtin help` to show bash help instead of drush help.)
+// If a drush command overrides a shell command (e.g. grep), then
+// you can use the regular shell command by typing in the full path
+// to the command (e.g. /bin/grep).
+# $command_specific['core-cli'] = array('override' => 'help,dd,sa');
 
 /**
  * Variable overrides:

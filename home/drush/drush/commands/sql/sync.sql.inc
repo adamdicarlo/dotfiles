@@ -1,5 +1,5 @@
 <?php
-// $Id: sync.sql.inc,v 1.42 2010/12/09 01:06:24 greg1anderson Exp $
+// $Id: sync.sql.inc,v 1.48 2010/12/31 15:15:30 greg1anderson Exp $
 
 require_once DRUSH_BASE_PATH . '/commands/core/rsync.core.inc';
 
@@ -40,6 +40,12 @@ function drush_sql_sync_init($source = NULL, $destination = NULL) {
     else {
       drush_set_option('deferred-sanitization', TRUE);
     }
+  }
+  
+  // By default, sql-sync will do an ordered dump.
+  // Set --no-ordered-dump to override.
+  if (!drush_get_option('no-ordered-dump', FALSE)) {
+    drush_set_option('ordered-dump', TRUE);
   }
   
   return TRUE;
@@ -283,14 +289,14 @@ function drush_sql_sync($source = NULL, $destination = NULL) {
       }
       else if (drush_get_option('deferred-sanitization', FALSE) && !drush_get_option('confirm-sanitizations', FALSE)) {
         drush_print();
-	drush_print("WARNING: --sanitize was specified, but deferred (e.g. the source site is remote).  The sanitization operations will be determined after the database is copied to the local system and will be run without further confirmation.  Run with --confirm-sanitizations to force confirmation after the sync.");
+        drush_print("WARNING: --sanitize was specified, but deferred (e.g. the source site is remote).  The sanitization operations will be determined after the database is copied to the local system and will be run without further confirmation.  Run with --confirm-sanitizations to force confirmation after the sync.");
       }
 
       // TODO: actually make the backup if desired.
       drush_print();
       drush_print(dt("You might want to make a backup first, using the sql-dump command.\n"));
       if (!drush_confirm(dt('Do you really want to continue?'))) {
-        drush_user_abort();
+        return drush_user_abort();
       }
     }
 
@@ -315,7 +321,7 @@ function drush_sql_sync($source = NULL, $destination = NULL) {
         }
         drush_set_option('result-file', $source_intermediate);
         list($dump_exec, $dump_file) = drush_sql_build_dump_command($table_selection, $source_db_url);
-	$dump_exec .= $mv_intermediate;
+        $dump_exec .= $mv_intermediate;
         if (isset($cache) && !$source_db_url['dump-is-temp']) {
           // Inject some bash commands to remotely test the modification date of the target file
           // if the cache option is set.
@@ -382,14 +388,8 @@ function drush_sql_sync($source = NULL, $destination = NULL) {
           $create_db_target['password'] = $db_su_pw;
         }
         $db_su_connect = _drush_sql_connect($create_db_target);
-        switch (_drush_sql_get_scheme($target_db_url)) {
-          case 'mysql':
-            $pre_import_commands = 'echo "DROP DATABASE IF EXISTS ' . $target_db_url['database'] . '; CREATE DATABASE ' . $target_db_url['database'] . '; GRANT ALL PRIVILEGES ON ' . $target_db_url['database'] . '.* TO \'' . $target_db_url['username'] . '\'@\'' . $target_db_url['host'] . '\' IDENTIFIED BY \'' . $target_db_url['password'] . '\';" | ' . $db_su_connect . '; ';
-            break;
-          case 'pgsql':
-            $pre_import_commands = 'echo "drop database if exists ' . $target_db_url['database'] . '; create database ' . $target_db_url['database'] . ';" | ' . $db_su_connect . '; ';
-            break;
-        }
+        $pre_import_sql = drush_sql_build_createdb_sql($target_db_url);
+        $pre_import_commands = sprintf('echo "%s" | %s; ', $pre_import_sql, $db_su_connect);
       }
 
       // Generate the import command
@@ -436,10 +436,10 @@ function drush_sql_sync($source = NULL, $destination = NULL) {
       // This presumes an important precondition, that the code
       // files were sync'ed before the database was sync'ed.
       if (drush_get_option('deferred-sanitization', FALSE) && (drush_has_boostrapped(DRUSH_BOOTSTRAP_DRUPAL_SITE) == FALSE)) {
-	$bootstrapped = drush_bootstrap_max_to_sitealias($destination_settings);
-	if ($bootstrapped) {
-	  drush_command_invoke_all('drush_sql_sync_sanitize', $destination);
-	}
+        $bootstrapped = drush_bootstrap_max_to_sitealias($destination_settings);
+        if ($bootstrapped) {
+          drush_command_invoke_all('drush_sql_sync_sanitize', $destination);
+        }
       }
     }
   }
@@ -461,16 +461,19 @@ function drush_sql_post_sql_sync($source = NULL, $destination = NULL) {
     // confirm unless --confirm-sanitizations is specified.
     if (drush_get_option('deferred-sanitization', FALSE) || drush_get_option('confirm-sanitizations', FALSE)) {
       if (!drush_get_context('DRUSH_SIMULATE')) {
-	$messages = _drush_sql_get_post_sync_messages();
-	if ($messages) {
+        $messages = _drush_sql_get_post_sync_messages();
+        if ($messages) {
           drush_print();
           drush_print($messages);
           if (drush_get_option('confirm-sanitizations', FALSE)) {
             if (!drush_confirm(dt('Do you really want to sanitize?'))) {
-              drush_user_abort('Aborting; sql-sync completed, but sanitizations skipped.');
-	    }
-	  }
-	}
+              // Do not abort or return FALSE; that would trigger a rollback.
+              // Just skip the sanitizations and signal that all is ok.
+              drush_log(dt('Sanitizations skipped.'), 'ok');
+              return TRUE;
+            }
+          }
+        }
       }
     }
     
@@ -481,7 +484,7 @@ function drush_sql_post_sql_sync($source = NULL, $destination = NULL) {
     }
     if ($sanitize_query) {
       if (!drush_get_context('DRUSH_SIMULATE')) {
-        $result = drush_invoke_sitealais_args($destination_settings, "sql-query", array($sanitize_query));
+        $result = drush_invoke_sitealias_args($destination_settings, "sql-query", array($sanitize_query));
       }
       else {
         drush_print("Executing on $destination: $sanitize_query");

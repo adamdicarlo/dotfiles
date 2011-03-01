@@ -1,20 +1,17 @@
 <?php
-// $Id: site_install.drush.inc,v 1.13 2010/12/08 14:58:47 greg1anderson Exp $
+// $Id: site_install.drush.inc,v 1.19 2011/01/09 13:49:50 weitzman Exp $
 
 // Perform setup tasks for installation.
 function drush_core_pre_site_install() {
-
   if (!$db_spec = drush_core_site_install_db_spec()) {
     drush_set_error(dt('Could not determine database connection parameters. Pass --db-url option.'));
     return;
   }
-
-  
   if ($sites_subdir = drush_get_option('sites-subdir')) {
     // Needed so that we later bootstrap into the right site.
     drush_set_option('uri', $sites_subdir);
   }
- else {
+  else {
     $sites_subdir = 'default';
   }
 
@@ -30,7 +27,7 @@ function drush_core_pre_site_install() {
   $msg[] = dt("DROP your '@db' database and then CREATE a new one.", array('@db' => $db_spec['database']));
 
   if (!drush_confirm(dt('You are about to ') . implode(dt(' and '), $msg) . ' Do you want to continue?')) {
-    return drush_set_error('CORE_SITE_INSTALL_ABORT', 'Aborting.');
+    return drush_user_abort();
   }
 
   // Can't install without sites directory and settings.php.
@@ -62,17 +59,10 @@ function drush_core_pre_site_install() {
     }
   }
 
-  // Now we can bootstrap up to the specified site if not already there.
-  drush_bootstrap(DRUSH_BOOTSTRAP_DRUPAL_SITE);
+  // Now we can bootstrap up to the specified site.
+  drush_bootstrap(DRUSH_BOOTSTRAP_DRUPAL_CONFIGURATION);
 
   // Drop and create DB if needed.
-  // @TODO: support db-su like sql sync.
-
-  // Can't use drush_sql_query() since might not have a DB.
-  // Get credentials to connect to the server, but not the database which we
-  // are about to DROP.
-
-  // Save the database name before we unset() it.
   $db_name = $db_spec['database'];
   $scheme = _drush_sql_get_scheme($db_spec);
   $simulate = drush_get_context('DRUSH_SIMULATE');
@@ -86,36 +76,23 @@ function drush_core_pre_site_install() {
         drush_set_error(dt('Could not drop database: @name', array('@name' => $db_name)));
       }
     }
-    // Nothing else to do for SQLite installations, so return.
-    return;
   }
-  // _drush_sql_get_credentials() will set a default database according to
-  // the scheme if one is not set.
-  unset($db_spec['database']);
-  $credentials = _drush_sql_get_credentials($db_spec);
-
-  $db_quoted_name = "\"$db_name\"";
-  $scheme_command = $scheme;
-  switch ($scheme) {
-    case 'mysql':
-      $command_parameter_name = 'execute';
-      $db_quoted_name = "`$db_name`";
-      break;
-    case 'pgsql':
-      $scheme_command = 'psql --dbname=template1';
-      $command_parameter_name = 'command';
-      break;
+  else {
+    $sql = drush_sql_build_createdb_sql($db_spec, TRUE);
+    // Get credentials to connect to the server, but not the database which we
+    // are about to DROP. @see _drush_sql_get_credentials().
+    $create_db_spec = $db_spec;
+    unset($create_db_spec['database']);
+    if (!_drush_sql_query($sql, $create_db_spec)) {
+      // If we could not drop the database, try instead to drop all
+      // of the tables in the database (presuming it exists...).
+      // If we cannot do either operation, then fail with an error.
+      if (!_drush_sql_drop($db_spec)) {
+        return drush_set_error(dt('Could not drop and create database: @name', array('@name' => $db_name)));
+      }
+    }
   }
-  $execute = "$scheme_command $credentials --$command_parameter_name";
-  
-  if (drush_op_system("$execute='DROP DATABASE IF EXISTS $db_quoted_name'")) {
-    drush_set_error(dt('Could not drop database: @name', array('@name' => $db_name)));
-    return;
-  }
-  if (drush_op_system("$execute='CREATE DATABASE $db_quoted_name'")) {
-    drush_set_error(dt('Could not create new database: @name', array('@name' => $db_name)));
-    return;
-  }
+  return TRUE;
 }
 
 // Command callback.

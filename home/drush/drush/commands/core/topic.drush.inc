@@ -1,5 +1,5 @@
 <?php
-// $Id: topic.drush.inc,v 1.7 2010/12/09 01:06:24 greg1anderson Exp $
+// $Id: topic.drush.inc,v 1.8 2010/12/25 07:34:38 weitzman Exp $
 
 /**
  * @file
@@ -58,6 +58,7 @@ function drush_topic_core_topic($topic_name = NULL) {
     foreach (drush_get_topics() as $key => $topic) {
       $choices[$key] = $topic['description'];
     }
+    natcasesort($choices);
     if (!$topic_name = drush_choice($choices, dt('Choose a topic'), '!value (!key)')) {
       return;
     }

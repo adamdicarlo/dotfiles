@@ -1,5 +1,5 @@
 <?php
-// $Id: backend.inc,v 1.34 2010/12/09 01:10:11 greg1anderson Exp $
+// $Id: backend.inc,v 1.41 2011/01/29 20:16:35 weitzman Exp $
 
 /**
  * @file Drush backend API
@@ -47,8 +47,14 @@
  * external servers through SSH pipes, simply by prepending, 'ssh username@server.com'
  * in front of the command.
  *
- * If the key-based ssh authentication has been set up between the servers, this will just
- * work, otherwise the user will be asked to enter a password.
+ * If the key-based ssh authentication has been set up between the servers,
+ * this will just work.  By default, drush is configured to disallow password
+ * authentication; if you would like to enter a password for every connection,
+ * then in your drushrc.php file, set $options['ssh-options'] so that it does NOT
+ * include '-o PasswordAuthentication=no'.  See examples/example.drushrc.php.
+ *
+ * The results from backend API calls can be fetched via a call to
+ * drush_backend_get_result().
  */
 
 /**
@@ -61,7 +67,43 @@ function drush_backend_set_result($value) {
     drush_set_context('BACKEND_RESULT', $value);
   }
 }
-
+/**
+ * Retrieves the results from the last call to backend_invoke.
+ *
+ * @returns array
+ *   An associative array containing information from the last
+ *   backend invoke.  The keys in the array include:
+ *
+ *     - output: This item contains the textual output of
+ *       the command that was executed.
+ *     - object: Contains the PHP object representation of the
+ *       result of the command.
+ *     - self: The self object contains the alias record that was
+ *       used to select the bootstrapped site when the command was
+ *       executed.
+ *     - error_status: This item returns the error status for the
+ *       command.  Zero means "no error".
+ *     - log: The log item contains an array of log messages from
+ *       the command execution ordered chronologically.  Each log
+ *       entery is an associative array.  A log entry contains
+ *       following items:
+ *         o  type: The type of log entry, such as 'notice' or 'warning'
+ *         o  message: The log message
+ *         o  timestamp: The time that the message was logged
+ *         o  memory: Available memory at the time that the message was logged
+ *         o  error: The error code associated with the log message
+ *            (only for log entries whose type is 'error')
+ *     - error_log: The error_log item contains another representation
+ *       of entries from the log.  Only log entries whose 'error' item
+ *       is set will appear in the error log.  The error log is an
+ *       associative array whose key is the error code, and whose value
+ *       is an array of messages--one message for every log entry with
+ *       the same error code.
+ *     - context: The context item contains a representation of all option
+ *       values that affected the operation of the command, including both
+ *       the command line options, options set in a drushrc.php configuration
+ *       files, and options set from the alias record used with the command.
+ */
 function drush_backend_get_result() {
   return drush_get_context('BACKEND_RESULT');
 }
@@ -84,6 +126,16 @@ function drush_backend_output() {
   // The error log is a more specific version of the log, and may be used by calling
   // scripts to check for specific errors that have occurred.
   $data['error_log'] = drush_get_error_log();
+  // If there is a @self record, then include it in the result
+  $self_record = drush_sitealias_get_record('@self');
+  if (!empty($self_record)) {
+    $site_context = drush_get_context('site', array());
+    unset($site_context['config-file']);
+    unset($site_context['context-path']);
+    unset($self_record['loaded-config']);
+    unset($self_record['name']);
+    $data['self'] = array_merge($site_context, $self_record);
+  }
 
   // Return the options that were set at the end of the process.
   $data['context']  = drush_get_merged_options();
@@ -178,7 +230,10 @@ function _drush_proc_open($cmd, $data = NULL, $context = NULL) {
      1 => array("pipe", "w"),  // stdout is a pipe that the child will write to
      2 => array("pipe", "w")   // stderr is a pipe the child will write to
   );
-
+  if (drush_get_context('DRUSH_SIMULATE')) {
+    drush_print('proc_open: ' . $cmd);
+    return FALSE;
+  }
   $process = proc_open($cmd, $descriptorspec, $pipes, null, null, array('context' => $context));
   if (is_resource($process)) {
     if ($data) {
@@ -210,7 +265,7 @@ function _drush_proc_open($cmd, $data = NULL, $context = NULL) {
     $code = proc_close($process);
     return array('cmd' => $cmd, 'output' => $string, 'code' => $code);
   }
-  return false;
+  return FALSE;
 }
 
 /**
@@ -257,9 +312,59 @@ function drush_backend_invoke($command, $data = array(), $method = 'GET', $integ
 
 /**
  * A variant of drush_backend_invoke() which specifies command and arguments separately.
+ *
+ * @deprecated Is not as extensible as drush_backend_invoke_sitealias; @see http://drupal.org/node/766080
+ * @see drush_invoke_sitealias_args() and @see drush_invoke_process and
+ * @see drush_backend_invoke_sitealias() for better options.
  */
 function drush_backend_invoke_args($command, $args, $data = array(), $method = 'GET', $integrate = TRUE, $drush_path = NULL, $hostname = NULL, $username = NULL, $ssh_options = NULL) {
   $cmd = _drush_backend_generate_command($command, $args, $data, $method, $drush_path, $hostname, $username, $ssh_options);
+  return _drush_backend_invoke($cmd, $data, $integrate);
+}
+
+/**
+ * Execute a new local or remote command in a new process.
+ *
+ * @param site_record
+ *   An array containing information used to generate the command.
+ *   'remote-host'
+ *      Optional. A remote host to execute the drush command on.
+ *   'remote-user'
+ *      Optional. Defaults to the current user. If you specify this, you can choose which module to send.
+ *   'ssh-options'
+ *      Optional.  Defaults to "-o PasswordAuthentication=no"
+ *   'path-aliases'
+ *      Optional; contains paths to folders and executables useful to the command.
+ *      '%drush-script'
+ *        Optional. Defaults to the current drush.php file on the local machine, and
+ *        to simply 'drush' (the drush script in the current PATH) on remote servers.
+ *        You may also specify a different drush.php script explicitly.  You will need
+ *        to set this when calling drush on a remote server if 'drush' is not in the
+ *        PATH on that machine.
+ * @param command
+ *    A defined drush command such as 'cron', 'status' or any of the available ones such as 'drush pm'.
+ * @param args
+ *    An array of arguments for the command.
+ * @param data
+ *    Optional. An array containing options to pass to the remote script.
+ *    Array items with a numeric key are treated as optional arguments to the command.
+ *    This parameter is a reference, as any options that have been represented as either an option, or an argument will be removed.
+ *    This allows you to pass the left over options as a JSON encoded string, without duplicating data.
+ * @param method
+ *    Optional. Defaults to 'GET'.
+ *    If this parameter is set to 'POST', the $data array will be passed to the script being called as a JSON encoded string over
+ *    the STDIN pipe of that process. This is preferable if you have to pass sensitive data such as passwords and the like.
+ *    For any other value, the $data array will be collapsed down into a set of command line options to the script.
+ * @param integrate
+ *    Optional. Defaults to TRUE.
+ *    If TRUE, any error statuses or log messages will be integrated into the current process. This might not be what you want,
+ *    if you are writing a command that operates on multiple sites.
+ *
+ * @return
+ *   A text string representing a fully escaped command.
+ */
+function drush_backend_invoke_sitealias($site_record, $command, $args, $data = array(), $method = 'GET', $integrate = TRUE) {
+  $cmd = _drush_backend_generate_command_sitealias($site_record, $command, $args, $data, $method);
   return _drush_backend_invoke($cmd, $data, $integrate);
 }
 
@@ -286,6 +391,7 @@ function drush_backend_invoke_args($command, $args, $data = array(), $method = '
  */
 function _drush_backend_invoke($cmd, $data = null, $integrate = TRUE) {
   drush_log(dt('Running: !cmd', array('!cmd' => $cmd)), 'command');
+
   $proc = _drush_proc_open($cmd, $data);
 
   if (($proc['code'] == DRUSH_APPLICATION_ERROR) && $integrate) {
@@ -321,10 +427,6 @@ function _drush_backend_invoke($cmd, $data = null, $integrate = TRUE) {
  *    If this parameter is set to 'POST', the $data array will be passed to the script being called as a JSON encoded string over
  *    the STDIN pipe of that process. This is preferable if you have to pass sensitive data such as passwords and the like.
  *    For any other value, the $data array will be collapsed down into a set of command line options to the script.
- * @param integrate
- *    Optional. Defaults to TRUE.
- *    If TRUE, any error statuses or log messages will be integrated into the current process. This might not be what you want,
- *    if you are writing a command that operates on multiple sites.
  * @param drush_path
  *    Optional. Defaults to the current drush.php file on the local machine, and
  *    to simply 'drush' (the drush script in the current PATH) on remote servers.
@@ -338,12 +440,76 @@ function _drush_backend_invoke($cmd, $data = null, $integrate = TRUE) {
  *
  * @return
  *   A text string representing a fully escaped command.
+ *
+ * @deprecated Is not as flexible as recommended command.  @see _drush_backend_generate_command_sitealias().
  */
 function _drush_backend_generate_command($command, $args, &$data, $method = 'GET', $drush_path = null, $hostname = null, $username = null, $ssh_options = NULL) {
+  return _drush_backend_generate_command_sitealias(
+    array(
+      'remote-host' => $hostname,
+      'remote-user' => $username,
+      'ssh-options' => $ssh_options,
+      'path-aliases' => array(
+        '%drush-script' => $drush_path,
+      ),
+    ), $command, $args, $data, $method);
+}
+
+/**
+ * Generate a command to execute.
+ *
+ * @param site_record
+ *   An array containing information used to generate the command.
+ *   'remote-host'
+ *      Optional. A remote host to execute the drush command on.
+ *   'remote-user'
+ *      Optional. Defaults to the current user. If you specify this, you can choose which module to send.
+ *   'ssh-options'
+ *      Optional.  Defaults to "-o PasswordAuthentication=no"
+ *   'path-aliases'
+ *      Optional; contains paths to folders and executables useful to the command.
+ *      '%drush-script'
+ *        Optional. Defaults to the current drush.php file on the local machine, and
+ *        to simply 'drush' (the drush script in the current PATH) on remote servers.
+ *        You may also specify a different drush.php script explicitly.  You will need
+ *        to set this when calling drush on a remote server if 'drush' is not in the
+ *        PATH on that machine.
+ * @param command
+ *    A defined drush command such as 'cron', 'status' or any of the available ones such as 'drush pm'.
+ * @param args
+ *    An array of arguments for the command.
+ * @param data
+ *    Optional. An array containing options to pass to the remote script.
+ *    Array items with a numeric key are treated as optional arguments to the command.
+ *    This parameter is a reference, as any options that have been represented as either an option, or an argument will be removed.
+ *    This allows you to pass the left over options as a JSON encoded string, without duplicating data.
+ * @param method
+ *    Optional. Defaults to 'GET'.
+ *    If this parameter is set to 'POST', the $data array will be passed to the script being called as a JSON encoded string over
+ *    the STDIN pipe of that process. This is preferable if you have to pass sensitive data such as passwords and the like.
+ *    For any other value, the $data array will be collapsed down into a set of command line options to the script.
+ *
+ * @return
+ *   A text string representing a fully escaped command.
+ */
+function _drush_backend_generate_command_sitealias($site_record, $command, $args, &$data, $method = 'GET') {
+  $drush_path = null;
+
+  $hostname = array_key_exists('remote-host', $site_record) ? $site_record['remote-host'] : null;
+  $username = array_key_exists('remote-user', $site_record) ? $site_record['remote-user'] : null;
+  $ssh_options = array_key_exists('ssh-options', $site_record) ? $site_record['ssh-options'] : null;
+
+  $drush_path = NULL;
+  if (array_key_exists('path-aliases', $site_record)) {
+    if (array_key_exists('%drush-script', $site_record['path-aliases'])) {
+      $drush_path = $site_record['path-aliases']['%drush-script'];
+    }
+  }
+
   if (drush_is_local_host($hostname)) {
     $hostname = null;
   }
-  
+
   $drush_path = !is_null($drush_path) ? $drush_path : (is_null($hostname) ? DRUSH_COMMAND : 'drush'); // Call own drush.php file on local machines, or 'drush' on remote machines.
   $data['root'] = array_key_exists('root', $data) ? $data['root'] : drush_get_context('DRUSH_DRUPAL_ROOT');
   $data['uri'] = array_key_exists('uri', $data) ? $data['uri'] : drush_get_context('DRUSH_URI');
@@ -384,8 +550,7 @@ function drush_backend_fork($command, $data, $drush_path = null, $hostname = nul
   $args = explode(" ", $command);
   $command = array_shift($args);
   $cmd = "(" . _drush_backend_generate_command($command, $args, $data, 'GET', $drush_path, $hostname, $username) . ' &) > /dev/null';
-  drush_log(dt("Forking : !cmd", array('!cmd' => $cmd)));
-  system($cmd);
+  drush_op_system($cmd);
 }
 
 /**

@@ -1,6 +1,6 @@
 #!/usr/bin/env php
 <?php
-// $Id: drush.php,v 1.92 2010/12/09 01:06:24 greg1anderson Exp $
+// $Id: drush.php,v 1.96 2011/01/17 12:34:17 weitzman Exp $
 
 /**
  * @file
@@ -10,7 +10,7 @@
  */
 // Terminate immediately unless invoked as a command line script
 if (!drush_verify_cli()) {
-  die('drush.php is designed to run via the command line.');
+  die('drush is designed to run via the command line.');
 }
 
 // Check supported version of PHP.
@@ -92,6 +92,7 @@ function drush_main() {
         drush_enforce_requirement_bootstrap_phase($command);
         drush_enforce_requirement_core($command);
         drush_enforce_requirement_drupal_dependencies($command);
+        drush_enforce_requirement_drush_dependencies($command);
 
         if ($bootstrap_result && empty($command['bootstrap_errors'])) {
           drush_log(dt("Found command: !command (commandfile=!commandfile)", array('!command' => $command['command'], '!commandfile' => $command['commandfile'])), 'bootstrap');
@@ -237,10 +238,13 @@ function drush_drupal_login($drush_user) {
 
   if (empty($user)) {
     if (is_numeric($drush_user)) {
-      $message = dt('Could not login with user ID #%user.', array('%user' => $drush_user));
+      $message = dt('Could not login with user ID #!user.', array('!user' => $drush_user));
+      if ($drush_user === 0) {
+        $message .= ' ' . dt('This is typically caused by importing a MySQL database dump from a faulty tool which re-numbered the anonymous user ID in the users table. See !link for help recovering from this situation.', array('!link' => 'http://drupal.org/node/1029506'));
+      }
     }
     else {
-      $message = dt('Could not login with user account `%user\'.', array('%user' => $drush_user));
+      $message = dt('Could not login with user account `!user\'.', array('!user' => $drush_user));
     }
     return drush_set_error('DRUPAL_USER_LOGIN_FAILED', $message);
   }

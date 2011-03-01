@@ -1,5 +1,5 @@
 <?php
-// $Id: field.drush.inc,v 1.7 2010/08/12 14:28:46 weitzman Exp $
+// $Id: field.drush.inc,v 1.10 2011/01/06 16:25:02 greg1anderson Exp $
 
 /**
  * @file
@@ -10,15 +10,11 @@
  * Implementation of hook_drush_help().
  */
 function field_drush_help($section) {
-  switch ($section)  {
-    case 'drush:field-create':
-      return dt('Quickly create fields and instances for a given bundle.');
-    case 'drush:field-update':
-      return dt('Return URL for editing field.');
-    case 'drush:field-clone':
-      return dt('Clone a field and all of its instances.');
-    case 'drush:field-info':
-      return dt('View information about fields, field_types, widgets, etc.');
+  switch ($section) {
+    case 'meta:field:title':
+      return dt('Field commands');
+    case 'meta:field:summary':
+      return dt('Manipulate Drupal 7+ fields.');
   }
 }
 
@@ -161,7 +157,7 @@ function drush_field_delete($field_name) {
     }
     else {
       if (!drush_confirm(dt('Do you want to delete the %field_name field?', array('%field_name' => $field_name)))) {
-        return drush_log(dt('Aborting.'));
+        return drush_user_abort();
       }
     }
   }

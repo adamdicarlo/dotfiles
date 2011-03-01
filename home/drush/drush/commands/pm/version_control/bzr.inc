@@ -1,5 +1,5 @@
 <?php
-// $Id: bzr.inc,v 1.9 2010/12/07 16:35:09 jonhattan Exp $
+// $Id: bzr.inc,v 1.13 2011/01/26 19:17:40 jonhattan Exp $
 
 /**
  * @file Drush pm Bazaar extension
@@ -9,14 +9,16 @@ class drush_pm_version_control_bzr implements drush_pm_version_control {
 
   /**
    * Implementation of pre_update().
+   *
+   * Check that the project or drupal core directory looks clean
    */
   public function pre_update(&$project, $items_to_test = array()) {
     // If items to test is empty, test everything; otherwise, pass just
     // the list of files to test to Bazaar status.
-    $status_files = implode(' ', array_keys($items_to_test));
-
-    // Check the project directory looks clean
-    if (drush_shell_exec('cd %s && bzr status --short %s', $project['full_project_path'], $status_files)) {
+    $args = array_keys($items_to_test);
+    array_unshift($args, 'bzr status --short ' . str_repeat('%s ', count($args)));
+    array_unshift($args, $project['full_project_path']);
+    if (call_user_func_array('drush_shell_cd_and_exec', $args)) {
       $output = preg_grep('/^[\sRCP][\sNDKM][\s\*]/', drush_shell_exec_output());
       if (!empty($output)) {
         return drush_set_error('DRUSH_PM_BZR_LOCAL_CHANGES', dt("The Bazaar working copy at !path appears to have uncommitted changes (see below). Please commit or revert these changes before continuing:\n!output", array('!path' => $project['full_project_path'], '!output' => implode("\n", $output))));
@@ -80,8 +82,7 @@ class drush_pm_version_control_bzr implements drush_pm_version_control {
         foreach ($output as $line) {
           if (preg_match('/^\?\s+(.*)/', $line, $matches)) {
             $path = $root[0] .'/'. $matches[1];
-            // Bazaar add is by default recursive so only run on "full_project_path".
-            if (($path == $project['full_project_path'] .'/') && !drush_shell_exec('bzr add %s', $path)) {
+            if (!drush_shell_exec('bzr add --no-recurse %s', $path)) {
               $errors .= implode("\n", drush_shell_exec_output());
             }
           }

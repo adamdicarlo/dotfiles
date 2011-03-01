@@ -1,5 +1,5 @@
 <?php
-// $Id: upgrade.drush.inc,v 1.21 2010/11/04 17:27:32 weitzman Exp $
+// $Id: upgrade.drush.inc,v 1.25 2011/01/26 04:32:36 weitzman Exp $
 
 /**
  * @file
@@ -15,9 +15,10 @@ function upgrade_drush_command() {
   $items = array();
 
   $items['site-upgrade'] = array(
-    'description' => "Run a major version upgrade for Drupal core and contrib modules.",
+    'description' => "Run a major version upgrade for Drupal (e.g. Drupal 6 to Drupal 7).",
     'drupal dependencies' => array('update'),
-    'core' => array(6), // Remove once 3.0 is released.
+    'drush dependencies' => array('sql', 'pm', 'core'),
+    'core' => array(6), // Add 7 once drush4 is released.
     'arguments' => array(
       'target' => 'The name of a sitealias, which points to the destination site. root, uri, and db-url keys are required. See examples/aliases.drushrc.php for more information about creating a site alias.'),
     'examples' => array(
@@ -28,8 +29,11 @@ function upgrade_drush_command() {
       'source-dump' => 'Path to dump file. Medium or large sized sites should set this. Optional; default is to create a temporary file.',
       'db-su' => 'DB username to use when dropping and creating the target database. Optional.',
       'db-su-pw' => 'DB password to use when dropping and creating the target database. Optional.',
+      'no-cache' => 'Transfer a fresh database from source site. Otherwise, DB dump is re-used for 24 hours.',
+      'no-updatedb' => 'Don\'t updatedb on the target site. Can be useful while debugging to run this separately.',
     ),
     'aliases' => array('sup'),
+    'topics' => array('docs-aliases'),
   );
   return $items;
 }
@@ -40,7 +44,7 @@ function upgrade_drush_command() {
 function upgrade_drush_help($section) {
   switch ($section) {
     case 'drush:site-upgrade':
-      return dt("Execute a major version upgrade for Drupal core and enabled contrib modules. Command will download next version of Drupal and all available contrib modules that have releases (if not already downloaded). It prepares a settings.php for the target site, and copies the prior version's database to the target site. Finally, updatedb is run. The intent is for developers to keep re-running this command until they are satisfied with the resulting site. Run this command from within your source site (D6).");
+      return dt("Execute a major version upgrade for Drupal core and enabled contrib modules. Command will download next version of Drupal and all available contrib modules that have releases (if not already downloaded). It prepares a settings.php for the target site, and copies the prior version's database to the target site. Finally, updatedb is run. The intent is for developers to keep re-running this command until they are satisfied with the resulting site. Run this command from within your source site (D6). Note that this command uses pm-download and sql-sync internally so most options for those commands are valid here too.");
   }
 }
 
@@ -87,7 +91,7 @@ function drush_upgrade_site_upgrade($target_key) {
   $projects = update_get_projects();
   // We already downloaded Drupal project.
   unset($projects['drupal']);
-  $projects = pm_get_project_path($projects, 'includes');
+  $projects = _pm_get_project_path($projects, 'includes');
 
   // Fetch and place each project into target.
   // TODO: use non dev snapshot releases.
@@ -138,8 +142,14 @@ function drush_upgrade_site_upgrade($target_key) {
   drush_invoke('sql_sync', '@self', $target_key);
   if (drush_get_error()) return -1; // Early exit if we see an error.
 
-  // Run update.php in a subshell. It is run on @target site whereas this request was on @self.
-  drush_do_site_command($target_alias, 'updatedb', array(), array(), TRUE);
+  if (drush_get_context('DRUSH_SIMULATE') || drush_get_option('no-updatedb')) {
+    // Updatedb does not support simulate so we don't call it.
+    drush_log(dt('About to perform updatedb on !target', array('!target' => $target_key)), 'ok');
+  }
+  else {
+    // Run update.php in a subshell. It is run on @target site whereas this request was on @self.
+    drush_do_site_command($target_alias, 'updatedb', array(), array(), TRUE);
+  }
 }
 
 // Replace db_url with DB name from target. updatedb will later append a DBTNG compatible version.
