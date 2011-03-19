@@ -26,6 +26,7 @@ deploy_config () {
 main () {
   cd home
   for FILE in *; do
+    echo "Deploying .$FILE"
     deploy_config "$FILE" ~/."$FILE"
   done
   cd ..
