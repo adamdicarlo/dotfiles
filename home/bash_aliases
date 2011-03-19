@@ -13,7 +13,8 @@ if [ -d "/Users" ]; then
   done
 fi
 
-alias cbt='rdesktop -g1676x954 -u test -p ie6.die.die.die 10.0.0.155 &'
+alias windows1='rdesktop -g1676x954 -u test -p ie6.die.die.die 10.0.0.10 &'
+alias windows2='rdesktop -g1676x954 -u test -p ie6.die.die.die 10.0.0.11 &'
 alias tun='pkill -f tunnels;autossh -fN oolon-tunnels'
 alias css-aggregation-on='drush vset --yes preprocess_css 1 && drush cc all'
 alias css-aggregation-off='drush vset --yes preprocess_css 0 && drush cc all'
