@@ -1,6 +1,6 @@
-[submodule "home/drush/drush_make"]
-	path = home/drush/drush_make
+[submodule "opt/drush_make"]
+	path = opt/drush_make
 	url = adamdicarlo@git.drupal.org:project/drush_make
-[submodule "home/drush/drush"]
-	path = home/drush/drush
+[submodule "opt/drush"]
+	path = opt/drush
 	url = adamdicarlo@git.drupal.org:project/drush
