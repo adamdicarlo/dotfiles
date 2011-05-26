@@ -20,3 +20,5 @@
 [cola]
 	fontdiff = Droid Sans Mono,10,-1,5,50,0,0,0,0,0
 	fontui = Nimbus Sans L,12,-1,5,50,0,0,0,0,0
+[url "git+ssh://adamdicarlo@git.drupal.org/project/"]
+  insteadOf = dm:
