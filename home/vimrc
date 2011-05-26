@@ -7,6 +7,7 @@ set showcmd
 set smartindent
 set tabstop=2
 colorscheme desert
+syntax on
 
 let php_sql_query = 1
 let php_parent_error_close = 1
@@ -30,7 +31,13 @@ if has("autocmd")
     autocmd BufRead,BufNewFile *.less set filetype=less
   augroup END
 endif
-syntax on
+
+" Switch movement keys for Colemak so they're not super confusing.
+set langmap=hk,jh,kj
+
+" PHP dictionary for autocompletion
+set dict +=~/.vim/dictionaries/PHP.dict
+set dict +=~/.vim/dictionaries/drupal6.dict
 
 " Drupal 6 omni-completion: http://github.com/agileadam/drupal6complete
 imap <buffer> <C-d> <C-\><C-O>:call drupal6complete#Map()<CR><C-X><C-O>
