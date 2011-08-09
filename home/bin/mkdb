@@ -1,0 +1,31 @@
+#!/bin/bash
+if [ -z "$1" ]; then
+  echo "Need at least one parameter."
+  echo "Usage $0 \$database_name \$username \$password"
+  exit 1
+fi
+
+db="$1"
+if [ ! -z "$2" ]; then
+  user="$2"
+else
+  user="$db"
+fi
+
+if [ ! -z "$3" ]; then
+  password="$3"
+else
+  password="$db"
+fi
+
+permissions="SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, INDEX, ALTER, LOCK TABLES"
+permissions="ALL PRIVILEGES"
+
+echo "This will DROP database '$db' on $(hostname), then create $user:$password@localhost/$db"
+echo "with Drupal permissions: $permissions"
+
+sql="DROP DATABASE IF EXISTS $db; CREATE DATABASE $db; \
+GRANT $permissions ON $db.* TO '$user'@'localhost' IDENTIFIED BY '$password';"
+echo -e "\n[MySQL root password]"
+echo "$sql" | mysql -uroot -p
+echo "ahem: $db_url='mysqli://$user:$password@localhost/$db';"

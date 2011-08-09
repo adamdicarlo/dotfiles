@@ -1,0 +1,40 @@
+#!/bin/bash
+if [[ $UID != 0 ]]; then
+  echo "Please run as root"
+  exit 1
+fi
+
+if [[ -z "$1" ]]; then
+  echo "Usage: $0 <hostname>"
+  echo "Example: $0 foobar -> creates http://foobar site"
+  exit 2
+fi
+
+hostname="$1"
+site="${hostname}"
+site_path="$(echo ~)/projects/${hostname}"
+
+echo "Creating apache VirtualHost for $site at ${site_path}/app/drupal/"
+cat > /etc/apache2/sites-available/${site} <<EOF
+<VirtualHost *>
+    ServerAdmin webmaster@localhost
+    ServerName  $site
+
+    DocumentRoot ${site_path}/app/drupal/
+
+    # Possible values include: debug, info, notice, warn, error, crit,
+    # alert, emerg.
+    LogLevel warn
+
+    ErrorLog ${site_path}/error.log
+    CustomLog ${site_path}/access.log combined
+</VirtualHost>
+EOF
+echo "Enabling apache VirtualHost for $site"
+a2ensite $site
+echo "Reloading apache"
+/etc/init.d/apache2 reload
+echo "Adding an entry to /etc/hosts"
+echo "127.0.0.1 $site" >> /etc/hosts
+
+
