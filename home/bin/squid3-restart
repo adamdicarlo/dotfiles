@@ -1,0 +1,6 @@
+#!/bin/bash
+sudo killall squid3
+sleep 1
+sudo killall squid3
+sleep 5
+sudo /etc/init.d/squid3 start
