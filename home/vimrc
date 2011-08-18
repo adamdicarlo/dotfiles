@@ -35,6 +35,10 @@ endif
 " Switch movement keys for Colemak so they're not super confusing.
 set langmap=hk,jh,kj
 
+" Useful trick when I've forgotten to sudo before editing a file.
+" Source: https://github.com/cypher/dotfiles/blob/master/vimrc
+cmap w!! w !sudo tee % >/dev/null
+
 " PHP dictionary for autocompletion
 set dict +=~/.vim/dictionaries/PHP.dict
 set dict +=~/.vim/dictionaries/drupal6.dict
