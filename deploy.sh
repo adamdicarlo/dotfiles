@@ -25,10 +25,16 @@ deploy_config () {
 #
 main () {
   cd home
-  for FILE in *; do
-    echo "Deploying .$FILE"
-    deploy_config "$FILE" ~/."$FILE"
-  done
+    for FILE in *; do
+      echo "Deploying .$FILE"
+      deploy_config "$FILE" ~/."$FILE"
+    done
+  cd ..
+  cd scripts
+    for FILE in *; do
+      echo "Deploying bin/$FILE"
+      deploy_config "$FILE" ~/bin/"$FILE"
+    done
   cd ..
 }
 
