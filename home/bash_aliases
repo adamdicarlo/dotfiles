@@ -36,6 +36,7 @@ alias sss='cd ../../..'
 alias ssss='cd ../../../..'
 alias sssss='cd ../../../../..'
 alias ssssss='cd ../../../../../..'
+alias sssssss='cd ../../../../../../..'
 
 cool-cd () {
   builtin cd "$*" && ls -F --color=auto
