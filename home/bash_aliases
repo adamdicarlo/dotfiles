@@ -11,6 +11,7 @@ if [ -d "/Users" ]; then
 
     alias "${UTIL:1}"="$UTIL"
   done
+  alias love='/Applications/love.app/Contents/MacOS/love'
 fi
 
 alias windows1='rdesktop -g1676x954 -u test -p ie6.die.die.die 10.0.0.10 &'
