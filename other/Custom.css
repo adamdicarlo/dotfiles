@@ -1,0 +1,14 @@
+.styles-section:hover .properties .enabled-button {
+    visibility: visible !important;
+}
+
+.styles-section .properties li.disabled .enabled-button {
+    visibility: visible !important;
+}
+
+.styles-section .properties .enabled-button {
+  margin: 0 4px 0 0 !important;
+  display: block !important;
+  float: left !important;
+  visibility: hidden !important;
+}

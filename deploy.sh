@@ -7,10 +7,11 @@
 deploy_config () {
   SOURCE="$(pwd)/$1"
   TARGET="$2"
+  echo "Deploying $TARGET"
   if [[ -f "$TARGET" && ! -h "$TARGET" ]]; then
     # Clobber .gitk if it already exists. gitk always updates it.
     if [[ "$1" == "gitk" ]]; then
-      echo "Removing ~/.gitk"
+      echo "Removing $TARGET"
     else
       echo "$TARGET exists and is not a symbolic link! Skipping."
       continue
@@ -26,16 +27,18 @@ deploy_config () {
 main () {
   cd home
     for FILE in *; do
-      echo "Deploying .$FILE"
       deploy_config "$FILE" ~/."$FILE"
     done
   cd ..
   cd scripts
     for FILE in *; do
-      echo "Deploying bin/$FILE"
       deploy_config "$FILE" ~/bin/"$FILE"
     done
   cd ..
+
+  # TODO: Use appropriate path on OS X
+  echo "Deploying custom Google Chrome CSS"
+  ln -sf "other/Custom.css" ~/."config/google-chrome/Default/User StyleSheets/Custom.css"
 }
 
 main
