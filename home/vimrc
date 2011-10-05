@@ -1,15 +1,25 @@
 set autoindent
+set encoding=utf-8
 set expandtab
+set history=300     " Number of commands to remember
 set incsearch
+set ignorecase      " Ignore case when searching
+set smartcase       " Only ignore case when all lowercase
+set linebreak       " Break lines when appropriate
 set mouse=a
+set number          " Show line numbers
+set nocompatible    " Allow vim-only settings even if they break vi keybindings.
+set scrolloff=2
 set shiftwidth=2
 set showcmd
 set smartindent
+set smarttab
 set tabstop=2
 colorscheme desert
 syntax on
 
 set runtimepath+=$HOME/.vim/syntastic
+set runtimepath+=$HOME/.vim/phpcomplete
 
 let php_sql_query = 1
 let php_parent_error_close = 1
@@ -46,8 +56,8 @@ set dict +=~/.vim/dictionaries/PHP.dict
 set dict +=~/.vim/dictionaries/drupal6.dict
 
 " Drupal 6 omni-completion: http://github.com/agileadam/drupal6complete
-imap <buffer> <C-d> <C-\><C-O>:call drupal6complete#Map()<CR><C-X><C-O>
-let g:drupal6complete_add_paren = 1
+" imap <buffer> <C-d> <C-\><C-O>:call drupal6complete#Map()<CR><C-X><C-O>
+" let g:drupal6complete_add_paren = 1
 
 " Highlight redundant whitespaces and tabs.
 highlight RedundantSpaces ctermbg=red guibg=red
