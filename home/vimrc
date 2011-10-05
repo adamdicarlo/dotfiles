@@ -62,14 +62,6 @@ cmap w!! w !sudo tee % >/dev/null
 set dict +=~/.vim/dictionaries/PHP.dict
 set dict +=~/.vim/dictionaries/drupal6.dict
 
-" Drupal 6 omni-completion: http://github.com/agileadam/drupal6complete
-" imap <buffer> <C-d> <C-\><C-O>:call drupal6complete#Map()<CR><C-X><C-O>
-" let g:drupal6complete_add_paren = 1
-
 " Highlight redundant whitespaces and tabs.
 highlight RedundantSpaces ctermbg=red guibg=red
 match RedundantSpaces /\s\+$\| \+\ze\t\|\t/
-
-" Highlight chars that go over the 80-column limit
-":highlight OverLength ctermbg=red ctermfg=white guibg=red guifg=white
-":match OverLength '\%81v.*'
