@@ -1,16 +1,6 @@
 # If on Mac, set up the coreutils aliases
 if [ -d "/Users" ]; then
-  for UTIL in /usr/local/Cellar/coreutils/8.5/bin/*; do
-    # e.g.: alias ls=gls
-    UTIL=$(basename $UTIL)
-
-    # aliasing [ is madness
-    if [ $UTIL == "g[" ]; then
-      continue
-    fi
-
-    alias "${UTIL:1}"="$UTIL"
-  done
+  source /usr/local/Cellar/coreutils/8.12/aliases
   alias love='/Applications/love.app/Contents/MacOS/love'
 fi
 
