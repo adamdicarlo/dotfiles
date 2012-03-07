@@ -38,7 +38,7 @@ main () {
 
   # TODO: Use appropriate path on OS X
   echo "Deploying custom Google Chrome CSS"
-  ln -sf "other/Custom.css" ~/."config/google-chrome/Default/User StyleSheets/Custom.css"
+  ln -sf "`pwd`/other/Custom.css" ~/."config/google-chrome/Default/User StyleSheets/Custom.css"
 }
 
 main
