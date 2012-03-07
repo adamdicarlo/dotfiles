@@ -12,7 +12,8 @@ fi
 
 hostname="$1"
 site="${hostname}"
-site_path="$(echo ~)/projects/${hostname}"
+# Remove the ".dev" suffix; I don't use those in my project paths.
+site_path="$(echo ~)/projects/$(echo $hostname | sed -e 's/.dev//')"
 
 echo "Creating apache VirtualHost for $site at ${site_path}/app/drupal/"
 cat > /etc/apache2/sites-available/${site} <<EOF
