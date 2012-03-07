@@ -1,6 +1,9 @@
+call pathogen#infect()
+
 set autoindent
 set encoding=utf-8
 set expandtab
+set hidden
 set history=300     " Number of commands to remember
 set incsearch
 set ignorecase      " Ignore case when searching
@@ -15,11 +18,20 @@ set showcmd
 set smartindent
 set smarttab
 set tabstop=2
-colorscheme desert
+set wildmenu
+
+"------  Visual Options  ------
+set guioptions-=T           "remove toolbar
+set ruler                   "Displays cursor position on bottom right of screen
+set statusline=%<%f\ %h%m%r%=%{fugitive#statusline()}\ \ %-14.(%l,%c%V%)\ %P
+set background=dark
+colorscheme desertink
 syntax on
 
-set runtimepath+=$HOME/.vim/syntastic
-set runtimepath+=$HOME/.vim/phpcomplete
+
+set wildignore+=*/.git/*,*/.hg/*,*/.svn/*
+
+let mapleader = " "
 
 let php_sql_query = 1
 let php_parent_error_close = 1
@@ -38,6 +50,8 @@ if has("autocmd")
     autocmd BufRead,BufNewFile *.profile set filetype=php
     autocmd BufRead,BufNewFile *.test set filetype=php
   augroup END
+  autocmd BufRead,BufNewFile *.make set filetype=ini
+  autocmd BufRead,BufNewFile *.info set filetype=ini
 endif
 
 " When in split screen, map <C-LeftArrow> and <C-RightArrow> to switch panes.
