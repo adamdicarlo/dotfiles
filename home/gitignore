@@ -1,3 +1,12 @@
 # Vim swapfiles
 .*.swp
+# LOL, CVS
 CVS
+# Apache vhost logs
+access.log
+error.log
+# IDE stuff
+.buildpath
+.settings
+.project
+nbproject
