@@ -1,0 +1,8 @@
+#!/usr/bin/perl
+print "checking to see if irc tunnel is working...";
+if ( `ps x | grep "ssh -fN -L 6667" | grep -v grep` ) {
+   print "irc tunnel running okay!\n";
+} else {
+   print "irc tunnel not connected... reloading...\n";
+   system("ssh -fN -L 6667:localhost:6667 gargravarr");
+};
