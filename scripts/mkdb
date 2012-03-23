@@ -27,5 +27,4 @@ echo "with Drupal permissions: $permissions"
 sql="DROP DATABASE IF EXISTS $db; CREATE DATABASE $db; \
 GRANT $permissions ON $db.* TO '$user'@'localhost' IDENTIFIED BY '$password';"
 echo -e "\n[MySQL root password]"
-echo "$sql" | mysql -uroot -p
-echo "ahem: $db_url='mysqli://$user:$password@localhost/$db';"
+echo "$sql" | mysql -uroot -p && echo "ahem: $db_url='mysqli://$user:$password@localhost/$db';"
