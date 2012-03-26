@@ -28,8 +28,7 @@ export VISUAL=vim
 export PATH=$HOME/bin:$PATH:/usr/local/bin:/usr/local/sbin
 
 if [ -d "/Users" ]; then
-  # MacBook
-  echo "OS X, eh?"
+  # Mac OS X
   export PS1='\[\033[01;32m\]\u@\h \[\033[01;34m\]\w\[\033[00m\]$ '
   alias ls='gls -F --color=auto'
   alias ll='gls -lagh'
