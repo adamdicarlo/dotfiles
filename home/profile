@@ -32,6 +32,7 @@ if [ -d "/Users" ]; then
   export PS1='\[\033[01;32m\]\u@\h \[\033[01;34m\]\w\[\033[00m\]$ '
   alias ls='gls -F --color=auto'
   alias ll='gls -lagh'
+  alias mysqlctl='sudo /Library/StartupItems/MySQLCOM/MySQLCOM'
   alias hibernate_on='sudo pmset -a hibernatemode 5'
   alias hibernate_off='sudo pmset -a hibernatemode 3'
   alias photoshop='open -a "Adobe Photoshop CS4"'
