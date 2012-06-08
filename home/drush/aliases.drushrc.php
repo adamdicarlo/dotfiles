@@ -33,7 +33,11 @@ foreach ($gargravarr as $g_host) {
   $aliases[$g_host] = array(
     'uri' => 'default',
     'root' => '/var/www/' . $g_host . '/current',
-    'remote-user' => $_SERVER['USER'],
+    'remote-user' => 'ajd',
     'remote-host' => 'gargravarr.opensourcery.com',
+    'path-aliases' => array(
+      '%drush' => '/usr/local/bin/drush',
+      '%dump-dir' => '/home/ajd/drush-dumps',
+    ),
   );
 }

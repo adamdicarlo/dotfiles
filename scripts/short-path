@@ -1,0 +1,44 @@
+#!/usr/bin/env python
+#
+# Shorten PWD for use in a shell prompt
+#
+import os
+
+# Shorten path down to length N
+PWD_MAX_LEN = int(os.getenv('COLUMNS')) / 3
+
+# Always include the last N dirs
+PWD_LAST=3
+
+pwd = os.getenv('PWD')
+home = os.getenv('HOME')
+
+if pwd.startswith(home):
+    pwd = pwd.replace(home, '~', 1)
+
+dirs = pwd.split('/')
+
+def path(dirs):
+    return '/'.join(dirs)
+
+def shorten(d):
+    if not d:
+        return d
+    return d[0]
+
+keep_next = False
+for (i, p) in enumerate(dirs[:-PWD_LAST]):
+    if len(path(dirs)) <= PWD_MAX_LEN:
+        break
+
+    if keep_next:
+      keep_next = False
+      continue
+
+    dirs[i] = shorten(p)
+
+    if p == 'projects':
+      keep_next = True
+
+
+print path(dirs)
