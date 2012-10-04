@@ -55,6 +55,7 @@ if has("autocmd")
   augroup END
   autocmd BufRead,BufNewFile *.make set filetype=ini
   autocmd BufRead,BufNewFile *.info set filetype=ini
+  au Bufread,BufNewFile *.feature set filetype=cucumber
 endif
 
 " When in split screen, map <C-LeftArrow> and <C-RightArrow> to switch panes.
