@@ -25,7 +25,7 @@ fi
 export EDITOR=vim
 export VISUAL=vim
 
-export PATH=$HOME/bin:$PATH:/usr/local/bin:/usr/local/sbin
+export PATH=$HOME/bin:/usr/local/bin:/usr/local/sbin:$PATH
 export PYTHONPATH=/usr/local/lib/python2.7/site-packages
 
 # Drush bash completion.
