@@ -60,6 +60,9 @@ endif
 nn [1;5D <C-W>w
 nn [1;5C <C-W>W
 
+" Select just-pasted text.
+nnoremap gp `[v`]
+
 " Bubble single lines
 nmap <C-Up> ddhP
 nmap <C-Down> ddp
