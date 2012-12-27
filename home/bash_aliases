@@ -28,6 +28,7 @@ alias ssss='cd ../../../..'
 alias sssss='cd ../../../../..'
 alias ssssss='cd ../../../../../..'
 alias sssssss='cd ../../../../../../..'
+alias tun='pkill -f tunnels; autossh -M0 -fN gargravarr-tunnels'
 alias v='vim'
 alias xclip='parcellite'
 
