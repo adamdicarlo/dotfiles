@@ -64,11 +64,11 @@ nn [1;5C <C-W>W
 nnoremap gp `[v`]
 
 " Bubble single lines
-nmap <C-Up> ddhP
-nmap <C-Down> ddp
+nmap <C-A-Up> ddhP
+nmap <C-A-Down> ddp
 " Bubble multiple lines
-vmap <C-Up> xkP`[V`]
-vmap <C-Down> xp`[V`]
+vmap <C-A-Up> xkP`[V`]
+vmap <C-A-Down> xp`[V`]
 
 " Switch movement keys for Colemak so they're not super confusing.
 set langmap=hk,jh,kj
