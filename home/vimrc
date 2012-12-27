@@ -1,5 +1,4 @@
 let mapleader = ","
-
 call pathogen#infect()
 
 set autoindent
@@ -7,18 +6,19 @@ set encoding=utf-8
 set expandtab
 set hidden
 set history=300     " Number of commands to remember
-set incsearch
 set ignorecase      " Ignore case when searching
-set smartcase       " Only ignore case when all lowercase
+set incsearch
 set linebreak       " Break lines when appropriate
 set mouse=a
-set number          " Show line numbers
 set nocompatible    " Allow vim-only settings even if they break vi keybindings.
+set number          " Show line numbers
 set scrolloff=2
 set shiftwidth=2
 set showcmd
+set smartcase       " Only ignore case when all lowercase
 set smartindent
 set smarttab
+set softtabstop=2
 set tabstop=2
 set wildmenu
 
