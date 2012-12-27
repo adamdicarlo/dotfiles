@@ -24,8 +24,9 @@ fi
 
 export EDITOR=vim
 export VISUAL=vim
+export PAGER=most
 
-export PATH=$HOME/bin:/usr/local/bin:/usr/local/sbin:$PATH
+export PATH=$HOME/bin:/usr/local/bin:/usr/local/sbin:$PATH:/usr/local/share/npm/bin
 export PYTHONPATH=/usr/local/lib/python2.7/site-packages
 
 # Drush bash completion.
@@ -45,7 +46,7 @@ if [ -d "/Users" ]; then
   alias hibernate_off='sudo pmset -a hibernatemode 3'
   alias photoshop='open -a "Adobe Photoshop CS4"'
 
-  export PATH=/usr/local/git/bin:/user/local/bin:/usr/local/mysql/bin:/usr/local/Cellar/python/2.7/bin:~/bin:$PATH
+  export PATH=/usr/local/mysql/bin:/usr/local/git/bin:/usr/local/Cellar/python/2.7/bin:~/bin:$PATH
   export MANPATH=/usr/local/share/man:$MANPATH:/Library/Framework/Mono.framework/Versions/Current/man
 
 else

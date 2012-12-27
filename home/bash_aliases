@@ -1,9 +1,3 @@
-# If on Mac, set up the coreutils aliases
-if [ -d "/Users" ]; then
-  source /usr/local/Cellar/coreutils/8.12/aliases
-  alias love='/Applications/love.app/Contents/MacOS/love'
-fi
-
 alias cd='cool-cd'
 alias css-aggregation-on='drush vset --yes preprocess_css 1 && drush cc all'
 alias css-aggregation-off='drush vset --yes preprocess_css 0 && drush cc all'
@@ -31,6 +25,13 @@ alias sssssss='cd ../../../../../../..'
 alias tun='pkill -f tunnels; autossh -M0 -fN gargravarr-tunnels'
 alias v='vim'
 alias xclip='parcellite'
+
+# If on Mac, set up the coreutils aliases
+if [ -d "/Users" ]; then
+  source /usr/local/Cellar/coreutils/8.12/aliases
+  alias love='/Applications/love.app/Contents/MacOS/love'
+  alias v='mvim'
+fi
 
 #
 # Autojump (`j`) will skip symlinks when deciding where to put you. Since
