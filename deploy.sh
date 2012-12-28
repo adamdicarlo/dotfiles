@@ -43,7 +43,7 @@ main () {
     chrome_user_styles=~/Library/Application\ Support/Google/Chrome/Default/User\ StyleSheets/Custom.css
   else
     # Ubuntu
-    chrome_user_styles=~/.config/google-chrome/Default/User StyleSheets/Custom.css
+    chrome_user_styles=~/.config/google-chromium/Default/User StyleSheets/Custom.css
   fi
   ln -sf "`pwd`/other/Custom.css" "$chrome_user_styles"
 }
