@@ -31,19 +31,20 @@ main () {
     done
   cd ..
   cd scripts
+    mkdir ~/bin 2>/dev/null
     for FILE in *; do
       deploy_config "$FILE" ~/bin/"$FILE"
     done
   cd ..
 
-  # TODO: Use appropriate path on OS X
-  echo "Deploying custom Google Chrome CSS"
   if [ -d /Users ]; then
     # Mac OS X
+    echo "Deploying custom Google Chrome CSS"
     chrome_user_styles=~/Library/Application\ Support/Google/Chrome/Default/User\ StyleSheets/Custom.css
   else
     # Ubuntu
-    chrome_user_styles=~/.config/google-chromium/Default/User StyleSheets/Custom.css
+    echo "Deploying custom Chromium CSS"
+    chrome_user_styles=~/.config/chromium/Default/User\ StyleSheets/Custom.css
   fi
   ln -sf "`pwd`/other/Custom.css" "$chrome_user_styles"
 }
