@@ -13,6 +13,7 @@
 	status = auto
 [core]
 	excludesfile = /Users/bikko/.gitignore
+	editor = vim -f
 [merge]
   tool = meld
 [cola]
