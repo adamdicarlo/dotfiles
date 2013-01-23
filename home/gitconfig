@@ -11,7 +11,7 @@
 	interactive = auto
 	status = auto
 [core]
-	excludesfile = /Users/bikko/.gitignore
+	excludesfile = ~/.gitignore
 	editor = vim -f
 [merge]
   tool = meld
