@@ -1,0 +1,12 @@
+[submodule "home/janus/VimDebugger"]
+	path = home/janus/VimDebugger
+	url = git@github.com:adamdicarlo/VimDebugger.git
+[submodule "home/janus/vim-desertink"]
+	path = home/janus/vim-desertink
+	url = git://github.com/toupeira/vim-desertink.git
+[submodule "home/janus/vim-gnupg"]
+	path = home/janus/vim-gnupg
+	url = git://github.com/jamessan/vim-gnupg.git
+[submodule "home/janus/Conque-Shell"]
+	path = home/janus/Conque-Shell
+	url = git://github.com/petrblaho/Conque-Shell.git
