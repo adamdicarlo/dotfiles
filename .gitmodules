@@ -10,3 +10,6 @@
 [submodule "home/janus/Conque-Shell"]
 	path = home/janus/Conque-Shell
 	url = git://github.com/petrblaho/Conque-Shell.git
+[submodule "home/janus/vim-cucumber"]
+	path = home/janus/vim-cucumber
+	url = git://github.com/tpope/vim-cucumber.git
