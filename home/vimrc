@@ -1,38 +1,28 @@
-let mapleader = ","
-call pathogen#infect()
+call janus#disable_plugin('nerdtree')
+call janus#disable_plugin('vroom')
+call janus#disable_plugin('narrowregion')
 
-set autoindent
-set encoding=utf-8
-set expandtab
-set hidden
-set history=300     " Number of commands to remember
-set ignorecase      " Ignore case when searching
-set incsearch
-set linebreak       " Break lines when appropriate
-set mouse=a
-set nocompatible    " Allow vim-only settings even if they break vi keybindings.
-set number          " Show line numbers
-set scrolloff=2
-set shiftwidth=2
-set showcmd
-set smartcase       " Only ignore case when all lowercase
-set smartindent
-set smarttab
+set history=300      " Remember this many commands
+set scrolloff=2      " Scroll 2 lines before bottom/top
 set softtabstop=2
 set tabstop=2
 set wildmenu
 
-"------  Visual Options  ------
-set guioptions-=T           "remove toolbar
-set ruler                   "Displays cursor position on bottom right of screen
-set statusline=%<%f\ %h%m%r%=%{fugitive#statusline()}\ \ %-14.(%l,%c%V%)\ %P
-set background=dark
-colorscheme desertink
-syntax on
+" Re-enable these?
+"set linebreak       " Break lines when appropriate
+"set mouse=a
+"set showcmd
+"set smartcase       " Only ignore case when all lowercase
+"set smartindent
+"set smarttab
 
-let g:ctrlp_map = '<c-p>'
-let g:ctrlp_cmd = 'CtrlP'
-let g:ctrlp_custom_ignore = '\.git$\|\.hg$\|\.svn$'
+"------  Visual Options ------
+set guioptions-=T    " Remove toolbar.
+
+" set statusline=%<%f\ %h%m%r%=%{fugitive#statusline()}\ \ %-14.(%l,%c%V%)\ %P
+set background=dark
+
+colorscheme blacksea
 
 let g:syntastic_phpcs_conf="--standard=Drupal --extensions=php,module,inc,install,test,profile,theme"
 
@@ -41,46 +31,70 @@ let php_parent_error_close = 1
 " let php_folding = 1
 
 "------  PHP debugging  ------
-map <F11> :DbgStepInto<CR>
-map <F10> :DbgStepOver<CR>
-map <S-F11> :DbgStepOut<CR>
-map <F5> :DbgRun<CR>
-map <S-F5> :DbgDetach<CR>
-map <F8> :DbgToggleBreakpoint<CR>
+"map <F11> :DbgStepInto<CR>
+"map <F10> :DbgStepOver<CR>
+"map <S-F11> :DbgStepOut<CR>
+"map <F5> :DbgRun<CR>
+"map <S-F5> :DbgDetach<CR>
+"map <F8> :DbgToggleBreakpoint<CR>
 
 "------  Syntax highlighting  ------
 if has("autocmd")
   " Drupal's PHP file extensions
   autocmd BufRead,BufNewFile *.module,*.install,*.test,*.inc,*.profile,*.view,*.engine set filetype=drupal.php
   autocmd BufRead,BufNewFile *.info,*.make set filetype=ini
-  autocmd Bufread,BufNewFile *.feature set filetype=cucumber
+  autocmd BufRead,BufNewFile *.feature set filetype=cucumber
+  autocmd BufRead,BufNewFile *.pp set filetype=ruby
 endif
 
-" When in split screen, map <C-LeftArrow> and <C-RightArrow> to switch panes.
-nn [1;5D <C-W>w
-nn [1;5C <C-W>W
+"------ Colemak keyboard layout mappings ------
+map <Up> gh
+map <Down> gk
+
+" Bubble single lines
+nmap <C-h> ddhP
+nmap <C-k> ddp
+
+" Bubble multiple lines
+vmap <C-h> xkP`[V`]
+vmap <C-k> xp`[V`]
+
+" Source: http://forum.colemak.com/viewtopic.php?pid=184#p184
+noremap K J
+noremap J K
+noremap h k
+noremap j h
+noremap k j
+noremap gh gk
+noremap gj gh
+noremap gk gj
+noremap zh zk
+"zK does not exist
+noremap zj zh
+noremap zJ zH
+noremap zk zj
+"zJ does not exist
+noremap z<Space> zl
+noremap z<S-Space> zL
+noremap z<BS> zh
+noremap z<S-BS> zH
+noremap <C-w>h <C-w>k
+noremap <C-w>H <C-w>K
+noremap <C-w>j <C-w>h
+noremap <C-w>J <C-w>H
+noremap <C-w>k <C-w>j
+noremap <C-w>K <C-w>J
+noremap <C-w><Space> <C-w>l
+noremap <C-w><S-Space> <C-w>L
+noremap <C-w><S-BS> <C-w>H
 
 " Select just-pasted text.
 nnoremap gp `[v`]
 
-" Bubble single lines
-nmap <C-A-Up> ddhP
-nmap <C-A-Down> ddp
-" Bubble multiple lines
-vmap <C-A-Up> xkP`[V`]
-vmap <C-A-Down> xp`[V`]
-
-" Switch movement keys for Colemak so they're not super confusing.
-set langmap=hk,jh,kj
-
-" Useful trick when I've forgotten to sudo before editing a file.
-" Source: https://github.com/cypher/dotfiles/blob/master/vimrc
-cmap w!! w !sudo tee % >/dev/null
-
 " PHP dictionary for autocompletion
-set dict +=~/.vim/dictionaries/PHP.dict
-set dict +=~/.vim/dictionaries/drupal6.dict
+"set dict +=~/.vim/dictionaries/PHP.dict
+"set dict +=~/.vim/dictionaries/drupal6.dict
 
-" Highlight redundant whitespaces and tabs.
+" Highlight tabs.
 highlight RedundantSpaces ctermbg=red guibg=red
-match RedundantSpaces /\s\+$\| \+\ze\t\|\t/
+match RedundantSpaces / \+\ze\t\|\t/
