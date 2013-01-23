@@ -3,7 +3,6 @@
 	email = adam.dicarlo@gmail.com
 [github]
 	user = adamdicarlo
-	token = 4c27c1d55e799fb6f6c549ffeef8a04e
 [push]
 	default = current
 [color]
@@ -24,7 +23,5 @@
 [mergetool "meld"]
   cmd = meld $LOCAL $BASE $REMOTE --output=$MERGED
   trustExitCode = true
-[gui]
-  recentrepo = /Users/bikko/projects/solar
 [mergetool]
   keepBackup = false
