@@ -47,7 +47,7 @@ if [ -d "/Users" ]; then
   alias hibernate_off='sudo pmset -a hibernatemode 3'
   alias photoshop='open -a "Adobe Photoshop CS4"'
 
-  export PATH=/usr/local/mysql/bin:/usr/local/git/bin:/usr/local/Cellar/python/2.7/bin:~/bin:$PATH
+  export PATH=/usr/local/Cellar/ruby/1.9.3-p327/bin:/usr/local/mysql/bin:/usr/local/git/bin:/usr/local/Cellar/python/2.7/bin:~/bin:$PATH
   export MANPATH=/usr/local/share/man:$MANPATH:/Library/Framework/Mono.framework/Versions/Current/man
 
 else
