@@ -95,6 +95,13 @@ noremap <C-w><Space> <C-w>l
 noremap <C-w><S-Space> <C-w>L
 noremap <C-w><S-BS> <C-w>H
 
+" Easy split navigation, adapted from
+" https://github.com/sjl/dotfiles/blob/master/vim/vimrc#L509.
+noremap <C-h> <C-w>k
+noremap <C-j> <C-w>h
+noremap <C-k> <C-w>j
+noremap <C-l> <C-w>l
+
 " Select just-pasted text.
 nnoremap gp `[v`]
 
