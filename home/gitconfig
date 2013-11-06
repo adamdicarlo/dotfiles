@@ -20,6 +20,8 @@
 	fontui = Nimbus Sans L,12,-1,5,50,0,0,0,0,0
 [url "git+ssh://adamdicarlo@git.drupal.org/project/"]
   insteadOf = dm:
+[url "git@github.com:"]
+  insteadOf = gh:
 [mergetool "meld"]
   cmd = meld $LOCAL $BASE $REMOTE --output=$MERGED
   trustExitCode = true
