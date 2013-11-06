@@ -18,11 +18,15 @@ set wildmenu
 
 "------  Visual Options ------
 set guioptions-=T    " Remove toolbar.
+set guifont=Monospace\ 10
+set guifont=Mensch\ for\ Powerline\ 10
+set guifont=Menlo\ for\ Powerline\ 10
+set guifont=Inconsolata-dz\ for\ Powerline\ 10
 
 " set statusline=%<%f\ %h%m%r%=%{fugitive#statusline()}\ \ %-14.(%l,%c%V%)\ %P
 set background=dark
 
-colorscheme blacksea
+colorscheme desertink
 
 let g:syntastic_phpcs_conf="--standard=Drupal --extensions=php,module,inc,install,test,profile,theme"
 
