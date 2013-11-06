@@ -47,6 +47,9 @@ if has("autocmd")
   autocmd BufRead,BufNewFile *.pp set filetype=ruby
 endif
 
+"------ active buffer's path
+cnoremap <expr> %%  getcmdtype() == ':' ? expand('%:h') . '/' : '%%'
+
 "------ Colemak keyboard layout mappings ------
 map <Up> gh
 map <Down> gk
