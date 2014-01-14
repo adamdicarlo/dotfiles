@@ -1,20 +1,17 @@
-call janus#disable_plugin('nerdtree')
-call janus#disable_plugin('vroom')
-call janus#disable_plugin('narrowregion')
-
 set history=300      " Remember this many commands
 set scrolloff=2      " Scroll 2 lines before bottom/top
 set softtabstop=2
 set tabstop=2
 set wildmenu
 
-" Re-enable these?
-"set linebreak       " Break lines when appropriate
-"set mouse=a
-"set showcmd
-"set smartcase       " Only ignore case when all lowercase
-"set smartindent
-"set smarttab
+set linebreak       " Break lines when appropriate
+set mouse=a
+set showcmd
+set smartcase       " Only ignore case when all lowercase
+set smartindent
+set smarttab
+
+let mapleader = ","
 
 "------  Visual Options ------
 set guioptions-=T    " Remove toolbar.
@@ -32,15 +29,6 @@ let g:syntastic_phpcs_conf="--standard=Drupal --extensions=php,module,inc,instal
 
 let php_sql_query = 1
 let php_parent_error_close = 1
-" let php_folding = 1
-
-"------  PHP debugging  ------
-"map <F11> :DbgStepInto<CR>
-"map <F10> :DbgStepOver<CR>
-"map <S-F11> :DbgStepOut<CR>
-"map <F5> :DbgRun<CR>
-"map <S-F5> :DbgDetach<CR>
-"map <F8> :DbgToggleBreakpoint<CR>
 
 "------  Syntax highlighting  ------
 if has("autocmd")
@@ -108,6 +96,7 @@ nnoremap gp `[v`]
 " PHP dictionary for autocompletion
 "set dict +=~/.vim/dictionaries/PHP.dict
 "set dict +=~/.vim/dictionaries/drupal6.dict
+
 
 " Highlight tabs.
 highlight RedundantSpaces ctermbg=red guibg=red
