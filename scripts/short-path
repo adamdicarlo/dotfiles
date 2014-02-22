@@ -5,10 +5,10 @@
 import os
 
 # Shorten path down to length N
-PWD_MAX_LEN = int(os.getenv('COLUMNS')) / 3
+PWD_MAX_LEN = int(os.getenv('COLUMNS')) / 4
 
 # Always include the last N dirs
-PWD_LAST=3
+PWD_LAST=2
 
 pwd = os.getenv('PWD')
 home = os.getenv('HOME')
@@ -22,7 +22,7 @@ def path(dirs):
     return '/'.join(dirs)
 
 def shorten(d):
-    if not d:
+    if not d or len(d) < 3:
         return d
     return d[0]
 
@@ -36,9 +36,6 @@ for (i, p) in enumerate(dirs[:-PWD_LAST]):
       continue
 
     dirs[i] = shorten(p)
-
-    if p == 'projects':
-      keep_next = True
 
 
 print path(dirs)
