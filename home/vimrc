@@ -1,7 +1,58 @@
+set nocompatible
+filetype off
+
+set rtp+=~/.vim/vundle/
+call vundle#rc()
+
+" let Vundle manage Vundle (required)
+Bundle 'gmarik/vundle'
+
+Bundle 'tpope/vim-sensible'
+
+" Utilities
+Bundle 'tpope/vim-commentary'
+Bundle 'tpope/vim-unimpaired'
+Bundle 'tpope/vim-repeat'
+Bundle 'tpope/vim-speeddating'
+Bundle 'Lokaltog/vim-easymotion'
+
+" Git
+Bundle 'tpope/vim-fugitive'
+Bundle 'gregsexton/gitv'
+
+" Workflow
+Bundle 'kien/ctrlp.vim'
+Bundle 'mileszs/ack.vim'
+
+" Ruby
+Bundle 'tpope/vim-rails'
+Bundle 'thoughtbot/vim-rspec'
+
+" Languages and markup
+Bundle 'Valloric/YouCompleteMe'
+Bundle 'othree/html5.vim'
+Bundle 'tpope/vim-haml'
+Bundle 'tpope/vim-markdown'
+Bundle 'digitaltoad/vim-jade'
+Bundle 'wavded/vim-stylus'
+
+" Colors
+Bundle 'toupeira/vim-desertink'
+Bundle 'bling/vim-airline'
+Bundle 'BlakeWilliams/vim-single-cursor-line'
+
+filetype plugin indent on
+
+set wildignore+=*tmp/*,*.so,*.swp,*.zip
+let g:ctrlp_custom_ignore = '\v[\/]\.(git|hg|svn)$'
+
+set list
 set history=300      " Remember this many commands
 set scrolloff=2      " Scroll 2 lines before bottom/top
 set softtabstop=2
 set tabstop=2
+set shiftwidth=2
+set expandtab
 set wildmenu
 
 set linebreak       " Break lines when appropriate
@@ -13,28 +64,37 @@ set smarttab
 
 let mapleader = ","
 
+set laststatus=2   " Status line always, not just when split.
+if !exists('g:airline_symbols')
+  let g:airline_symbols = {}
+endif
+let g:airline_left_sep = '⮀'
+let g:airline_left_alt_sep = '⮁'
+let g:airline_right_sep = '⮂'
+let g:airline_right_alt_sep = '⮃'
+let g:airline_symbols.branch = '⭠'
+let g:airline_symbols.readonly = '⭤'
+let g:airline_symbols.linenr = '⭡'
+
 "------  Visual Options ------
-set guioptions-=T    " Remove toolbar.
+"set guioptions-=T    " Remove toolbar.
+set guifont=Inconsolata-dz\ for\ Powerline\ 10
 set guifont=Monospace\ 10
 set guifont=Mensch\ for\ Powerline\ 10
 set guifont=Menlo\ for\ Powerline\ 10
-set guifont=Inconsolata-dz\ for\ Powerline\ 10
+set guifont=Source\ Code\ Pro\ for\ Powerline:h14
 
-" set statusline=%<%f\ %h%m%r%=%{fugitive#statusline()}\ \ %-14.(%l,%c%V%)\ %P
+set statusline=%<%f\ %h%m%r%=%{fugitive#statusline()}\ \ %-14.(%l,%c%V%)\ %P
 set background=dark
 
 colorscheme desertink
-
-let g:syntastic_phpcs_conf="--standard=Drupal --extensions=php,module,inc,install,test,profile,theme"
+syntax on
 
 let php_sql_query = 1
 let php_parent_error_close = 1
 
 "------  Syntax highlighting  ------
 if has("autocmd")
-  " Drupal's PHP file extensions
-  autocmd BufRead,BufNewFile *.module,*.install,*.test,*.inc,*.profile,*.view,*.engine set filetype=drupal.php
-  autocmd BufRead,BufNewFile *.info,*.make set filetype=ini
   autocmd BufRead,BufNewFile *.feature set filetype=cucumber
   autocmd BufRead,BufNewFile *.pp set filetype=ruby
 endif
@@ -45,14 +105,6 @@ cnoremap <expr> %%  getcmdtype() == ':' ? expand('%:h') . '/' : '%%'
 "------ Colemak keyboard layout mappings ------
 map <Up> gh
 map <Down> gk
-
-" Bubble single lines
-nmap <C-h> ddhP
-nmap <C-k> ddp
-
-" Bubble multiple lines
-vmap <C-h> xkP`[V`]
-vmap <C-k> xp`[V`]
 
 " Source: http://forum.colemak.com/viewtopic.php?pid=184#p184
 noremap K J
@@ -92,12 +144,3 @@ noremap <C-l> <C-w>l
 
 " Select just-pasted text.
 nnoremap gp `[v`]
-
-" PHP dictionary for autocompletion
-"set dict +=~/.vim/dictionaries/PHP.dict
-"set dict +=~/.vim/dictionaries/drupal6.dict
-
-
-" Highlight tabs.
-highlight RedundantSpaces ctermbg=red guibg=red
-match RedundantSpaces / \+\ze\t\|\t/
