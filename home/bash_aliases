@@ -16,8 +16,6 @@ alias v='vim'
 
 # If on Mac, set up the coreutils aliases
 if [ -d "/Users" ]; then
-  source /usr/local/Cellar/coreutils/8.12/aliases
-  alias love='/Applications/love.app/Contents/MacOS/love'
   alias v='mvim'
 fi
 
