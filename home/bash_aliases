@@ -1,20 +1,10 @@
 alias cd='cool-cd'
-alias css-aggregation-on='drush vset --yes preprocess_css 1 && drush cc all'
-alias css-aggregation-off='drush vset --yes preprocess_css 0 && drush cc all'
-alias dfd='drush fd'
-alias dfu='drush fu'
-alias dfr='drush fr'
-alias ddis='drush --yes pm-disable'
-alias den='drush --yes pm-enable'
 alias gl="git log --graph --pretty=format:'%C(yellow)%h%C(cyan)%d%Creset %s %C(white)- %an, %ar%Creset'"
 alias gs='git status'
 alias gd='git diff'
 alias gds='git diff --staged'
-alias js-aggregation-on='drush vset --yes preprocess_js 1 && drush cc all'
-alias js-aggregation-off='drush vset --yes preprocess_js 0 && drush cc all'
 alias la='ls -lah'
 alias 'cd..'='cd ..'
-alias sniff='phpcs --standard=Drupal --extensions=php,module,inc,install,test,profile,theme'
 alias s='cd ..'
 alias ss='cd ../..'
 alias sss='cd ../../..'
@@ -22,9 +12,7 @@ alias ssss='cd ../../../..'
 alias sssss='cd ../../../../..'
 alias ssssss='cd ../../../../../..'
 alias sssssss='cd ../../../../../../..'
-alias tun='pkill -f autossh; autossh -M0 -fN gargravarr-tunnels'
 alias v='vim'
-alias xclip='parcellite'
 
 # If on Mac, set up the coreutils aliases
 if [ -d "/Users" ]; then
@@ -32,28 +20,6 @@ if [ -d "/Users" ]; then
   alias love='/Applications/love.app/Contents/MacOS/love'
   alias v='mvim'
 fi
-
-#
-# Autojump (`j`) will skip symlinks when deciding where to put you. Since
-# most of my work is done within an installation profile that's actually a
-# symlink, this is troublesome. I'm often in [repo]/[profile]/modules/x/y/z
-# when I want to be in [repo]/drupal/profiles/[profile]/modules/x/y/z. This
-# function takes me from point the former to the latter.
-#
-drupal () {
-  target=""
-  while [[ `pwd` != "$HOME" && `pwd` != "/" ]]; do
-    target="$(basename `pwd`)/${target}"
-    builtin cd ..
-    if [ -d drupal ]; then
-      cd drupal/profiles/${target}
-      return
-    fi
-  done
-  # If we didn't find it, return to original directory.
-  echo "Unable to find drupal."
-  cd $target
-}
 
 cool-cd () {
   builtin cd "$*" && ls -F --color=auto
