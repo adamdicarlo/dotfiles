@@ -46,7 +46,7 @@ if [ -d "/Users" ]; then
     source $FILE
   done
   alias ls='gls -F --color=auto'
-  alias ll='gls -lagh'
+  alias ll='gls -lagh --color=auto'
   alias hibernate_on='sudo pmset -a hibernatemode 5'
   alias hibernate_off='sudo pmset -a hibernatemode 3'
 
