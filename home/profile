@@ -40,14 +40,11 @@ export DOCKER_HOST=127.0.0.1:32000
 export COLUMNS
 export PS1='\[\033[01;31m\]\u \[\033[00m\]\[\033[01;34m\]`short-path`\[\033[00m\]$(__git_ps1)\[\033[01;36m\]☠\[\033[00m\] '
 
-# Drush bash completion.
-if [ -f "$HOME/.drush_bashrc" ]; then
-  . ~/.drush_bashrc
-fi
-
 if [ -d "/Users" ]; then
   # Mac OS X
-  source ~/bin/git-completion.bash
+  for FILE in /usr/local/etc/bash_completion.d/*; do
+    source $FILE
+  done
   alias ls='gls -F --color=auto'
   alias ll='gls -lagh'
   alias hibernate_on='sudo pmset -a hibernatemode 5'
