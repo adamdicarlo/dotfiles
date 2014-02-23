@@ -12,7 +12,7 @@
 	status = auto
 [core]
 	excludesfile = ~/.gitignore
-	editor = vim -f
+	editor = vim
 [merge]
   tool = meld
 [cola]
