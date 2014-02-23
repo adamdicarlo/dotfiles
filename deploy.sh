@@ -36,17 +36,6 @@ main () {
       deploy_config "$FILE" ~/bin/"$FILE"
     done
   cd ..
-
-  if [ -d /Users ]; then
-    # Mac OS X
-    echo "Deploying custom Google Chrome CSS"
-    chrome_user_styles=~/Library/Application\ Support/Google/Chrome/Default/User\ StyleSheets/Custom.css
-  else
-    # Ubuntu
-    echo "Deploying custom Chromium CSS"
-    chrome_user_styles=~/.config/chromium/Default/User\ StyleSheets/Custom.css
-  fi
-  ln -sf "`pwd`/other/Custom.css" "$chrome_user_styles"
 }
 
 main
