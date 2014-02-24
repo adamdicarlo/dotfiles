@@ -7,4 +7,6 @@ I store my dotfiles in this repository, typically checked out to `~/dotfiles`. M
 ## Installation
 
 1. Fork and clone the repository.
-1. Run `./deploy.sh` in order to "deploy" symlinks to the configuration files in this repository. If the repository is moved after deploying, the deploy script must be run again in order to update the symlinks.
+1. If you haven't already, install Node.js; then install Bower via `npm install -g bower`.
+1. Run `bower install` from inside this repository.
+1. Run `./deploy.sh` in order to "deploy" symlinks to the configuration files, scripts, and tools in this repository. If the repository is moved after deploying, the deploy script must be run again in order to update the symlinks.
