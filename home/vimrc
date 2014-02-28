@@ -1,17 +1,10 @@
 execute pathogen#infect()
 set nocompatible
 
-
-
 " Bundle 'tpope/vim-sensible'
-
 " Bundle 'gregsexton/gitv'
-
-" Bundle 'mileszs/ack.vim'
-
 " Bundle 'tpope/vim-rails'
 " Bundle 'thoughtbot/vim-rspec'
-
 " Bundle 'BlakeWilliams/vim-single-cursor-line'
 
 set wildignore+=*tmp/*,*.so,*.swp,*.zip

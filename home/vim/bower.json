@@ -2,6 +2,7 @@
   "authors": ["Adam J. DiCarlo <adam.dicarlo@gmail.com>"],
   "dependencies": {
     "YouCompleteMe": "Valloric/YouCompleteMe",
+    "ack.vim": "mileszs/ack.vim",
     "ctrlp.vim": "git@github.com:kien/ctrlp.vim.git",
     "html5.vim": "othree/html5.vim",
     "vim-airline": "bling/vim-airline",
