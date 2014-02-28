@@ -1,47 +1,18 @@
+execute pathogen#infect()
 set nocompatible
-filetype off
 
-set rtp+=~/.vim/vundle/
-call vundle#rc()
 
-" let Vundle manage Vundle (required)
-Bundle 'gmarik/vundle'
 
-Bundle 'tpope/vim-sensible'
+" Bundle 'tpope/vim-sensible'
 
-" Utilities
-Bundle 'tpope/vim-commentary'
-Bundle 'tpope/vim-unimpaired'
-Bundle 'tpope/vim-repeat'
-Bundle 'tpope/vim-speeddating'
-Bundle 'Lokaltog/vim-easymotion'
+" Bundle 'gregsexton/gitv'
 
-" Git
-Bundle 'tpope/vim-fugitive'
-Bundle 'gregsexton/gitv'
+" Bundle 'mileszs/ack.vim'
 
-" Workflow
-Bundle 'kien/ctrlp.vim'
-Bundle 'mileszs/ack.vim'
+" Bundle 'tpope/vim-rails'
+" Bundle 'thoughtbot/vim-rspec'
 
-" Ruby
-Bundle 'tpope/vim-rails'
-Bundle 'thoughtbot/vim-rspec'
-
-" Languages and markup
-Bundle 'Valloric/YouCompleteMe'
-Bundle 'othree/html5.vim'
-Bundle 'tpope/vim-haml'
-Bundle 'tpope/vim-markdown'
-Bundle 'digitaltoad/vim-jade'
-Bundle 'wavded/vim-stylus'
-
-" Colors
-Bundle 'toupeira/vim-desertink'
-Bundle 'bling/vim-airline'
-Bundle 'BlakeWilliams/vim-single-cursor-line'
-
-filetype plugin indent on
+" Bundle 'BlakeWilliams/vim-single-cursor-line'
 
 set wildignore+=*tmp/*,*.so,*.swp,*.zip
 let g:ctrlp_custom_ignore = '\v[\/]\.(git|hg|svn)$'
@@ -89,6 +60,7 @@ set background=dark
 
 colorscheme desertink
 syntax on
+filetype plugin indent on
 
 let php_sql_query = 1
 let php_parent_error_close = 1

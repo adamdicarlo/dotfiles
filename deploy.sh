@@ -7,7 +7,7 @@
 deploy_config () {
   SOURCE="$(pwd)/$1"
   TARGET="$2"
-  echo "Deploying $TARGET"
+  echo "Deploying $SOURCE -> $TARGET"
   if [[ -f "$TARGET" && ! -h "$TARGET" ]]; then
     # Clobber .gitk if it already exists. gitk always updates it.
     if [[ "$1" == "gitk" ]]; then
