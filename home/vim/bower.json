@@ -8,6 +8,7 @@
     "vim-airline": "bling/vim-airline",
     "vim-commentary": "git@github.com:tpope/vim-commentary",
     "vim-desertink": "toupeira/vim-desertink",
+    "vim-dispatch": "tpope/vim-dispatch",
     "vim-easymotion": "git@github.com:Lokaltog/vim-easymotion.git",
     "vim-endwise": "tpope/vim-endwise",
     "vim-fugitive": "git@github.com:tpope/vim-fugitive",
@@ -19,7 +20,9 @@
     "vim-repeat": "git@github.com:tpope/vim-repeat",
     "vim-sensible": "tpope/vim-sensible",
     "vim-stylus": "wavded/vim-stylus#~0.9.0",
-    "vim-unimpaired": "git@github.com:tpope/vim-unimpaired"
+    "vim-surround": "tpope/vim-surround",
+    "vim-unimpaired": "git@github.com:tpope/vim-unimpaired",
+    "vim-vividchalk": "tpope/vim-vividchalk"
   },
   "homepage": "https://github.com/adamdicarlo/dotfiles",
   "ignore": [
