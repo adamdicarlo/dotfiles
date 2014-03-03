@@ -3,6 +3,7 @@
   "dependencies": {
     "ack.vim": "mileszs/ack.vim",
     "ctrlp.vim": "kien/ctrlp.vim",
+    "gitv": "git@github.com:gregsexton/gitv.git",
     "html5.vim": "othree/html5.vim",
     "vim-airline": "bling/vim-airline",
     "vim-commentary": "tpope/vim-commentary",
