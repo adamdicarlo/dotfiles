@@ -1,27 +1,47 @@
 #!/bin/bash
+
+# todo: Install homebrew automatically?
+if [ ! which brew 2>/dev/null ]; then
+  echo "Please install homebrew first."
+  exit 1
+fi
+
 brew tap phinze/cask
 brew install brew-cask
 
-brew cask install xquartz
-brew install meld
-
-brew cask install google-chrome lastpass-universal macvim silverlight
+brew cask install \
+  f-lux \
+  google-chrome \
+  lastpass-universal \
+  silverlight \
+  tinkertool \
+  xquartz # for meld
 
 brew install \
   ack \
+  cmake \
   coreutils \
   cowsay \
   nodejs \
   git \
   git-extras \
   htop-osx \
+  meld \
+  most \
+  mtr \
   rbenv \
   sl \
-  ssh-copy-id
+  ssh-copy-id \
+  wget
+
+brew install macvim --override-system-vim
 
 # get .npmrc in place before installing node packages.
-git clone git@github.com:adamdicarlo/dotfiles.git
-cd ~/dotfiles
+cd ~
+if [ ! -d ./dotfiles ]; then
+  git clone git@github.com:adamdicarlo/dotfiles.git
+fi
+cd ./dotfiles
 ./deploy.sh
 
 npm install -g \
@@ -31,4 +51,15 @@ npm install -g \
   yo
 
 # now we have bower, so we can do the full install.
-./install.sh
+# todo: untested. is adding the path necessary?
+PATH=$HOME/.npm-packages/bin:$PATH ./install.sh
+
+# Build YouCompleteMe.
+cd ~/.vim/bundle
+if [ ! -d ./YouCompleteMe/.git ]; then
+  rm -rf ./YouCompleteMe
+  git clone gh:Valloric/YouCompleteMe
+fi
+cd ./YouCompleteMe
+git submodule update --init --recursive
+./install.sh --clang-completer

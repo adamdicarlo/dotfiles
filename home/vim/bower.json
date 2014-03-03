@@ -1,7 +1,6 @@
 {
   "authors": ["Adam J. DiCarlo <adam.dicarlo@gmail.com>"],
   "dependencies": {
-    "YouCompleteMe": "Valloric/YouCompleteMe",
     "ack.vim": "mileszs/ack.vim",
     "ctrlp.vim": "kien/ctrlp.vim",
     "html5.vim": "othree/html5.vim",
