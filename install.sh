@@ -9,7 +9,7 @@ fi
 bower install
 cd home/vim
   bower install
-  rm autoload/pathogen.vim
+  rm autoload/pathogen.vim 2>/dev/null
   ln -s ../bundle/vim-pathogen/autoload/pathogen.vim autoload/pathogen.vim
 cd ../..
 ./deploy.sh
