@@ -1,33 +1,68 @@
-execute pathogen#infect()
+" Lots adapted/inspired/cribbed from:
+" * sjl: https://bitbucket.org/sjl/dotfiles/src/default/vim/vimrc
+
+" Bootstrap environment, load plugins {{{
+let $BASH_ENV = "~/.bash_profile"
+set shell=/bin/bash
+
+filetype off
+call pathogen#infect()
+filetype plugin indent on
 set nocompatible
-
-" Bundle 'tpope/vim-sensible'
-" Bundle 'gregsexton/gitv'
-" Bundle 'tpope/vim-rails'
-" Bundle 'thoughtbot/vim-rspec'
-" Bundle 'BlakeWilliams/vim-single-cursor-line'
-
-set wildignore+=*tmp/*,*.so,*.swp,*.zip
-let g:ctrlp_custom_ignore = '\v[\/]\.(git|hg|svn)$'
+" }}}
+" Basics {{{
 
 set list
 set history=300      " Remember this many commands
 set scrolloff=2      " Scroll 2 lines before bottom/top
+set showcmd
+set smartcase       " Only ignore case when all lowercase
+set number
+set statusline=%<%f\ %h%m%r%=%{fugitive#statusline()}\ \ %-14.(%l,%c%V%)\ %P
+
+" Leader
+let mapleader = ","
+
+" Active buffer's path.
+cnoremap <expr> %%  getcmdtype() == ':' ? expand('%:h') . '/' : '%%'
+
+" }}}
+" Tabs, spaces, wrapping {{{
 set softtabstop=2
 set tabstop=2
 set shiftwidth=2
 set expandtab
-set wildmenu
-
 set linebreak       " Break lines when appropriate
-set mouse=a
-set showcmd
-set smartcase       " Only ignore case when all lowercase
 set smartindent
 set smarttab
+set textwidth=100
 
-let mapleader = ","
+" }}}
+" Backups {{{
+set backup
+set noswapfile
 
+set undodir=~/.vim/tmp/undo//     " undo files
+set backupdir=~/.vim/tmp/backup// " backups
+set directory=~/.vim/tmp/swap//   " swap files
+
+" Make those folders automatically if they don't already exist.
+if !isdirectory(expand(&undodir))
+    call mkdir(expand(&undodir), "p")
+endif
+if !isdirectory(expand(&backupdir))
+    call mkdir(expand(&backupdir), "p")
+endif
+if !isdirectory(expand(&directory))
+    call mkdir(expand(&directory), "p")
+endif
+
+" }}}
+" Plugins ----------------------------------------------------------------- {{{
+
+let g:ctrlp_custom_ignore = '\v[\/]\.(git|hg|svn)$|node_modules'
+
+" Airline {{{
 set laststatus=2   " Status line always, not just when split.
 if !exists('g:airline_symbols')
   let g:airline_symbols = {}
@@ -40,34 +75,150 @@ let g:airline_symbols.branch = '⭠'
 let g:airline_symbols.readonly = '⭤'
 let g:airline_symbols.linenr = '⭡'
 
-"------  Visual Options ------
-"set guioptions-=T    " Remove toolbar.
-set guifont=Inconsolata-dz\ for\ Powerline\ 10
-set guifont=Monospace\ 10
-set guifont=Mensch\ for\ Powerline\ 10
-set guifont=Menlo\ for\ Powerline\ 10
-set guifont=Source\ Code\ Pro\ for\ Powerline:h14
+" }}}
+" ------------------------------------------------------------------------- }}}
+" Mappings {{{
+map <C-F> Ack 
 
-set statusline=%<%f\ %h%m%r%=%{fugitive#statusline()}\ \ %-14.(%l,%c%V%)\ %P
-set background=dark
+" Select just-pasted text.
+nnoremap gp `[v`]
+" }}}
+" Environments (GUI/Console) ---------------------------------------------- {{{
 
-colorscheme desertink
-syntax on
-filetype plugin indent on
+if has('gui_running')
+    " set guifont=Monospace\ 10
+    " set guifont=Mensch\ for\ Powerline:h14
+    " set guifont=Source\ Code\ Pro\ for\ Powerline:h14
+    " set guifont=Menlo\ for\ Powerline:h14
+    set guifont=Inconsolata-dz\ for\ Powerline:h14
 
-let php_sql_query = 1
-let php_parent_error_close = 1
+    " Remove all the UI cruft
+    set go-=T
+    set go-=l
+    set go-=L
+    set go-=r
+    set go-=R
 
-"------  Syntax highlighting  ------
-if has("autocmd")
-  autocmd BufRead,BufNewFile *.feature set filetype=cucumber
-  autocmd BufRead,BufNewFile *.pp set filetype=ruby
+    highlight SpellBad term=underline gui=undercurl guisp=Orange
+
+    " Different cursors for different modes.
+    " set guicursor=n-c:block-Cursor-blinkon0
+    " set guicursor+=v:block-vCursor-blinkon0
+    " set guicursor+=i-ci:ver20-iCursor
+
+    if has("gui_macvim")
+        " Full screen means FULL screen
+        set fuoptions=maxvert,maxhorz
+
+        " Use the normal HIG movements, except for M-Up/Down
+        let macvim_skip_cmd_opt_movement = 1
+        no   <D-Left>       <Home>
+        no!  <D-Left>       <Home>
+        no   <M-Left>       <C-Left>
+        no!  <M-Left>       <C-Left>
+
+        no   <D-Right>      <End>
+        no!  <D-Right>      <End>
+        no   <M-Right>      <C-Right>
+        no!  <M-Right>      <C-Right>
+
+        no   <D-Up>         <C-Home>
+        ino  <D-Up>         <C-Home>
+        imap <M-Up>         <C-o>{
+
+        no   <D-Down>       <C-End>
+        ino  <D-Down>       <C-End>
+        imap <M-Down>       <C-o>}
+
+        imap <M-BS>         <C-w>
+        inoremap <D-BS>     <esc>my0c`y
+    else
+        " Non-MacVim GUI, like Gvim
+    end
+else
+    " Console Vim
+    " For me, this means iTerm2, possibly through tmux
+
+    " Mouse support
+    set mouse=a
 endif
 
-"------ active buffer's path
-cnoremap <expr> %%  getcmdtype() == ':' ? expand('%:h') . '/' : '%%'
+" }}}
+" Color scheme/syntax highlighting {{{
 
-"------ Colemak keyboard layout mappings ------
+syntax on
+set background=dark
+set colorcolumn=+1
+set synmaxcol=800      " Don't try to highlight super long lines.
+colorscheme desertink
+
+autocmd BufRead,BufNewFile *.feature set filetype=cucumber
+autocmd BufRead,BufNewFile *.pp set filetype=ruby
+
+" }}}
+" Filetype ================================================================ {{{
+
+augroup ft_vim
+  au!
+  au FileType vim setlocal foldmethod=marker
+augroup END
+
+" ------------------------------------------------------------------------- }}}
+" Cursorline {{{
+
+" Only show cursorline in the current window and in normal mode.
+augroup cline
+    au!
+    au WinLeave,InsertEnter * set nocursorline
+    au WinEnter,InsertLeave * set cursorline
+augroup END
+
+" }}}
+" Wildmenu completion {{{
+
+set wildmenu
+set wildmode=list:longest
+set wildignore+=*tmp/*,*.swp,*.zip,*.gz
+set wildignore+=.hg,.git,.svn                    " Version control
+set wildignore+=*.jpg,*.bmp,*.gif,*.png,*.jpeg   " binary images
+set wildignore+=*.so,*.o,*.a,*.manifest          " compiled object files
+set wildignore+=*.spl                            " compiled spelling word lists
+set wildignore+=*.sw?                            " Vim swap files
+set wildignore+=*.DS_Store                       " OSX bullshit
+set wildignore+=*.orig                           " Merge resolution files
+
+" }}}
+" Line Return {{{
+
+" Make sure Vim returns to the same line when you reopen a file.
+" Thanks, Amit
+augroup line_return
+    au!
+    au BufReadPost *
+        \ if line("'\"") > 0 && line("'\"") <= line("$") |
+        \     execute 'normal! g`"zvzz' |
+        \ endif
+augroup END
+
+" }}}
+" Fugitive key maps {{{
+nnoremap <space>ga :Git add %:p<CR><CR>
+nnoremap <space>gs :Gstatus<CR>
+nnoremap <space>gc :Gcommit -v -q<CR>
+nnoremap <space>gt :Gcommit -v -q %:p<CR>
+nnoremap <space>gd :Gdiff<CR>
+nnoremap <space>ge :Gedit<CR>
+nnoremap <space>gr :Gread<CR>
+nnoremap <space>gw :Gwrite<CR><CR>
+nnoremap <space>gl :silent! Glog<CR>:bot copen<CR>
+nnoremap <space>gp :Ggrep<Space>
+nnoremap <space>gm :Gmove<Space>
+nnoremap <space>gb :Git branch<Space>
+nnoremap <space>go :Git checkout<Space>
+nnoremap <space>gps :Dispatch! git push<CR>
+nnoremap <space>gpl :Dispatch! git pull<CR>
+" }}}
+" Colemak keyboard layout mappings {{{
 map <Up> gh
 map <Down> gk
 
@@ -99,13 +250,12 @@ noremap <C-w>K <C-w>J
 noremap <C-w><Space> <C-w>l
 noremap <C-w><S-Space> <C-w>L
 noremap <C-w><S-BS> <C-w>H
-
+" }}}
+" Split navigation key mappings {{{
 " Easy split navigation, adapted from
 " https://github.com/sjl/dotfiles/blob/master/vim/vimrc#L509.
 noremap <C-h> <C-w>k
 noremap <C-j> <C-w>h
 noremap <C-k> <C-w>j
 noremap <C-l> <C-w>l
-
-" Select just-pasted text.
-nnoremap gp `[v`]
+" }}}
