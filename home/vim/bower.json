@@ -5,6 +5,7 @@
     "ctrlp.vim": "kien/ctrlp.vim",
     "gitv": "git@github.com:gregsexton/gitv.git",
     "html5.vim": "othree/html5.vim",
+    "pegjs-vim": "alunny/pegjs-vim",
     "vim-airline": "bling/vim-airline",
     "vim-commentary": "tpope/vim-commentary",
     "vim-desertink": "toupeira/vim-desertink",
