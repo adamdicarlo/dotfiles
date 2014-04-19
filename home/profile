@@ -30,10 +30,10 @@ export EDITOR="mvim"
 export VISUAL="mvim"
 export PAGER="most"
 
-export PATH="$HOME/bin:/usr/local/bin:/usr/local/sbin:$PATH"
-export PYTHONPATH="/usr/local/lib/python2.7/site-packages"
+export PYTHONPATH="/usr/local/lib/python2.7/site-packages:/Library/Python/2.7/site-packages"
 export NPM_PACKAGES="$HOME/.npm-packages"
 export NODE_PATH="$NPM_PACKAGES/lib/node_modules:/usr/local/lib/node_modules:$NODE_PATH"
+export PATH="$HOME/bin:/usr/local/bin:/usr/local/sbin:$NPM_PACKAGES/bin:$PATH"
 unset MANPATH
 export MANPATH="$NPM_PACKAGES/share/man:$(manpath)"
 
