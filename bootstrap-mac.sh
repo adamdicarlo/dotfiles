@@ -53,13 +53,3 @@ npm install -g \
 # now we have bower, so we can do the full install.
 # todo: untested. is adding the path necessary?
 PATH=$HOME/.npm-packages/bin:$PATH ./install.sh
-
-# Build YouCompleteMe.
-cd ~/.vim/bundle
-if [ ! -d ./YouCompleteMe/.git ]; then
-  rm -rf ./YouCompleteMe
-  git clone gh:Valloric/YouCompleteMe
-fi
-cd ./YouCompleteMe
-git submodule update --init --recursive
-./install.sh --clang-completer
