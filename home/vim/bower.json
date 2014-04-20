@@ -23,7 +23,8 @@
     "vim-stylus": "wavded/vim-stylus#~0.9.0",
     "vim-surround": "tpope/vim-surround",
     "vim-unimpaired": "tpope/vim-unimpaired",
-    "vim-vividchalk": "tpope/vim-vividchalk"
+    "vim-vividchalk": "tpope/vim-vividchalk",
+    "vim-coffee-script": "kchmck/vim-coffee-script"
   },
   "homepage": "https://github.com/adamdicarlo/dotfiles",
   "ignore": [
