@@ -1,5 +1,7 @@
 {
-  "authors": ["Adam J. DiCarlo <adam.dicarlo@gmail.com>"],
+  "authors": [
+    "Adam J. DiCarlo <adam.dicarlo@gmail.com>"
+  ],
   "dependencies": {
     "ack.vim": "mileszs/ack.vim",
     "ctrlp.vim": "kien/ctrlp.vim",
@@ -7,6 +9,7 @@
     "html5.vim": "othree/html5.vim",
     "pegjs-vim": "alunny/pegjs-vim",
     "vim-airline": "bling/vim-airline",
+    "vim-coffee-script": "kchmck/vim-coffee-script",
     "vim-commentary": "tpope/vim-commentary",
     "vim-desertink": "toupeira/vim-desertink",
     "vim-dispatch": "tpope/vim-dispatch",
@@ -23,8 +26,7 @@
     "vim-stylus": "wavded/vim-stylus#~0.9.0",
     "vim-surround": "tpope/vim-surround",
     "vim-unimpaired": "tpope/vim-unimpaired",
-    "vim-vividchalk": "tpope/vim-vividchalk",
-    "vim-coffee-script": "kchmck/vim-coffee-script"
+    "vim-vividchalk": "tpope/vim-vividchalk"
   },
   "homepage": "https://github.com/adamdicarlo/dotfiles",
   "ignore": [
@@ -36,7 +38,7 @@
     "tests"
   ],
   "license": "MIT",
-  "name": "vim",
+  "name": "vim-plugins",
   "private": true,
   "version": "0.0.0"
 }
