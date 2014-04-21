@@ -81,7 +81,9 @@ let g:airline_symbols.linenr = '⭡'
 " }}}
 " ------------------------------------------------------------------------- }}}
 " Mappings {{{
-map <C-F> Ack 
+
+map <C-F> :grep 
+map Q gq
 
 " Select just-pasted text.
 nnoremap gp `[v`]
