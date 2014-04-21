@@ -20,6 +20,8 @@ set smartcase       " Only ignore case when all lowercase
 set number
 set statusline=%<%f\ %h%m%r%=%{fugitive#statusline()}\ \ %-14.(%l,%c%V%)\ %P
 
+set grepprg=ack
+
 " Leader
 let mapleader = ","
 
