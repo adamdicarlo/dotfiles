@@ -61,6 +61,7 @@ endif
 " Plugins ----------------------------------------------------------------- {{{
 
 let g:ctrlp_custom_ignore = '\v[\/]\.(git|hg|svn)$|node_modules'
+let g:ctrlp_working_path_mode = 'ra'
 
 " Airline {{{
 set laststatus=2   " Status line always, not just when split.
