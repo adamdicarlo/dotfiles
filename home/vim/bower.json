@@ -11,6 +11,7 @@
     "vim-airline": "bling/vim-airline",
     "vim-coffee-script": "kchmck/vim-coffee-script",
     "vim-commentary": "tpope/vim-commentary",
+    "vim-ctrlp-switcher": "ivan-cukic/vim-ctrlp-switcher",
     "vim-desertink": "toupeira/vim-desertink",
     "vim-dispatch": "tpope/vim-dispatch",
     "vim-easymotion": "Lokaltog/vim-easymotion",
