@@ -14,6 +14,7 @@
     "scripts/tools"
   ],
   "dependencies": {
-    "j2": "git@github.com:rupa/j2.git#b329a6bd3d25fd51d0b10a0dbec97c78197281cc"
+    "j2": "git@github.com:rupa/j2.git#b329a6bd3d25fd51d0b10a0dbec97c78197281cc",
+    "oh-my-fish": "git@github.com:bpinto/oh-my-fish.git"
   }
 }

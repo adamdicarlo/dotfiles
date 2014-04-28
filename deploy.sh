@@ -25,6 +25,11 @@ deploy_config () {
 # Performs all deployments.
 #
 main () {
+  cd config
+    for FILE in *; do
+      deploy_config "$FILE" ~/.config/"$FILE"
+    done
+  cd ..
   cd home
     for FILE in *; do
       deploy_config "$FILE" ~/."$FILE"
