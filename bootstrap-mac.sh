@@ -47,7 +47,7 @@ cd ./dotfiles
 
 npm install -g \
   bower \
-  css-lint \
+  csslint \
   jshint \
   jsonlint \
   js-yaml \
