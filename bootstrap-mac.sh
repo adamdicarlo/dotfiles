@@ -47,9 +47,15 @@ cd ./dotfiles
 
 npm install -g \
   bower \
+  css-lint \
+  jshint \
+  jsonlint \
+  js-yaml \
   grunt-cli \
   node-inspector \
   yo
+
+sudo gem install haml-lint ruby-lint scss-lint
 
 # now we have bower, so we can do the full install.
 # todo: untested. is adding the path necessary?
