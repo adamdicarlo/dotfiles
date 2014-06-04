@@ -22,6 +22,7 @@ brew install \
   cmake \
   coreutils \
   cowsay \
+  findutils \
   fish \
   nodejs \
   git \
