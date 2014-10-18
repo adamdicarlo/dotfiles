@@ -5,6 +5,7 @@
   "dependencies": {
     "ack.vim": "mileszs/ack.vim",
     "ctrlp.vim": "kien/ctrlp.vim",
+    "elm.vim": "git@github.com:lambdatoast/elm.vim.git",
     "gitv": "git@github.com:gregsexton/gitv.git",
     "html5.vim": "othree/html5.vim",
     "pegjs-vim": "alunny/pegjs-vim",
