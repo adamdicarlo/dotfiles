@@ -34,6 +34,7 @@ brew install \
   rbenv \
   sl \
   ssh-copy-id \
+  watch \
   wget
 
 brew install macvim --override-system-vim
