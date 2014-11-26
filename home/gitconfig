@@ -1,29 +1,31 @@
 [user]
-	name = Adam J. DiCarlo
-	email = adam.dicarlo@gmail.com
-[github]
-	user = adamdicarlo
+  name = Adam DiCarlo
+  email = adam.dicarlo@gmail.com
+[credential]
+  helper = osxkeychain
 [push]
-	default = current
+  default = current
+[alias]
+  undeployed = log production..latest
 [color]
-	branch = auto
-	diff = auto
-	interactive = auto
-	status = auto
+  branch = auto
+  diff = auto
+  interactive = auto
+  status = auto
 [core]
-	excludesfile = ~/.gitignore
-	editor = vim
+  excludesfile = ~/.gitignore
+  editor = vim
 [merge]
   tool = meld
-[cola]
-	fontdiff = Droid Sans Mono,10,-1,5,50,0,0,0,0,0
-	fontui = Nimbus Sans L,12,-1,5,50,0,0,0,0,0
-[url "git+ssh://adamdicarlo@git.drupal.org/project/"]
-  insteadOf = dm:
 [url "git@github.com:"]
   insteadOf = gh:
 [mergetool "meld"]
   cmd = meld $LOCAL $BASE $REMOTE --output=$MERGED
   trustExitCode = true
+[mergetool "fugitive"]
+  cmd = mvim -f -c \"Gdiff\" \"$MERGED\"
 [mergetool]
   keepBackup = false
+[filter "media"]
+  clean = git-media-clean %f
+  smudge = git-media-smudge %f
