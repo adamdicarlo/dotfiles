@@ -230,7 +230,6 @@ if has('gui_running')
     end
 else
     " Console Vim
-    " For me, this means iTerm2, possibly through tmux
 
     " Mouse support
     set mouse=a
@@ -364,12 +363,4 @@ noremap <C-j> <C-w>h
 noremap <C-k> <C-w>j
 noremap <C-l> <C-w>l
 
-" tmux-navigator
-" let g:tmux_navigator_no_mappings = 1
-"
-" nnoremap <silent> <C-j> :TmuxNavigateLeft<cr>
-" nnoremap <silent> <C-k> :TmuxNavigateDown<cr>
-" nnoremap <silent> <C-h> :TmuxNavigateUp<cr>
-" nnoremap <silent> <C-l> :TmuxNavigateRight<cr>
-" nnoremap <silent> <C-\> :TmuxNavigatePrevious<cr>
 " }}}
