@@ -18,30 +18,31 @@ set fish_plugins brew gi node rake vi-mode z
 
 . $HOME/.config/fish/private.fish
 
-set -x GIT_EDITOR vim
-set -x EDITOR mvim
-set -x VISUAL mvim
+set -gx GIT_EDITOR vim
+set -gx EDITOR mvim
+set -gx VISUAL mvim
 
-set -x DOCKER_HOST "127.0.0.1:32000"
-set -x NPM_PACKAGES "$HOME/.npm-packages"
-set -x NODE_PATH $NPM_PACKAGES/lib/node_modules $NODE_PATH
+set -gx DOCKER_HOST "127.0.0.1:32000"
+set -gx NPM_PACKAGES "$HOME/.npm-packages"
+set -gx GOPATH "$HOME/go"
 
-function add_path
-  if test -d $argv
-    set PATH $argv $PATH
-  end
-end
+set -gx VIM_APP_DIR /usr/local/Cellar/macvim/7.4-73_1
 
-add_path "$HOME/bin"
-add_path "/usr/local/bin"
-add_path "/usr/local/sbin"
-add_path "$NPM_PACKAGES/bin"
-add_path "/usr/local/opt/coreutils/libexec/gnubin"
+set -gx PATH /usr/local/opt/coreutils/libexec/gnubin \
+  $NPM_PACKAGES/bin \
+  $HOME/bin \
+  /usr/local/bin \
+  /usr/local/sbin \
+  /bin /sbin /usr/bin /usr/sbin \
+  /usr/local/opt/go/libexec/bin
 
 # set -gx RBENV_ROOT /usr/local/var/rbenv
 status --is-interactive; and . (rbenv init -|psub)
 
+ulimit -n 2560
+
 # Aliases
+alias be 'bundle exec'
 alias ... ../..
 alias .... ../../..
 alias ..... ../../../..

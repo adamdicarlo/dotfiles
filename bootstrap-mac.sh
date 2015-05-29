@@ -6,25 +6,15 @@ if [ ! which brew 2>/dev/null ]; then
   exit 1
 fi
 
-brew tap phinze/cask
-brew install brew-cask
-
-brew cask install \
-  f-lux \
-  google-chrome \
-  lastpass-universal \
-  silverlight \
-  tinkertool \
-  xquartz # for meld
-
 brew install \
   ack \
+  the_silver_searcher \
   cmake \
   coreutils \
   cowsay \
   findutils \
   fish \
-  nodejs \
+  node \
   git \
   git-extras \
   htop-osx \
@@ -46,19 +36,9 @@ if [ ! -d ./dotfiles ]; then
 fi
 cd ./dotfiles
 ./deploy.sh
+./install.sh
 
-npm install -g \
-  bower \
-  csslint \
-  jshint \
-  jsonlint \
-  js-yaml \
-  grunt-cli \
-  node-inspector \
-  yo
-
-sudo gem install haml-lint ruby-lint scss-lint
-
-# now we have bower, so we can do the full install.
-# todo: untested. is adding the path necessary?
-PATH=$HOME/.npm-packages/bin:$PATH ./install.sh
+# Install NeoBundle and vim plugins
+if [ ! -d ./.vim/bundle/neobundle.vim ]; then
+  curl https://raw.githubusercontent.com/Shougo/neobundle.vim/master/bin/install.sh | sh
+fi
