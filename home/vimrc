@@ -255,9 +255,11 @@ colorscheme desertink
 autocmd BufRead,BufNewFile *.feature set filetype=cucumber
 autocmd BufRead,BufNewFile *.pp set filetype=ruby
 
-" jaxbot/semantic-highlight.vim
-nnoremap <Leader>s :SemanticHighlightToggle<cr>
-au Syntax * SemanticHighlight
+if has('gui_running')
+  " jaxbot/semantic-highlight.vim
+  nnoremap <Leader>s :SemanticHighlightToggle<cr>
+  au Syntax * SemanticHighlight
+endif
 
 " eapache/rainbow_parentheses.vim
 au VimEnter * RainbowParenthesesActivate
