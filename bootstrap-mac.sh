@@ -36,7 +36,6 @@ if [ ! -d ./dotfiles ]; then
 fi
 cd ./dotfiles
 ./deploy.sh
-./install.sh
 
 # Install NeoBundle and vim plugins
 if [ ! -d ./.vim/bundle/neobundle.vim ]; then
