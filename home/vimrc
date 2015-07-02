@@ -29,13 +29,15 @@ NeoBundle 'Shougo/vimproc.vim', {
       \     'linux': 'make',
       \   },
       \ }
-NeoBundle 'Shougo/vimshell'
-NeoBundle 'Valloric/YouCompleteMe', {
-      \   'build': {
-      \     'mac': './install.sh --clang-completer --system-libclang',
-      \     'unix': './install.sh --clang-completer --system-libclang',
-      \   }
-      \ }
+if v:version >= 703
+  NeoBundle 'Shougo/vimshell'
+  NeoBundle 'Valloric/YouCompleteMe', {
+        \   'build': {
+        \     'mac': './install.sh --clang-completer --system-libclang',
+        \     'unix': './install.sh --clang-completer --system-libclang',
+        \   }
+        \ }
+endif
 NeoBundle 'airblade/vim-gitgutter'
 NeoBundle 'alunny/pegjs-vim'
 NeoBundle 'ap/vim-css-color'
@@ -132,14 +134,18 @@ set textwidth=100
 set backup
 set noswapfile
 
-set undodir=~/.vim/tmp/undo//     " undo files
+if has('persistent_undo')
+  set undodir=~/.vim/tmp/undo//     " undo files
+  " Make the folder automatically if it doesn't already exist.
+  if !isdirectory(expand(&undodir))
+    call mkdir(expand(&undodir), "p")
+  endif
+endif
+
 set backupdir=~/.vim/tmp/backup// " backups
 set directory=~/.vim/tmp/swap//   " swap files
 
 " Make those folders automatically if they don't already exist.
-if !isdirectory(expand(&undodir))
-    call mkdir(expand(&undodir), "p")
-endif
 if !isdirectory(expand(&backupdir))
     call mkdir(expand(&backupdir), "p")
 endif
@@ -240,8 +246,10 @@ endif
 
 syntax on
 set background=dark
-set colorcolumn=+1
 set synmaxcol=400      " Don't try to highlight super long lines.
+if exists('+colorcolumn')
+  set colorcolumn=+1
+endif
 colorscheme desertink
 
 autocmd BufRead,BufNewFile *.feature set filetype=cucumber
