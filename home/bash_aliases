@@ -1,3 +1,37 @@
+setxkbmap -option 'caps:ctrl_modifier'
+xcape -e 'Caps_Lock=Escape'
+
+export JPY="$HOME/bin/tools/j2/j.py"
+. ~/bin/tools/j2/j.sh
+
+export GIT_EDITOR="vim"
+export PAGER="most"
+
+if which rbenv 2>/dev/null; then
+  eval "$(rbenv init -)"
+fi
+
+export COLUMNS
+export PS1='\[\033[01;31m\]\u \[\033[00m\]\[\033[01;34m\]`short-path`\[\033[00m\]$(__git_ps1)\[\033[01;36m\]☠\[\033[00m\] '
+
+if [ -d "/Users" ]; then
+  # Mac OS X
+  for FILE in /usr/local/etc/bash_completion.d/*; do
+    source $FILE
+  done
+
+  export EDITOR="mvim"
+  export VISUAL="mvim"
+  export PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH"
+  export MANPATH="/usr/local/opt/coreutils/libexec/gnuman:$MANPATH"
+else
+  export EDITOR="gvim"
+  export VISUAL="gvim"
+fi
+
+#
+# actual aliases
+#
 alias cd='cool-cd'
 alias gl="git log --graph --pretty=format:'%C(yellow)%h%C(cyan)%d%Creset %s %C(white)- %an, %ar%Creset'"
 alias gs='git status'
@@ -12,10 +46,13 @@ alias ssss='cd ../../../..'
 alias sssss='cd ../../../../..'
 alias ssssss='cd ../../../../../..'
 alias sssssss='cd ../../../../../../..'
-alias v='vim'
 
 # If on Mac, set up the coreutils aliases
 if [ -d "/Users" ]; then
+  alias ls='gls -F --color=auto'
+  alias ll='gls -lagh --color=auto'
+  alias hibernate_on='sudo pmset -a hibernatemode 5'
+  alias hibernate_off='sudo pmset -a hibernatemode 3'
   alias v='mvim'
 else
   alias v='gvim'
