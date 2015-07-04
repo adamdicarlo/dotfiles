@@ -26,19 +26,9 @@ export JPY="$HOME/bin/tools/j2/j.py"
 . ~/bin/tools/j2/j.sh
 
 export GIT_EDITOR="vim"
-export EDITOR="mvim"
-export VISUAL="mvim"
 export PAGER="most"
 
-export PYTHONPATH="/usr/local/lib/python2.7/site-packages:/Library/Python/2.7/site-packages"
-export NPM_PACKAGES="$HOME/.npm-packages"
-export NODE_PATH="$NPM_PACKAGES/lib/node_modules:/usr/local/lib/node_modules:$NODE_PATH"
-export PATH="$HOME/bin:/usr/local/bin:/usr/local/sbin:$NPM_PACKAGES/bin:$PATH"
-unset MANPATH
-export MANPATH="$NPM_PACKAGES/share/man:$(manpath)"
-
 eval "$(rbenv init -)"
-export DOCKER_HOST=127.0.0.1:32000
 
 export COLUMNS
 export PS1='\[\033[01;31m\]\u \[\033[00m\]\[\033[01;34m\]`short-path`\[\033[00m\]$(__git_ps1)\[\033[01;36m\]☠\[\033[00m\] '
@@ -53,6 +43,11 @@ if [ -d "/Users" ]; then
   alias hibernate_on='sudo pmset -a hibernatemode 5'
   alias hibernate_off='sudo pmset -a hibernatemode 3'
 
+  export EDITOR="mvim"
+  export VISUAL="mvim"
   export PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH"
   export MANPATH="/usr/local/opt/coreutils/libexec/gnuman:$MANPATH"
+else
+  export EDITOR="gvim"
+  export VISUAL="gvim"
 fi

@@ -86,7 +86,11 @@ filetype plugin indent on
 " this will conveniently prompt you to install them.
 NeoBundleCheck
 
-let g:vimshell_editor_command=$HOME . '/bin/mvim'
+if has("gui_macvim")
+  let g:vimshell_editor_command=$HOME . '/bin/mvim'
+else
+  let g:vimshell_editor_command='gvim'
+endif
 
 " }}}
 " Basics {{{

@@ -17,6 +17,8 @@ alias v='vim'
 # If on Mac, set up the coreutils aliases
 if [ -d "/Users" ]; then
   alias v='mvim'
+else
+  alias v='gvim'
 fi
 
 cool-cd () {
