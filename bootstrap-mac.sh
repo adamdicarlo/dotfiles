@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # todo: Install homebrew automatically?
-if [ ! which brew 2>/dev/null ]; then
+if ! which brew &>/dev/null; then
   echo "Please install homebrew first."
   exit 1
 fi
