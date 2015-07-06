@@ -25,6 +25,7 @@ deploy_config () {
 # Performs all deployments.
 #
 main () {
+  mkdir ~/.config 2>/dev/null
   cd config
     for FILE in *; do
       deploy_config "$FILE" ~/.config/"$FILE"
