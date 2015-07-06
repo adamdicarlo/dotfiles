@@ -9,6 +9,7 @@ sudo apt-get install -y \
   libnotify-bin \
   meld \
   most \
+  silversearcher-ag \
   vim-gtk \
   yakuake
 
