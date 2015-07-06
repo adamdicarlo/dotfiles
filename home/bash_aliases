@@ -1,8 +1,22 @@
+#!/bin/bash
+
+path_add () {
+  if [ -d "$1" ] && [[ ":$PATH:" != *":$1:"* ]]; then
+    PATH="${PATH:+"$PATH:"}$1"
+  fi
+}
+
+# CapsLock = Escape when pressed alone, Ctrl when used with another key
 setxkbmap -option 'caps:ctrl_modifier'
 xcape -e 'Caps_Lock=Escape'
 
-export JPY="$HOME/bin/tools/j2/j.py"
-. ~/bin/tools/j2/j.sh
+path_add $HOME/.npm-packages/bin
+path_add $HOME/bin
+
+if [ -f $HOME/bin/tools/j2/j.py ]; then
+  export JPY="$HOME/bin/tools/j2/j.py"
+  . ~/bin/tools/j2/j.sh
+fi
 
 export GIT_EDITOR="vim"
 export PAGER="most"
