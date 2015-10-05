@@ -5,7 +5,7 @@
 import os
 
 # Shorten path down to length N
-PWD_MAX_LEN = int(os.getenv('COLUMNS')) / 4
+PWD_MAX_LEN = int(os.getenv('COLUMNS')) / 2
 
 # Always include the last N dirs
 PWD_LAST=2

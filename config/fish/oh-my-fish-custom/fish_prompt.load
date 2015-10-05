@@ -6,6 +6,11 @@ function _is_git_dirty
   echo (command git status -s --ignore-submodules=dirty ^/dev/null)
 end
 
+function prompt_pwd_simple
+  set -l realhome ~
+	echo $PWD | sed -e "s|^$realhome|~|"
+end
+
 function fish_prompt
   set -l cyan (set_color -o cyan)
   set -l yellow (set_color -o yellow)
@@ -14,7 +19,7 @@ function fish_prompt
   set -l normal (set_color normal)
 
   set -l arrow "$red➜ "
-  set -l cwd $cyan(prompt_pwd)
+  set -l cwd $cyan(prompt_pwd_simple)
 
   if [ (_git_branch_name) ]
     set -l git_branch $red(_git_branch_name)

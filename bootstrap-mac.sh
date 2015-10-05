@@ -25,7 +25,8 @@ brew install \
   sl \
   ssh-copy-id \
   watch \
-  wget
+  wget \
+  z
 
 brew install macvim --override-system-vim
 

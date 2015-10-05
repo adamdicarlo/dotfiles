@@ -2,33 +2,57 @@
 set fish_path $HOME/bin/tools/oh-my-fish
 set fish_custom $HOME/dotfiles/config/fish/oh-my-fish-custom
 
-# Theme
-set fish_theme robbyrussell
-
-# Which plugins would you like to load? (plugins can be found in ~/.oh-my-fish/plugins/*)
-# Custom plugins may be added to ~/.oh-my-fish/custom/plugins/
-# Example format: set fish_plugins autojump bundler
-
-set -gx Z_SCRIPT_PATH $HOME/bin/tools/z/z.sh
-
-set fish_plugins brew gi node rake vi-mode z
-
 # Load oh-my-fish configuration.
 . $fish_path/oh-my-fish.fish
 
+# Theme "technopagan"
+Plugin "balias"
+Plugin "brew"
+Plugin "gi"
+Plugin "ssh"
+Plugin "theme"
+Plugin "vi-mode"
+Plugin "z"
+# Theme "bobthefish"
+# Theme "dangerous"
+# Theme "scorphish"
+# Theme "zish"
+# Theme "yimmy"
+# Theme "bira"
+# Theme "red-snapper"
+# Theme "eclm"
+# Theme "agnoster"
+# Theme "will"
+# Theme "trout"
+# Theme "uggedal"
+# Theme "toaster"
+# Theme "taktoa"
+# Theme "simplivi"
+# Theme "ocean"
+# Theme "syl20bnr"
+# Theme "perryh"
+# Theme "l"
+# Theme "nai"
+# Theme "numist"
+# Theme "integral"
+# Theme "gitstatus"
+# Theme "fox"
+# Theme "fisk"
+# Theme "robbyrussell"
+
 . $HOME/.config/fish/private.fish
 
-set -gx GIT_EDITOR vim
-set -gx EDITOR mvim
-set -gx VISUAL mvim
+set -x GIT_EDITOR vim
+set -x EDITOR vim
+set -x VISUAL mvim
 
-set -gx DOCKER_HOST "127.0.0.1:32000"
-set -gx NPM_PACKAGES "$HOME/.npm-packages"
-set -gx GOPATH "$HOME/go"
+set -x GOPATH "$HOME/go"
 
-set -gx VIM_APP_DIR /usr/local/Cellar/macvim/7.4-73_1
+eval (boot2docker shellinit | tr \n \;)
 
-set -gx PATH /usr/local/opt/coreutils/libexec/gnubin \
+set -x VIM_APP_DIR /usr/local/Cellar/macvim/7.4-73_1
+
+set -x PATH /usr/local/opt/coreutils/libexec/gnubin \
   $NPM_PACKAGES/bin \
   $HOME/bin \
   /usr/local/bin \
@@ -36,13 +60,31 @@ set -gx PATH /usr/local/opt/coreutils/libexec/gnubin \
   /bin /sbin /usr/bin /usr/sbin \
   /usr/local/opt/go/libexec/bin
 
-# set -gx RBENV_ROOT /usr/local/var/rbenv
+# set -x RBENV_ROOT /usr/local/var/rbenv
 status --is-interactive; and . (rbenv init -|psub)
 
 ulimit -n 2560
 
 # Aliases
-alias be 'bundle exec'
 alias ... ../..
 alias .... ../../..
 alias ..... ../../../..
+balias be 'bundle exec'
+
+balias ga 'git add'
+balias gap 'git add -p'
+balias gco 'git co'
+balias gcop 'git co -p'
+balias gd 'git diff'
+balias gds 'git diff --staged'
+balias gl 'git log --graph --pretty'
+balias gs 'git status'
+balias la 'ls -lah'
+
+# node version manager
+set -x NVM_DIR "$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ]; and bass source "$NVM_DIR/nvm.sh"
+
+function nvm
+  bass source $NVM_DIR/nvm.sh ';' nvm $argv
+end
