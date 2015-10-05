@@ -23,6 +23,7 @@ NeoBundleFetch 'Shougo/neobundle.vim'
 let g:neobundle#install_process_timeout=1500
 
 " Bundles
+NeoBundle 'NLKNguyen/papercolor-theme'
 NeoBundle 'Shougo/vimproc.vim', {
       \   'build': {
       \     'mac': 'make -f make_mac.mak',
@@ -45,10 +46,14 @@ NeoBundle 'bling/vim-airline'
 NeoBundle 'ctrlpvim/ctrlp.vim'
 NeoBundle 'digitaltoad/vim-jade'
 NeoBundle 'eapache/rainbow_parentheses.vim'
+NeoBundleLazy 'elmcast/elm-vim', {'autoload': {'filetypes': ['elm']}}
 NeoBundle 'flazz/vim-colorschemes'
 NeoBundle 'gregsexton/gitv'
 NeoBundle 'jaxbot/semantic-highlight.vim'
+NeoBundle 'junegunn/vim-emoji'
 NeoBundle 'kchmck/vim-coffee-script'
+NeoBundle 'kyuhi/vim-emoji-complete'
+NeoBundle 'leafgarland/typescript-vim'
 NeoBundle 'majutsushi/tagbar'
 NeoBundle 'marijnh/tern_for_vim', {
       \   'build': {
@@ -56,10 +61,13 @@ NeoBundle 'marijnh/tern_for_vim', {
       \     'linux': 'npm install'
       \   }
       \ }
-NeoBundle 'mileszs/ack.vim'
+" NeoBundle 'mxw/vim-jsx'
 NeoBundle 'othree/html5.vim'
 NeoBundleLazy 'othree/yajs.vim', {'autoload':{'filetypes':['javascript']}}
 NeoBundleLazy 'othree/javascript-libraries-syntax.vim', {'autoload':{'filetypes':['javascript']}}
+NeoBundle 'rking/ag.vim'
+NeoBundle 'scrooloose/nerdtree'
+NeoBundle 'scrooloose/syntastic'
 NeoBundle 'toupeira/vim-desertink'
 NeoBundle 'tpope/vim-commentary'
 NeoBundle 'tpope/vim-endwise'
@@ -73,6 +81,7 @@ NeoBundle 'tpope/vim-rails'
 NeoBundle 'tpope/vim-repeat'
 NeoBundle 'tpope/vim-sensible'
 NeoBundle 'tpope/vim-surround'
+NeoBundle 'tpope/vim-unimpaired'
 NeoBundle 'wavded/vim-stylus'
 NeoBundle 'wellle/targets.vim'
 
@@ -86,11 +95,7 @@ filetype plugin indent on
 " this will conveniently prompt you to install them.
 NeoBundleCheck
 
-if has("gui_macvim")
-  let g:vimshell_editor_command=$HOME . '/bin/mvim'
-else
-  let g:vimshell_editor_command='gvim'
-endif
+let g:vimshell_editor_command=$HOME . '/bin/mvim'
 
 " }}}
 " Basics {{{
@@ -106,8 +111,10 @@ set noerrorbells
 set novisualbell
 
 if executable('ag')
-  set grepprg=ag\ --nogroup\ --nocolor\ --ignore-case
+  set grepprg="ag --vimgrep"
   set grepformat=%f:%l:%c:%m,%f:%l:%m
+
+  let g:agprg='ag --vimgrep --ignore node_modules --ignore build/'
 
   " Use ag in CtrlP for listing files. Lightning fast and respects .gitignore
   let g:ctrlp_user_command = 'ag %s -l --nocolor -g ""'
@@ -121,6 +128,10 @@ let mapleader = ","
 
 " Active buffer's path.
 cnoremap <expr> %%  getcmdtype() == ':' ? expand('%:h') . '/' : '%%'
+
+" NERDtree
+autocmd StdinReadPre * let s:std_in=1
+autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif
 
 " }}}
 " Tabs, spaces, wrapping {{{
@@ -151,10 +162,19 @@ set directory=~/.vim/tmp/swap//   " swap files
 
 " Make those folders automatically if they don't already exist.
 if !isdirectory(expand(&backupdir))
-    call mkdir(expand(&backupdir), "p")
+  call mkdir(expand(&backupdir), 'p')
 endif
 if !isdirectory(expand(&directory))
-    call mkdir(expand(&directory), "p")
+  call mkdir(expand(&directory), 'p')
+endif
+
+if has('persistent_undo')
+  let myUndoDir = expand('$HOME/.vim/tmp/undo/')
+  if !isdirectory(myUndoDir)
+    call mkdir(myUndoDir, 'p')
+  endif
+  let &undodir = myUndoDir
+  set undofile
 endif
 
 " }}}
@@ -177,6 +197,25 @@ let g:airline_symbols.branch = '⭠'
 let g:airline_symbols.readonly = '⭤'
 let g:airline_symbols.linenr = '⭡'
 
+" }}}
+" Git Gutter {{{
+let g:gitgutter_sign_added = emoji#for('small_blue_diamond')
+let g:gitgutter_sign_modified = emoji#for('small_orange_diamond')
+let g:gitgutter_sign_removed = emoji#for('small_red_triangle')
+let g:gitgutter_sign_modified_removed = emoji#for('collision')
+
+" }}}
+" SuperTab, YCM, UltiSnips {{{
+" make YCM compatible with UltiSnips (using supertab)
+let g:ycm_key_list_select_completion = ['<C-n>', '<Down>']
+let g:ycm_key_list_previous_completion = ['<C-p>', '<Up>']
+let g:SuperTabDefaultCompletionType = '<C-n>'
+let g:SuperTabCrMapping = 0
+
+" better key bindings for UltiSnipsExpandTrigger
+let g:UltiSnipsExpandTrigger = "<tab>"
+let g:UltiSnipsJumpForwardTrigger = "<tab>"
+let g:UltiSnipsJumpBackwardTrigger = "<s-tab>"
 " }}}
 " Mappings {{{
 
@@ -250,11 +289,15 @@ endif
 
 syntax on
 set background=dark
+set colorcolumn=+1
 set synmaxcol=400      " Don't try to highlight super long lines.
 if exists('+colorcolumn')
   set colorcolumn=+1
 endif
-colorscheme desertink
+set t_Co=256
+colorscheme PaperColor
+
+let g:syntastic_javascript_checkers = ["eslint"]
 
 autocmd BufRead,BufNewFile *.feature set filetype=cucumber
 autocmd BufRead,BufNewFile *.pp set filetype=ruby
