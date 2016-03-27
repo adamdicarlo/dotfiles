@@ -101,7 +101,7 @@ let g:vimshell_editor_command=$HOME . '/bin/mvim'
 " Basics {{{
 
 set list
-set history=300      " Remember this many commands
+set history=500      " Remember this many commands
 set scrolloff=2      " Scroll 2 lines before bottom/top
 set showcmd
 set smartcase       " Only ignore case when all lowercase
@@ -290,14 +290,27 @@ endif
 syntax on
 set background=dark
 set colorcolumn=+1
-set synmaxcol=400      " Don't try to highlight super long lines.
+set synmaxcol=200      " Don't try to highlight super long lines.
 if exists('+colorcolumn')
   set colorcolumn=+1
 endif
 set t_Co=256
 colorscheme PaperColor
 
-let g:syntastic_javascript_checkers = ["eslint"]
+let g:syntastic_javascript_checkers = ['eslint']
+
+" Use local-to-project installation of eslint (and plugins).
+" Based on Alex Ford's comment at
+" https://jaxbot.me/articles/setting-up-vim-for-react-js-jsx-02-03-2015#comment-2326725672
+function! ESLintPath()
+  let path = finddir('node_modules', '.;') . '/.bin/eslint'
+  if matchstr(path, '^\/\\w') == ''
+    let path = getcwd() . '/' . path
+  endif
+  return executable(path) ? path : ''
+endfunction
+
+autocmd FileType javascript let b:syntastic_javascript_eslint_exec = ESLintPath()
 
 autocmd BufRead,BufNewFile *.feature set filetype=cucumber
 autocmd BufRead,BufNewFile *.pp set filetype=ruby

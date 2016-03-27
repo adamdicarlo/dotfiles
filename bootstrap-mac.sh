@@ -7,13 +7,11 @@ if ! which brew &>/dev/null; then
 fi
 
 brew install \
-  ack \
   the_silver_searcher \
   cmake \
   coreutils \
   cowsay \
   findutils \
-  fish \
   node \
   git \
   git-extras \
