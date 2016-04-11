@@ -27,7 +27,7 @@ ENABLE_CORRECTION="true"
 plugins=(docker git gnu-utils nvm rbenv)
 
 # User configuration
-export PATH="$HOME/bin:./node_modules/.bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/X11/bin"
+export PATH="$HOME/bin:/usr/local/bin:/usr/local/sbin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/X11/bin:./node_modules/.bin"
 export MANPATH="/usr/local/man:$MANPATH"
 
 # Homeshick
@@ -38,6 +38,9 @@ source $ZSH/oh-my-zsh.sh
 
 # FZF
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+# z
+source `brew --prefix`/etc/profile.d/z.sh
 
 if [[ -n $SSH_CONNECTION ]]; then
   export EDITOR='vim'
@@ -56,3 +59,4 @@ alias zshconfig="$EDITOR ~/.zshrc"
 alias ohmyzsh="$EDITOR ~/.oh-my-zsh"
 alias gs='git status' # just can't get used to `gst` for this!
 alias gds='git diff --staged'
+alias ls='gls -F --color=auto'

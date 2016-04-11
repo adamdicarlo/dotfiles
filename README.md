@@ -1,14 +1,25 @@
 # dotfiles
 
-My Linux and OS X configuration files.
+My shell configuration for developing on OS X.
 
-I store my dotfiles in this repository, typically checked out to `~/dotfiles`. My deploy script symlinks them to my homedir.
+I'm using [Homeshick](https://github.com/andsens/homeshick) to manage these.
+
+My Homeshick _castles_:
+
+* [adamdicarlo/dotfiles.git](https://github.com/adamdicarlo/dotfiles)
+* [adamdicarlo/castle-neovim.git](https://github.com/adamdicarlo/castle-neovim)
+
+Flavor (tools I use):
+
+* Neovim and Neovim.app
+* zsh with oh-my-zsh
 
 ## Installation
 
-1. Fork and clone the repository.
-1. If you haven't already, install Node.js.
-1. Run `bootstrap-mac.sh` or `bootstrap-ubuntu.sh` to install software and set up basics
-1. Run `deploy.sh` to symlinks configuration files and scripts into your home dir.
-
-If the repository is moved after deploying, `deploy.sh` must be run again in order to update the symlinks.
+1. Install [homebrew](http://brew.sh/)
+1. Install [Homeshick](https://github.com/andsens/homeshick)
+1. Clone castles (including this one)
+1. Run `homeshick link dotfiles`
+1. Run `homeshick link castle-neovim`
+1. Run `~/.homesick/castles/dotfiles/bootstrap-mac.sh`
+   - NB: This will install Neovim.app (TODO: Move Neovim install to castle-neovim!)
