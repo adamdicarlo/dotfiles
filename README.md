@@ -17,9 +17,5 @@ Flavor (tools I use):
 ## Installation
 
 1. Install [homebrew](http://brew.sh/)
-1. Install [Homeshick](https://github.com/andsens/homeshick)
-1. Clone castles (including this one)
-1. Run `homeshick link dotfiles`
-1. Run `homeshick link castle-neovim`
-1. Run `~/.homesick/castles/dotfiles/bootstrap-mac.sh`
-   - NB: This will install Neovim.app (TODO: Move Neovim install to castle-neovim!)
+1. Run `bootstrap-mac.sh` from this repository
+   - NB: This will install Neovim and Neovim.app (TODO: Move Neovim install to castle-neovim!)
