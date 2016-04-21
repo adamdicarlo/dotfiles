@@ -1,5 +1,9 @@
 #!/bin/bash
 
+echo "WARNING:"
+echo "This is very out of date"
+echo "Ideally, the non-platform specific stuff in bootstrap-mac.sh should be factored out and used here..."
+
 sudo apt-get install -y \
   build-essential \
   cmake \
@@ -12,35 +16,6 @@ sudo apt-get install -y \
   silversearcher-ag \
   vim-gtk \
   yakuake
-
-# get .npmrc in place before installing node packages.
-if [ ! -d $HOME/dotfiles ]; then
-  echo "Fetching dotfiles"
-  git clone https://github.com/adamdicarlo/dotfiles.git $HOME/dotfiles >/dev/null
-else
-  echo "dotfiles present"
-fi
-
-cd $HOME/dotfiles
-./deploy.sh
-
-# Install latest node 0.10
-if ! which node &>/dev/null; then
-  LATEST=`curl https://semver.io/node/resolve/0.10.x`
-  echo "Installing node-$LATEST"
-  wget https://nodejs.org/dist/v$LATEST/node-v$LATEST-linux-x64.tar.gz -O /tmp/nodejs.tar.gz
-  sudo tar --xform 's/^node[^\/]*//' -C /usr/local -xf /tmp/nodejs.tar.gz
-else
-  echo "node present (`node --version`)"
-fi
-
-# Install NeoBundle and vim plugins
-if [ ! -d $HOME/.vim/bundle/neobundle.vim ]; then
-  echo "Installing NeoBundle"
-  curl https://raw.githubusercontent.com/Shougo/neobundle.vim/master/bin/install.sh | sh
-else
-  echo "NeoBundle present"
-fi
 
 # Build and install xcape, needed for mapping CapsLock to be both Ctrl and Esc (see .bash_aliases)
 if ! which xcape &>/dev/null; then
@@ -57,4 +32,3 @@ if ! which xcape &>/dev/null; then
 else
   echo "xcape present"
 fi
-
