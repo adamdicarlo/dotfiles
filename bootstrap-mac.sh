@@ -47,6 +47,7 @@ maybe_install htop-osx htop
 maybe_install homebrew/gui/meld meld
 maybe_install most
 maybe_install mtr
+maybe_install python3
 maybe_install rbenv
 maybe_install ssh-copy-id
 maybe_install watch
@@ -86,9 +87,18 @@ else
   brew install --HEAD neovim-dot-app && brew linkapps neovim-dot-app
 fi
 
+#
+# Neovim support
+#
 echo "Installing/updating Plug.vim..."
 curl -SsfLo ~/.config/nvim/autoload/plug.vim --create-dirs \
     https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+
+if ! pip3 show neovim &>/dev/null; then
+  echo "Installing Python neovim integration"
+  pip3 install --upgrade pip
+  pip3 install neovim
+fi
 
 #
 # nvm - node version manager
