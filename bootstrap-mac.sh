@@ -12,7 +12,7 @@ fi
 function maybe_install {
   local package=$1
   local bin=${2:-${package}}
-  if ! which $bin &>/dev/null; then
+  if ! command -v $bin &>/dev/null; then
     echo "Installing $package"
     brew install $package
   fi
@@ -29,6 +29,7 @@ function maybe_install_cask {
     brew install Caskroom/cask/$cask
   fi
 }
+
 #
 # Xcode build tools
 #
@@ -75,16 +76,14 @@ maybe_install_cask flux Flux.app
 if ! which nvim &>/dev/null; then
   echo "Installing neovim..."
   brew tap neovim/homebrew-neovim
-  brew install --HEAD neovim
+  brew install neovim
 fi
 
-if [ -d /Applications/Neovim.app ]; then
-  echo "Neovim.app already installed"
-else
+if [ ! -d /Applications/Neovim.app ]; then
   echo "Installing Neovim.app..."
   brew tap neovim/neovim
   brew tap rogual/neovim-dot-app
-  brew install --HEAD neovim-dot-app && brew linkapps neovim-dot-app
+  brew install neovim-dot-app && brew linkapps neovim-dot-app
 fi
 
 #

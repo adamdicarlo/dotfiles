@@ -54,6 +54,11 @@ fi
 # ssh
 # export SSH_KEY_PATH="~/.ssh/dsa_id"
 
+# Hooks
+function chpwd () {
+  gls -F --color=auto
+}
+
 # Aliases
 alias be='bundle exec'
 alias zshconfig="$EDITOR ~/.zshrc"
