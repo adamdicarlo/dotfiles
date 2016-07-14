@@ -24,7 +24,7 @@ ENABLE_CORRECTION="true"
 
 # Which plugins would you like to load? (plugins can be found in ~/.oh-my-zsh/plugins/*)
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
-plugins=(docker git gnu-utils nvm rbenv zsh-syntax-highlighting)
+plugins=(docker git gnu-utils nvm rbenv zsh-autosuggestions)
 
 # User configuration
 export PATH="$HOME/bin:/usr/local/bin:/usr/local/sbin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/X11/bin:./node_modules/.bin"
@@ -41,6 +41,8 @@ source $ZSH/oh-my-zsh.sh
 
 # z
 source `brew --prefix`/etc/profile.d/z.sh
+
+source $ZSH/custom/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 
 if [[ -n $SSH_CONNECTION ]]; then
   export EDITOR='vim'
@@ -60,9 +62,4 @@ function chpwd () {
 }
 
 # Aliases
-alias be='bundle exec'
-alias zshconfig="$EDITOR ~/.zshrc"
-alias ohmyzsh="$EDITOR ~/.oh-my-zsh"
-alias gs='git status' # just can't get used to `gst` for this!
-alias gds='git diff --staged'
-alias ls='gls -F --color=auto'
+source ~/.zsh/aliases.zsh
