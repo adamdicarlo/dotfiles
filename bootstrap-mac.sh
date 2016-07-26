@@ -2,8 +2,8 @@
 
 # todo: Install homebrew automatically?
 if ! which brew &>/dev/null; then
-  echo "Please install homebrew first."
-  exit 1
+  echo "Installing homebrew"
+  /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 fi
 
 #
