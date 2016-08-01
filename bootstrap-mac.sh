@@ -126,9 +126,14 @@ if [ ! -d ~/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting ]; then
 fi
 
 if [ ! -f ~/.oh-my-zsh/themes/dracula.zsh-theme ]; then
-  echo "Installing zsh dracula theme..."
-  [ -d ~/opt/dracula-theme ] || git clone -q https://github.com/zenorocha/dracula-theme.git ~/opt/dracula-theme
+  echo "Installing zsh Dracula theme..."
+  [ -d ~/opt/dracula-theme ] || git clone -q https://github.com/dracula/zsh.git ~/opt/dracula-theme/zsh
   ln -s ~/opt/dracula-theme/zsh/dracula.zsh-theme ~/.oh-my-zsh/themes/dracula.zsh-theme
+fi
+
+if [ ! -f ~/opt/dracula-theme/iterm/Dracula.itermcolors ]; then
+  echo "Installing iTerm2 Dracula theme"
+  git clone -q https://github.com/dracula/iterm.git ~/opt/dracula-theme/iterm
 fi
 
 if [ ! -d ~/.homesick/repos/homeshick ]; then
