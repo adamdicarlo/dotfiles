@@ -24,9 +24,9 @@ function maybe_install {
 function maybe_install_cask {
   local cask=$1
   local name=$2
-  if [ ! -d ~/Applications/$name ]; then
+  if [[ ! -d "~/Applications/$name" && ! -d "/Applications/$name" ]]; then
     echo "Installing $name"
-    brew install Caskroom/cask/$cask
+    brew cask install Caskroom/cask/$cask
   fi
 }
 
