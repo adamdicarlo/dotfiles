@@ -54,12 +54,17 @@ fi
 # export ARCHFLAGS="-arch x86_64"
 
 # ssh
-# export SSH_KEY_PATH="~/.ssh/dsa_id"
+export SSH_KEY_PATH="~/.ssh/rsa_id"
+
+source ~/.zsh/aliases.zsh
+source ~/.zsh/iterm2_shell_integration.zsh
+
+# Shell config from private, mutually-exclusive homeshick castles
+[ -f ~/.zsh/private.zsh ] && source ~/.zsh/private.zsh
 
 # Hooks
+
+# `cd` hook can disrupt shell scripts, so define this after all `source` commands!
 function chpwd () {
   gls -F --color=auto
 }
-
-# Aliases
-source ~/.zsh/aliases.zsh
