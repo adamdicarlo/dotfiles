@@ -68,7 +68,12 @@ fi
 #
 # Apps
 #
+maybe_install_cask alfred 'Alfred 3.app'
+maybe_install_cask dropbox Dropbox.app
 maybe_install_cask flux Flux.app
+maybe_install_cask iterm2 iTerm.app
+maybe_install_cask karabiner Karabiner.app
+maybe_install_cask seil Seil.app
 
 #
 # Neovim!
