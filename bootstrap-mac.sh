@@ -88,7 +88,7 @@ if [ ! -d /Applications/Neovim.app ]; then
   echo "Installing Neovim.app..."
   brew tap neovim/neovim
   brew tap rogual/neovim-dot-app
-  brew install neovim-dot-app && brew linkapps neovim-dot-app
+  brew install --HEAD neovim-dot-app && brew linkapps neovim-dot-app
 fi
 
 #
