@@ -1,13 +1,14 @@
 #!/bin/bash
 
-# todo: Install homebrew automatically?
 if ! which brew &>/dev/null; then
   echo "Installing homebrew"
   /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 fi
 
 #
-# Check whether package is installed before installing to avoid noisy brew warnings & errors.
+# Install a package if not already installed.
+#
+# Avoids delays and noisy brew warnings.
 #
 function maybe_install {
   local package=$1
@@ -19,14 +20,27 @@ function maybe_install {
 }
 
 #
-# Check whether cask is installed before installing.
+# Install a package that overrides a system default (a dupe), if not already installed.
+#
+function maybe_install_dupe {
+  local package=$1
+  local bin=${2:-${package}}
+  shift 2
+  if [[ "$(which $bin)" != "/usr/local/bin/$bin" ]]; then
+    echo "Installing $package"
+    brew install $package $@
+  fi
+}
+
+#
+# Install a cask if not already installed.
 #
 function maybe_install_cask {
   local cask=$1
   local name=$2
-  if [[ ! -d "~/Applications/$name" && ! -d "/Applications/$name" ]]; then
+  if [[ ! -d "$HOME/Applications/$name" && ! -d "/Applications/$name" ]]; then
     echo "Installing $name"
-    brew cask install Caskroom/cask/$cask
+    brew cask install $cask
   fi
 }
 
@@ -38,27 +52,25 @@ which BuildStrings &>/dev/null || xcode-select --install
 #
 # Install-via-Homebrew tools
 #
-echo "Running brew update..."
-brew update
 maybe_install the_silver_searcher ag
 maybe_install cmake
-maybe_install coreutils gls
-maybe_install findutils gfind
+maybe_install coreutils gln
+maybe_install diff-so-fancy
 maybe_install htop-osx htop
 maybe_install homebrew/gui/meld meld
+maybe_install imagemagick convert
 maybe_install most
 maybe_install mtr
 maybe_install python3
-maybe_install rbenv
 maybe_install ssh-copy-id
 maybe_install watch
 maybe_install wget
-[ -f `brew --prefix`/etc/profile.d/z.sh ] || maybe_install z
 
-if [[ "$(which git)" != "/usr/local/bin/git" ]]; then
-  echo "Installing git..."
-  brew install git
-fi
+maybe_install_dupe git
+maybe_install_dupe findutils find --with-default-names
+
+[ -d ~/.nvm ] || maybe_install nvm
+[ -f `brew --prefix`/etc/profile.d/z.sh ] || maybe_install z
 
 if ! git info &>/dev/null; then
   echo "Installing git-extras..."
@@ -69,32 +81,23 @@ fi
 # Apps
 #
 maybe_install_cask alfred 'Alfred 3.app'
+maybe_install_cask amphetamine Amphetamine.app
 maybe_install_cask dropbox Dropbox.app
+maybe_install_cask evernote Evernote.app
 maybe_install_cask flux Flux.app
 maybe_install_cask iterm2 iTerm.app
 maybe_install_cask karabiner Karabiner.app
 maybe_install_cask seil Seil.app
+maybe_install_cask vlc VLC.app
+
+[ -d "$HOME/Library/PreferencePanes/AppTrap.prefPane" ] || maybe_install_cask apptrap
 
 #
 # Neovim!
 #
-if ! which nvim &>/dev/null; then
-  echo "Installing neovim..."
-  brew tap neovim/homebrew-neovim
-  brew install neovim
-fi
+maybe_install_cask vimr VimR.app
 
-if [ ! -d /Applications/Neovim.app ]; then
-  echo "Installing Neovim.app..."
-  brew tap neovim/neovim
-  brew tap rogual/neovim-dot-app
-  brew install --HEAD neovim-dot-app && brew linkapps neovim-dot-app
-fi
-
-#
-# Neovim support
-#
-echo "Installing/updating Plug.vim..."
+echo "Installing/updating Plug.vim"
 curl -SsfLo ~/.config/nvim/autoload/plug.vim --create-dirs \
     https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 
@@ -102,14 +105,6 @@ if ! pip3 show neovim &>/dev/null; then
   echo "Installing Python neovim integration"
   pip3 install --upgrade pip
   pip3 install neovim
-fi
-
-#
-# nvm - node version manager
-#
-if [ ! -d ~/.nvm ]; then
-  echo "Installing nvm..."
-  git clone -q https://github.com/creationix/nvm.git ~/.nvm && cd ~/.nvm && git checkout `git describe --abbrev=0 --tags`
 fi
 
 if [ ! -d ~/.oh-my-zsh ]; then
