@@ -73,7 +73,7 @@ maybe_install_dupe findutils find --with-default-names
 [ -f `brew --prefix`/etc/profile.d/z.sh ] || maybe_install z
 
 if ! git info &>/dev/null; then
-  echo "Installing git-extras..."
+  echo "Installing git-extras"
   brew install git-extras
 fi
 
@@ -107,8 +107,9 @@ if ! pip3 show neovim &>/dev/null; then
   pip3 install neovim
 fi
 
+# Oh My Zsh
 if [ ! -d ~/.oh-my-zsh ]; then
-  echo "Installing oh-my-zsh..."
+  echo "Installing oh-my-zsh"
   sh -c "$(wget https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O -)"
 fi
 
@@ -116,23 +117,23 @@ fi
 # Syntax highlighting (fish-like) for zsh
 #
 if [ ! -d ~/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting ]; then
-  echo "Installing zsh-syntax-highlighting..."
+  echo "Installing zsh-syntax-highlighting"
   git clone -q https://github.com/zsh-users/zsh-syntax-highlighting.git ~/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting
 fi
 
+# Dracula theme
 if [ ! -f ~/.oh-my-zsh/themes/dracula.zsh-theme ]; then
-  echo "Installing zsh Dracula theme..."
+  echo "Installing zsh Dracula theme"
   [ -d ~/opt/dracula-theme ] || git clone -q https://github.com/dracula/zsh.git ~/opt/dracula-theme/zsh
   ln -s ~/opt/dracula-theme/zsh/dracula.zsh-theme ~/.oh-my-zsh/themes/dracula.zsh-theme
 fi
-
 if [ ! -f ~/opt/dracula-theme/iterm/Dracula.itermcolors ]; then
   echo "Installing iTerm2 Dracula theme"
   git clone -q https://github.com/dracula/iterm.git ~/opt/dracula-theme/iterm
 fi
 
 if [ ! -d ~/.homesick/repos/homeshick ]; then
-  echo "Installing homeshick..."
+  echo "Installing homeshick"
   git clone -q git://github.com/andsens/homeshick.git $HOME/.homesick/repos/homeshick
   [ -d ~/.homesick/repos/dotfiles ] || git clone git@github.com:adamdicarlo/dotfiles.git $HOME/.homesick/repos/dotfiles
   [ -d ~/.homesick/repos/neovim ]   || git clone git@github.com:adamdicarlo/castle-neovim.git $HOME/.homesick/repos/neovim
