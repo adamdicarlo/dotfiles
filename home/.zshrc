@@ -1,66 +1,44 @@
-# Path to your oh-my-zsh installation.
 export ZSH=$HOME/.oh-my-zsh
 
+DEFAULT_USER="adamdicarlo"
+CASE_SENSITIVE="true"
+ENABLE_CORRECTION="false"
 ZSH_THEME="dracula"
-DEFAULT_USER="adicarlo"
+plugins=(docker git)
 
-# Uncomment the following line to use case-sensitive completion.
-# CASE_SENSITIVE="true"
+source $ZSH/oh-my-zsh.sh
+unsetopt auto_cd
 
-# Uncomment the following line to use hyphen-insensitive completion. Case
-# sensitive completion must be off. _ and - will be interchangeable.
-# HYPHEN_INSENSITIVE="true"
+source $ZSH/custom/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 
-# Uncomment the following line to disable auto-setting terminal title.
-# DISABLE_AUTO_TITLE="true"
+# Extra (custom) config scripts
+for script in ~/.zsh/*.zsh; do source $script; done
 
-# Uncomment the following line to enable command auto-correction.
-ENABLE_CORRECTION="true"
+# FZF
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
-# Uncomment the following line if you want to change the command execution time
-# stamp shown in the history command output.
-# The optional three formats: "mm/dd/yyyy"|"dd.mm.yyyy"|"yyyy-mm-dd"
-# HIST_STAMPS="mm/dd/yyyy"
-
-# Which plugins would you like to load? (plugins can be found in ~/.oh-my-zsh/plugins/*)
-# Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
-plugins=(docker git gnu-utils nvm rbenv)
-
-# User configuration
-export PATH="$HOME/bin:/usr/local/bin:/usr/local/sbin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/X11/bin:./node_modules/.bin"
-export MANPATH="/usr/local/man:$MANPATH"
+# Go
+export GOPATH="$HOME/go"
 
 # Homeshick
 source "$HOME/.homesick/repos/homeshick/homeshick.sh"
 fpath=($HOME/.homesick/repos/homeshick/completions $fpath)
 
-source $ZSH/oh-my-zsh.sh
+# nvm
+export NODEJS_ORG_MIRROR=https://nodejs.org/dist
+export NVM_DIR="$HOME/.nvm"
+source "$(brew --prefix nvm)/nvm.sh"
 
-# FZF
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-
-# z
-source `brew --prefix`/etc/profile.d/z.sh
-
-source $ZSH/custom/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-
+# ssh
+export SSH_KEY_PATH="~/.ssh/rsa_id"
 if [[ -n $SSH_CONNECTION ]]; then
   export EDITOR='vim'
 else
   export EDITOR='nvim'
 fi
 
-# Compilation flags
-# export ARCHFLAGS="-arch x86_64"
-
-# ssh
-export SSH_KEY_PATH="~/.ssh/rsa_id"
-
-source ~/.zsh/aliases.zsh
-source ~/.zsh/iterm2_shell_integration.zsh
-
-# Shell config from private, mutually-exclusive homeshick castles
-[ -f ~/.zsh/private.zsh ] && source ~/.zsh/private.zsh
+# z
+source `brew --prefix`/etc/profile.d/z.sh
 
 # Hooks
 
