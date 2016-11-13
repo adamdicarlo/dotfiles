@@ -13,9 +13,9 @@ fi
 function maybe_install {
   local package=$1
   local bin=${2:-${package}}
-  if ! command -v $bin &>/dev/null; then
+  if ! command -v "$bin" &>/dev/null; then
     echo "Installing $package"
-    brew install $package
+    brew install "$package"
   fi
 }
 
@@ -26,9 +26,9 @@ function maybe_install_dupe {
   local package=$1
   local bin=${2:-${package}}
   shift 2
-  if [[ "$(which $bin)" != "/usr/local/bin/$bin" ]]; then
+  if [[ "$(which "$bin")" != "/usr/local/bin/$bin" ]]; then
     echo "Installing $package"
-    brew install $package $@
+    brew install "$package" "$@"
   fi
 }
 
@@ -40,7 +40,7 @@ function maybe_install_cask {
   local name=$2
   if [[ ! -d "$HOME/Applications/$name" && ! -d "/Applications/$name" ]]; then
     echo "Installing $name"
-    brew cask install $cask
+    brew cask install "$cask"
   fi
 }
 
@@ -62,6 +62,7 @@ maybe_install imagemagick convert
 maybe_install most
 maybe_install mtr
 maybe_install python3
+maybe_install shellcheck
 maybe_install ssh-copy-id
 maybe_install watch
 maybe_install wget
@@ -70,7 +71,7 @@ maybe_install_dupe git
 maybe_install_dupe findutils find --with-default-names
 
 [ -d ~/.nvm ] || maybe_install nvm
-[ -f `brew --prefix`/etc/profile.d/z.sh ] || maybe_install z
+[ -f "$(brew --prefix)/etc/profile.d/z.sh" ] || maybe_install z
 
 if ! git info &>/dev/null; then
   echo "Installing git-extras"
@@ -134,9 +135,9 @@ fi
 
 if [ ! -d ~/.homesick/repos/homeshick ]; then
   echo "Installing homeshick"
-  git clone -q git://github.com/andsens/homeshick.git $HOME/.homesick/repos/homeshick
-  [ -d ~/.homesick/repos/dotfiles ] || git clone git@github.com:adamdicarlo/dotfiles.git $HOME/.homesick/repos/dotfiles
-  [ -d ~/.homesick/repos/neovim ]   || git clone git@github.com:adamdicarlo/castle-neovim.git $HOME/.homesick/repos/neovim
-  $HOME/.homesick/repos/homeshick/bin/homeshick link dotfiles
-  $HOME/.homesick/repos/homeshick/bin/homeshick link neovim
+  git clone -q git://github.com/andsens/homeshick.git ~/.homesick/repos/homeshick
+  [ -d ~/.homesick/repos/dotfiles ] || git clone git@github.com:adamdicarlo/dotfiles.git ~/.homesick/repos/dotfiles
+  [ -d ~/.homesick/repos/neovim ]   || git clone git@github.com:adamdicarlo/castle-neovim.git ~/.homesick/repos/neovim
+  ~/.homesick/repos/homeshick/bin/homeshick link dotfiles
+  ~/.homesick/repos/homeshick/bin/homeshick link neovim
 fi
