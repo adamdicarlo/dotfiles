@@ -141,6 +141,13 @@ if [ ! -f ~/opt/dracula-theme/iterm/Dracula.itermcolors ]; then
   git clone -q https://github.com/dracula/iterm.git ~/opt/dracula-theme/iterm
 fi
 
+# Fonts
+if [ ! -f ~/Library/Fonts/FiraCode-Regular.otf ]; then
+  green "Installing FiraCode font"
+  brew tap caskroom/fonts
+  brew cask install font-fira-code
+fi
+
 if [ ! -d ~/.homesick/repos/homeshick ]; then
   green "Installing homeshick"
   git clone -q git://github.com/andsens/homeshick.git ~/.homesick/repos/homeshick
