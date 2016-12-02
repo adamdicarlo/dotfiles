@@ -1,6 +1,6 @@
 export ZSH=$HOME/.oh-my-zsh
 
-DEFAULT_USER="adamdicarlo"
+DEFAULT_USER=$USER
 CASE_SENSITIVE="true"
 ENABLE_CORRECTION="false"
 ZSH_THEME="dracula"
