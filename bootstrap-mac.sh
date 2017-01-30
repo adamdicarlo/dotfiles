@@ -95,9 +95,17 @@ maybe_install_cask dropbox Dropbox.app
 maybe_install_cask evernote Evernote.app
 maybe_install_cask flux Flux.app
 maybe_install_cask iterm2 iTerm.app
-maybe_install_cask karabiner Karabiner.app
-maybe_install_cask seil Seil.app
 maybe_install_cask vlc VLC.app
+
+if [ ! -d /Applications/Karabiner-Elements.app ]; then
+  pushd /tmp
+    wget -q https://github.com/wwwjfy/Karabiner-Elements/releases/download/0.90.83/Karabiner-Elements-0.90.83.dmg
+    echo "Please manually install Karabiner-Elements through its installer"
+    open Karabiner-Elements-0.90.83.dmg
+    sleep 4
+    open /Volumes/Karabiner-Elements-0.90.83/Karabiner-Elements.sparkle_guided.pkg
+  popd
+fi
 
 [ -d "$HOME/Library/PreferencePanes/AppTrap.prefPane" ] || maybe_install_cask apptrap
 
