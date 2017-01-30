@@ -85,6 +85,11 @@ if ! git info &>/dev/null; then
   brew install git-extras
 fi
 
+[ -d /usr/local/Homebrew/Library/Taps/homebrew/homebrew-completions ] || brew tap homebrew/completions
+[ -f /usr/local/share/zsh/site-functions/_docker ] || brew install docker-completion
+[ -f /usr/local/share/zsh/site-functions/_docker-compose ] || brew install docker-compose-completion
+[ -f /usr/local/share/zsh/site-functions/_docker-machine ] || brew install docker-machine-completion
+
 #
 # Apps
 #
