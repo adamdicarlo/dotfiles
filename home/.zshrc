@@ -32,6 +32,17 @@ fi
 # z
 source `brew --prefix`/etc/profile.d/z.sh
 
+export TERM=${TERM:-xterm-256color}
+
+# Is this an interactive shell?
+if [[ $- == *i* ]]; then
+  # Fix ^H for neovim when TERM=xterm-256color (iTerm2, and Terminal, as of macOS Sierra)
+  # See https://github.com/neovim/neovim/issues/2048#issuecomment-78045837
+  # No clue whether this is a set-and-forget or needs to be run here (every shell)
+  infocmp $TERM | sed 's/kbs=^[hH]/kbs=\\177/' > /tmp/$TERM.ti
+  tic /tmp/$TERM.ti
+fi
+
 # Hooks
 
 # `cd` hook can disrupt shell scripts, so define this after all `source` commands!
