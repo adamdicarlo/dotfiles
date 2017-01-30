@@ -65,7 +65,6 @@ maybe_install cmake
 maybe_install coreutils gln
 maybe_install diff-so-fancy
 maybe_install htop-osx htop
-maybe_install homebrew/gui/meld meld
 maybe_install imagemagick convert
 maybe_install most
 maybe_install mtr
@@ -95,6 +94,7 @@ maybe_install_cask dropbox Dropbox.app
 maybe_install_cask evernote Evernote.app
 maybe_install_cask flux Flux.app
 maybe_install_cask iterm2 iTerm.app
+maybe_install_cask meld Meld.app
 maybe_install_cask vlc VLC.app
 
 if [ ! -d /Applications/Karabiner-Elements.app ]; then
