@@ -1,3 +1,4 @@
+alias ag='ag --path-to-ignore ~/.ignore'
 alias zshconfig="$EDITOR ~/.zshrc"
 alias ohmyzsh="$EDITOR ~/.oh-my-zsh"
 alias nvimconfig="$EDITOR ~/.config/nvim/init.vim"
