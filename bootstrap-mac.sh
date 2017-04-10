@@ -164,8 +164,9 @@ fi
 if [ ! -d ~/.homesick/repos/homeshick ]; then
   green "Installing homeshick"
   git clone -q git://github.com/andsens/homeshick.git ~/.homesick/repos/homeshick
-  [ -d ~/.homesick/repos/dotfiles ] || git clone git@github.com:adamdicarlo/dotfiles.git ~/.homesick/repos/dotfiles
-  [ -d ~/.homesick/repos/neovim ]   || git clone git@github.com:adamdicarlo/castle-neovim.git ~/.homesick/repos/neovim
-  ~/.homesick/repos/homeshick/bin/homeshick link dotfiles
-  ~/.homesick/repos/homeshick/bin/homeshick link neovim
+  PATH=$PATH:$HOME/.homesick/repos/homeshick/bin
+  [ -d ~/.homesick/repos/dotfiles ] || homeshick clone git@github.com:adamdicarlo/dotfiles
+  [ -d ~/.homesick/repos/neovim ]   || homeshick clone git@github.com:adamdicarlo/castle-neovim
+  homeshick link dotfiles
+  homeshick link neovim
 fi
