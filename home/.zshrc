@@ -29,6 +29,9 @@ else
   export EDITOR='nvim'
 fi
 
+export LESS=-RFX
+export PAGER=bat
+
 # z
 source `brew --prefix`/etc/profile.d/z.sh
 
@@ -47,5 +50,5 @@ fi
 
 # `cd` hook can disrupt shell scripts, so define this after all `source` commands!
 function chpwd () {
-  gls -F --color=auto
+  (which exa 1>/dev/null) && exa || gls -F --color=auto
 }

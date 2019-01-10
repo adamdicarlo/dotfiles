@@ -61,9 +61,11 @@ which BuildStrings &>/dev/null || xcode-select --install
 # Install-via-Homebrew tools
 #
 maybe_install the_silver_searcher ag
+maybe_install bat
 maybe_install cmake
 maybe_install coreutils gln
 maybe_install diff-so-fancy
+maybe_install exa
 maybe_install htop-osx htop
 maybe_install imagemagick convert
 maybe_install most
