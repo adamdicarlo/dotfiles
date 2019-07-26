@@ -46,6 +46,13 @@ function omz_dracula_theme {
   fi
 }
 
+function shell {
+  if [ "$SHELL" != "/usr/bin/zsh" ]; then
+    green "Updating login shell to zsh"
+    chsh --shell /usr/bin/zsh
+  fi
+}
+
 function vim_plug {
   green "Installing/updating Plug.vim"
   curl -SsfLo ~/.config/nvim/autoload/plug.vim --create-dirs \
@@ -58,3 +65,4 @@ oh_my_zsh
 omz_dracula_theme
 omz_syntax_highlighting
 vim_plug
+shell
