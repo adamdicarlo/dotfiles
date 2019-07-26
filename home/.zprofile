@@ -1,11 +1,21 @@
+# Linux?
+if [ -d /home ]; then
+  export XDG_CONFIG_HOME=$HOME/.config
+  setxkbmap -option 'caps:ctrl_modifier'
+  xcape -e 'Caps_Lock=Escape'
+fi
+
 export EDITOR=${EDITOR:-nvim}
-export PATH="$HOME/bin:/usr/local/bin:/usr/local/sbin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/X11/bin:$HOME/.yarn/bin:./node_modules/.bin:$GOPATH/bin"
+export PATH="$HOME/bin:/usr/local/bin:/usr/local/sbin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/X11/bin:$HOME/.yarn/bin:./node_modules/.bin"
+
+# macOS?
+if [ ! -d /home ]; then
+  export PATH="$PATH:$GOPATH/bin"
+fi
+
 export MANPATH="/usr/local/man:$MANPATH"
 
 # nvm
 export NODEJS_ORG_MIRROR=https://nodejs.org/dist
-export NVM_DIR="$HOME/.nvm"
-source "/usr/local/opt/nvm/nvm.sh"
-
-# brew --prefix reports a bad path - different version than that installed. waaatttt
-# source "$(brew --prefix nvm)/nvm.sh"
+export NVM_DIR="${XDG_CONFIG_HOME/:-$HOME/.}nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
