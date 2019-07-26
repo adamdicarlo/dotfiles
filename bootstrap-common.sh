@@ -41,6 +41,7 @@ function omz_dracula_theme {
   if [ ! -f ~/.oh-my-zsh/themes/dracula.zsh-theme ]; then
     green "Installing zsh Dracula theme"
     [ -d ~/opt/dracula-theme ] || git clone -q https://github.com/dracula/zsh.git ~/opt/dracula-theme/zsh
+    mkdir -p ~/.oh-my-zsh/themes
     ln -s ~/opt/dracula-theme/zsh/dracula.zsh-theme ~/.oh-my-zsh/themes/dracula.zsh-theme
   fi
 }
