@@ -8,19 +8,20 @@ function green {
   echo "${bold}${green}${*}${normal}"
 }
 
-function homeshick {
+function install_homeshick {
   if [ ! -d ~/.homesick/repos/homeshick ]; then
     green "Installing homeshick"
     git clone -q git://github.com/andsens/homeshick.git ~/.homesick/repos/homeshick
-    PATH=$PATH:$HOME/.homesick/repos/homeshick/bin
-    [ -d ~/.homesick/repos/dotfiles ] || homeshick clone git@github.com:adamdicarlo/dotfiles
-    [ -d ~/.homesick/repos/neovim ]   || homeshick clone git@github.com:adamdicarlo/castle-neovim
-    homeshick link dotfiles
-    homeshick link neovim
   fi
+
+  PATH=$PATH:$HOME/.homesick/repos/homeshick/bin
+  [ -d ~/.homesick/repos/dotfiles ]      || homeshick clone git@github.com:adamdicarlo/dotfiles
+  [ -d ~/.homesick/repos/castle-neovim ] || homeshick clone git@github.com:adamdicarlo/castle-neovim
+  homeshick link dotfiles
+  homeshick link castle-neovim
 }
 
-function oh_my_zsh {
+function install_oh_my_zsh {
   # Oh My Zsh
   if [ ! -d ~/.oh-my-zsh ]; then
     green "Installing oh-my-zsh"
@@ -28,7 +29,7 @@ function oh_my_zsh {
   fi
 }
 
-function omz_syntax_highlighting {
+function install_omz_syntax_highlighting {
   # Syntax highlighting (fish-like) for zsh
   if [ ! -d ~/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting ]; then
     green "Installing zsh-syntax-highlighting"
@@ -36,7 +37,7 @@ function omz_syntax_highlighting {
   fi
 }
 
-function omz_dracula_theme {
+function install_omz_dracula_theme {
   # Dracula theme
   if [ ! -f ~/.oh-my-zsh/themes/dracula.zsh-theme ]; then
     green "Installing zsh Dracula theme"
@@ -46,23 +47,22 @@ function omz_dracula_theme {
   fi
 }
 
-function shell {
+function install_shell {
   if [ "$SHELL" != "/usr/bin/zsh" ]; then
     green "Updating login shell to zsh"
     chsh --shell /usr/bin/zsh
   fi
 }
 
-function vim_plug {
+function install_vim_plug {
   green "Installing/updating Plug.vim"
   curl -SsfLo ~/.config/nvim/autoload/plug.vim --create-dirs \
       https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 }
 
-
-homeshick
-oh_my_zsh
-omz_dracula_theme
-omz_syntax_highlighting
-vim_plug
-shell
+install_homeshick
+install_oh_my_zsh
+install_omz_dracula_theme
+install_omz_syntax_highlighting
+install_vim_plug
+install_shell
