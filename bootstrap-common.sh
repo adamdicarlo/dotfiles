@@ -21,6 +21,13 @@ function install_homeshick {
   homeshick link castle-neovim
 }
 
+function install_nvm {
+  # Install after homeshick so that it will detect nvm lines already in .zshrc and not append.
+  if [ ! -d ~/.nvm ]; then
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.34.0/install.sh | bash
+  fi
+}
+
 function install_oh_my_zsh {
   # Oh My Zsh
   if [ ! -d ~/.oh-my-zsh ]; then
@@ -61,6 +68,7 @@ function install_vim_plug {
 }
 
 install_homeshick
+install_nvm
 install_oh_my_zsh
 install_omz_dracula_theme
 install_omz_syntax_highlighting

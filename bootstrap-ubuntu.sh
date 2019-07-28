@@ -3,6 +3,7 @@
 sudo apt install -y \
   libnotify-bin \
   meld \
+  ripgrep \
   xcape \
   zsh
 
