@@ -22,9 +22,14 @@ function install_homeshick {
 }
 
 function install_nvm {
-  # Install after homeshick so that it will detect nvm lines already in .zshrc and not append.
-  if [ ! -d ~/.nvm ]; then
-    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.34.0/install.sh | bash
+  if [ ! -d "$HOME/.config/nvm" ]; then
+    # PROFILE=/dev/null Tells nvm installer not to append lines to shell profiles (.bashrc, .zshrc)
+    # nvm will install into $XDG_CONFIG_HOME/nvm if the var is defined.
+    PROFILE=/dev/null
+    XDG_CONFIG_HOME=$HOME/.config
+
+    # Reason for fork: https://github.com/nvm-sh/nvm/pull/2013
+    curl -o- https://raw.githubusercontent.com/bees/nvm/update_install_dir_output/install.sh | bash
   fi
 }
 
