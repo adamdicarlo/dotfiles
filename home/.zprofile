@@ -1,5 +1,5 @@
-# Linux?
 if [ -d /home ]; then
+  # Linux
   export XDG_CONFIG_HOME=$HOME/.config
   setxkbmap -option 'caps:ctrl_modifier'
   xcape -e 'Caps_Lock=Escape'
@@ -8,8 +8,7 @@ fi
 export EDITOR=${EDITOR:-nvim}
 export PATH="$HOME/bin:/usr/local/bin:/usr/local/sbin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/X11/bin:$HOME/.yarn/bin:./node_modules/.bin"
 
-# macOS?
-if [ ! -d /home ]; then
+if [ ! -z "$GOPATH" ]; then
   export PATH="$PATH:$GOPATH/bin"
 fi
 
