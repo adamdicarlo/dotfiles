@@ -1,6 +1,8 @@
+# Linux?
 if [ -d /home ]; then
-  # Linux
   export XDG_CONFIG_HOME=$HOME/.config
+
+  # LIVE THE DREAM: Bind Caps-Lock to be Esc when tapped, Ctrl when held.
   setxkbmap -option 'caps:ctrl_modifier'
   xcape -e 'Caps_Lock=Escape'
 fi
