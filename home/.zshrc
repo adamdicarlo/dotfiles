@@ -6,9 +6,6 @@ ENABLE_CORRECTION="false"
 ZSH_THEME="dracula"
 plugins=(git)
 
-source $ZSH/oh-my-zsh.sh
-unsetopt auto_cd
-
 # ssh
 export SSH_KEY_PATH="~/.ssh/rsa_id"
 if [[ -n $SSH_CONNECTION ]]; then
@@ -45,7 +42,14 @@ if [[ $- == *i* ]]; then
     infocmp $TERM | sed 's/kbs=^[hH]/kbs=\\177/' > /tmp/$TERM.ti
     tic /tmp/$TERM.ti
   fi
+fi
 
+# Source oh-my-zsh *after* homeshick's fpath modification.
+# https://github.com/andsens/homeshick/issues/89
+source $ZSH/oh-my-zsh.sh
+unsetopt auto_cd
+
+if [[ $- == *i* ]]; then
   # Hooks
 
   # `cd` hook can disrupt shell scripts, so define this after all `source` commands!
