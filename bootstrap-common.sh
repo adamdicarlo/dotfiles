@@ -41,6 +41,16 @@ function install_oh_my_zsh {
   fi
 }
 
+function install_zplug {
+  ZPLUG_HOME=$HOME/.config/zplug
+  if [ ! -d $ZPLUG_HOME ]; then
+    green "Installing zplug"
+    curl -sL --proto-redir -all,https \
+      https://raw.githubusercontent.com/zplug/installer/master/installer.zsh \
+      | ZPLUG_HOME=$ZPLUG_HOME zsh
+  fi
+}
+
 function install_omz_syntax_highlighting {
   # Syntax highlighting (fish-like) for zsh
   if [ ! -d ~/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting ]; then
@@ -73,6 +83,7 @@ function install_vim_plug {
 install_homeshick
 install_nvm
 install_oh_my_zsh
+install_zplug
 install_omz_dracula_theme
 install_omz_syntax_highlighting
 install_vim_plug
