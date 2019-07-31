@@ -1,10 +1,6 @@
-export ZSH=$HOME/.oh-my-zsh
-
-DEFAULT_USER=$USER
 CASE_SENSITIVE="true"
 ENABLE_CORRECTION="false"
-ZSH_THEME="dracula"
-plugins=(git)
+unsetopt auto_cd
 
 # ssh
 export SSH_KEY_PATH="~/.ssh/rsa_id"
@@ -20,13 +16,8 @@ export TERM=${TERM:-xterm-256color}
 
 # Is this an interactive shell?
 if [[ $- == *i* ]]; then
-  source $ZSH/custom/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-
   # Extra (custom) config scripts
   for script in ~/.zsh/*.zsh; do source $script; done
-
-  # FZF
-  [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
   # Homeshick
   source "$HOME/.homesick/repos/homeshick/homeshick.sh"
@@ -43,11 +34,6 @@ if [[ $- == *i* ]]; then
     tic /tmp/$TERM.ti
   fi
 fi
-
-# Source oh-my-zsh *after* homeshick's fpath modification.
-# https://github.com/andsens/homeshick/issues/89
-source $ZSH/oh-my-zsh.sh
-unsetopt auto_cd
 
 if [[ $- == *i* ]]; then
   # Hooks

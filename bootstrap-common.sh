@@ -33,40 +33,6 @@ function install_nvm {
   fi
 }
 
-function install_oh_my_zsh {
-  # Oh My Zsh
-  if [ ! -d ~/.oh-my-zsh ]; then
-    green "Installing oh-my-zsh"
-    sh -c "$(wget https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O -)"
-  fi
-}
-
-function install_zplug {
-  ZPLUG_HOME=$HOME/.config/zplug
-  if [ ! -d $ZPLUG_HOME ]; then
-    green "Installing zplug"
-    curl -sL --proto-redir -all,https \
-      https://raw.githubusercontent.com/zplug/installer/master/installer.zsh \
-      | ZPLUG_HOME=$ZPLUG_HOME zsh
-  fi
-}
-
-function install_omz_syntax_highlighting {
-  # Syntax highlighting (fish-like) for zsh
-  if [ ! -d ~/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting ]; then
-    green "Installing zsh-syntax-highlighting"
-    git clone -q https://github.com/zsh-users/zsh-syntax-highlighting.git ~/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting
-  fi
-}
-
-function install_omz_dracula_theme {
-  # Dracula theme
-  if [ ! -d ~/.oh-my-zsh/themes/dracula.zsh-theme ]; then
-    green "Installing zsh Dracula theme"
-    git clone -q https://github.com/dracula/zsh.git ~/.oh-my-zsh/themes/dracula.zsh-theme
-  fi
-}
-
 function install_shell {
   if [ "$SHELL" != "/usr/bin/zsh" ]; then
     green "Updating login shell to zsh"
@@ -80,11 +46,19 @@ function install_vim_plug {
       https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 }
 
+function install_zplug {
+  ZPLUG_HOME=$HOME/.config/zplug
+  if [ ! -d $ZPLUG_HOME ]; then
+    green "Installing zplug"
+    curl -sL --proto-redir -all,https \
+      https://raw.githubusercontent.com/zplug/installer/master/installer.zsh \
+      | ZPLUG_HOME=$ZPLUG_HOME zsh
+  fi
+}
+
+
 install_homeshick
 install_nvm
-install_oh_my_zsh
-install_zplug
-install_omz_dracula_theme
-install_omz_syntax_highlighting
 install_vim_plug
+install_zplug
 install_shell
