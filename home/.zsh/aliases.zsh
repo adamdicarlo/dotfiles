@@ -1,7 +1,7 @@
 alias ag='ag --path-to-ignore ~/.ignore'
-alias zshconfig="$EDITOR ~/.zshrc"
-alias ohmyzsh="$EDITOR ~/.oh-my-zsh"
+alias cat='bat --theme=OneHalfDark'
 alias nvimconfig="$EDITOR ~/.config/nvim/init.vim"
+alias zshconfig="$EDITOR ~/.zshrc"
 alias v="$EDITOR"
 
 if which exa &>/dev/null; then

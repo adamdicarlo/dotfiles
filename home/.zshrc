@@ -21,8 +21,6 @@ for script in ~/.zsh/*.zsh; do source $script; done
 source "$HOME/.homesick/repos/homeshick/homeshick.sh"
 fpath=($HOME/.homesick/repos/homeshick/completions $fpath)
 
-alias cat='bat --theme=OneHalfDark'
-
 if [ ! -d /home ]; then
   # z
   source `brew --prefix`/etc/profile.d/z.sh
