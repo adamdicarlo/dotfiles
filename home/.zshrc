@@ -43,3 +43,5 @@ if [[ $- == *i* ]]; then
     (which exa 1>/dev/null) && exa || gls -F --color=auto
   }
 fi
+
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
