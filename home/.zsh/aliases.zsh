@@ -1,5 +1,4 @@
 alias ag='ag --path-to-ignore ~/.ignore'
-alias cat='bat --theme=OneHalfDark'
 alias nvimconfig="$EDITOR ~/.config/nvim/init.vim"
 alias zshconfig="$EDITOR ~/.zshrc"
 alias v="$EDITOR"
