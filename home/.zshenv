@@ -1,4 +1,5 @@
-export ZPLUG_HOME=$HOME/.config/zplug
+export XDG_CONFIG_HOME=$HOME/.config
+export ZPLUG_HOME=${XDG_CONFIG_HOME}/zplug
 export EDITOR=${EDITOR:-nvim}
 export PATH="$HOME/bin:/usr/local/bin:/usr/local/sbin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/X11/bin:$HOME/.yarn/bin:./node_modules/.bin"
 
