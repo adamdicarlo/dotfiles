@@ -14,6 +14,10 @@ fi
 alias gs='git status' # just can't get used to `gst` for this!
 alias gds='git diff --staged'
 alias gum='git checkout master; git pull; git checkout -'
+alias gud='git checkout develop; git pull; git checkout -'
+alias grbd='git rebase develop'
+
+alias git-clean-up-old-branches='for i in $(git-show-merged-branches); do git branch -d $i; done'
 
 # docker
 alias dc='docker-compose'
