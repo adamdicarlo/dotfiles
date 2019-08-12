@@ -3,6 +3,8 @@
   email = adam.dicarlo@gmail.com
 [credential]
   helper = osxkeychain
+[pull]
+  rebase = preserve
 [push]
   default = current
 [alias]
