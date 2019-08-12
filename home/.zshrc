@@ -10,6 +10,7 @@ else
   export EDITOR='nvim'
 fi
 
+export GPG_TTY=$(tty)
 export LESS=-RFX
 export PAGER=less
 export TERM=${TERM:-xterm-256color}
