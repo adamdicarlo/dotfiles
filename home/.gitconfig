@@ -1,6 +1,7 @@
 [user]
   name = Adam DiCarlo
-  email = adam.dicarlo@gmail.com
+  email = 97462+adamdicarlo@users.noreply.github.com
+  signingkey = 7450949D386CBC59
 [credential]
   helper = osxkeychain
 [pull]
@@ -8,21 +9,45 @@
 [push]
   default = current
 [alias]
-  undeployed = log production..latest
+  lg = "log --color --graph --abbrev-commit --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr)%C(bold blue)<%an>%Creset'"
+# so much color! Source:
+# https://github.com/paulirish/dotfiles/blob/63cb8193b0e66cf80ab6332477f1f52c7fbb9311/.gitconfig#L23-L44
 [color]
+  ui = always
   branch = auto
   diff = auto
   interactive = auto
   status = auto
+[color "diff"]
+  meta = yellow bold
+  commit = green bold
+  frag = magenta bold
+  old = red bold
+  new = green bold
+  whitespace = red reverse
+[color "diff-highlight"]
+  oldNormal = red bold
+  oldHighlight = "red bold 52"
+  newNormal = "green bold"
+  newHighlight = "green bold 22"
+[color "branch"]
+  current = yellow reverse
+  local = yellow
+  remote = green
 [core]
   excludesfile = ~/.gitignore
-  editor = vim
+  editor = nvim
 [merge]
   tool = meld
 [url "git@github.com:"]
-  insteadOf = gh:
+  insteadOf = "gh":
+  insteadOf = "git://github.com"
+  insteadOf = "https://github.com/"
+  pushInsteadOf = "github:"
+  pushInsteadOf = "git://github.com/"
+  pushInsteadOf = "https://github.com/"
 [mergetool "meld"]
-  cmd = meld $LOCAL $BASE $REMOTE --output=$MERGED
+  cmd = meld "$LOCAL" "$BASE" "$REMOTE" --output="$MERGED" --auto-merge
   trustExitCode = true
 [mergetool "fugitive"]
   cmd = mvim -f -c \"Gdiff\" \"$MERGED\"
@@ -31,3 +56,8 @@
 [filter "media"]
   clean = git-media-clean %f
   smudge = git-media-smudge %f
+[rerere]
+  enabled = true
+  autoupdate = true
+[commit]
+  gpgsign = true
