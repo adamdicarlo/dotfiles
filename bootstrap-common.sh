@@ -1,11 +1,16 @@
 #!/bin/bash
 
 green=$(tput setaf 2)
+red=$(tput setaf 3)
 bold=$(tput bold)
 normal=$(tput sgr0)
 
 function green {
   echo "${bold}${green}${*}${normal}"
+}
+
+function red {
+  echo "${bold}${red}${*}${normal}"
 }
 
 function install_homeshick {
@@ -34,9 +39,13 @@ function install_nvm {
 }
 
 function install_shell {
-  if [ "$SHELL" != "/usr/bin/zsh" ]; then
-    green "Updating login shell to zsh"
-    chsh --shell /usr/bin/zsh
+  if [ "$SHELL" != "/usr/bin/zsh" && "$SHELL" != "/bin/zsh" ]; then
+    if which zsh 2>/dev/null; then
+      green "Updating login shell to zsh"
+      chsh -s $(which zsh)
+    else
+      red "Unable to determine path of zsh"
+    fi
   fi
 }
 

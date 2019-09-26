@@ -33,7 +33,8 @@ if [ ! -d /home ]; then
   tic /tmp/$TERM.ti
 fi
 
-# [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+# fancy completion menus
+zstyle ':completion:*' menu select
 
 # Hooks
 # `cd` hook can disrupt shell scripts, so define this after all `source` commands!
