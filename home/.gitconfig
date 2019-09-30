@@ -2,6 +2,8 @@
   name = Adam DiCarlo
   email = 97462+adamdicarlo@users.noreply.github.com
   signingkey = 7450949D386CBC59
+[commit]
+  gpgsign = true
 [credential]
   helper = osxkeychain
 [pull]
@@ -59,5 +61,5 @@
 [rerere]
   enabled = true
   autoupdate = true
-[commit]
-  gpgsign = true
+[includeIf "gitdir:/etc/"]
+  path = ~/.gitconfig-etckeeper.inc
