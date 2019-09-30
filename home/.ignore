@@ -3,7 +3,3 @@
 *.min.js.map
 *.min.css.map
 .git/
-canonical-desktop.js
-react-app.js
-react-compiled.js
-/wwwroot/assets/app/d/css/
