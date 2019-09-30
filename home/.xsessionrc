@@ -1,0 +1,2 @@
+# LIVE THE DREAM: Bind Caps-Lock to be Esc when tapped, Ctrl when held.
+xcape -e 'Caps_Lock=Escape'
