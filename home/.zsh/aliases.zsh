@@ -19,6 +19,9 @@ alias grbd='git rebase develop'
 
 alias git-clean-up-old-branches='for i in $(git-show-merged-branches); do git branch -d $i; done'
 
+# https://github.com/not-an-aardvark/git-delete-squashed
+alias git-delete-squashed='git checkout -q master && git for-each-ref refs/heads/ "--format=%(refname:short)" | while read branch; do mergeBase=$(git merge-base master $branch) && [[ $(git cherry master $(git commit-tree $(git rev-parse $branch\^{tree}) -p $mergeBase -m _)) == "-"* ]] && git branch -D $branch; done'
+
 # docker
 alias dc='docker-compose'
 alias dcup='docker-compose up -d'

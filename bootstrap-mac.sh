@@ -124,6 +124,10 @@ if [ ! -f ~/Library/Fonts/FiraCode-Regular.otf ]; then
   brew cask install font-fira-code
 fi
 
+# Turn on normal key repeat behavior when holding down a key, instead of
+# iOS-like extra-character-selection behavior.
+defaults write -g ApplePressAndHoldEnabled -bool false
+
 green 'Success!'
 echo "Invoking common script..."
 ./bootstrap-common.sh

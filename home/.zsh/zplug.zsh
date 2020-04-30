@@ -5,7 +5,7 @@ source $ZPLUG_HOME/init.zsh
 #zplug "zsh-users/zsh-autosuggestions"
 
 zplug "agkozak/zsh-z"
-zplug "chriskempson/base16-shell", use:"scripts/base16-dracula.sh", defer:0
+# zplug "chriskempson/base16-shell", use:"scripts/base16-dracula.sh", defer:0
 zplug "mafredri/zsh-async", defer:0, from:github
 
 # clipcopy, clippaste commands that work the same on macOS & Linux

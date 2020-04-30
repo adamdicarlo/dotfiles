@@ -3,58 +3,134 @@
     "editor.renderWhitespace": "boundary",
     "editor.codeActionsOnSave": {
         "source.fixAll": true,
-        "source.organizeImports": true
+        "source.organizeImports": false
     },
+    "editor.fontFamily": "Fura Code, Fira Code, Menlo, Monaco, 'Courier New', monospace",
+    "editor.fontLigatures": true,
     "debug.node.autoAttach": "off",
-    "jest.debugMode": true,
-    "npm-intellisense.importLinebreak": "\n",
+    "todohighlight.keywords": [
+        {
+            "text": "TODO",
+            "color": "#fff",
+            "backgroundColor": "#ffbd2a",
+            "overviewRulerColor": "rgba(255,189,42,0.8)"
+        },
+        {
+            "text": "FIXME",
+            "color": "#fff",
+            "backgroundColor": "#f06292",
+            "overviewRulerColor": "rgba(240,98,146,0.8)"
+        },
+        {
+            "text": "NOTE",
+            "color": "#ff0000",
+            "backgroundColor": "yellow",
+            "overviewRulerColor": "grey"
+        },
+        {
+            "text": "HACK",
+            "color": "#fff",
+            "backgroundColor": "red",
+            "isWholeLine": false,
+        },
+    ],
+    "vim.neovimPath": "/usr/local/bin/nvim",
     "vim.incsearch": true,
     "vim.textwidth": 100,
     "vim.leader": ",",
     "vim.normalModeKeyBindingsNonRecursive": [
         {
-            "before": ["k"],
-            "after": ["j"]
+            "before": [
+                "k"
+            ],
+            "after": [
+                "j"
+            ]
         },
         {
-            "before": ["h"],
-            "after": ["k"]
+            "before": [
+                "h"
+            ],
+            "after": [
+                "k"
+            ]
         },
         {
-            "before": ["j"],
-            "after": ["h"]
+            "before": [
+                "j"
+            ],
+            "after": [
+                "h"
+            ]
         }
     ],
     "vim.visualModeKeyBindingsNonRecursive": [
         {
-            "before": ["k"],
-            "after": ["j"]
+            "before": [
+                "k"
+            ],
+            "after": [
+                "j"
+            ]
         },
         {
-            "before": ["h"],
-            "after": ["k"]
+            "before": [
+                "h"
+            ],
+            "after": [
+                "k"
+            ]
         },
         {
-            "before": ["j"],
-            "after": ["h"]
+            "before": [
+                "j"
+            ],
+            "after": [
+                "h"
+            ]
         }
     ],
     "window.zoomLevel": 1,
     "vim.disableExtension": false,
+    "typescript.updateImportsOnFileMove.enabled": "always",
+    "eslint.packageManager": "yarn",
     "[go]": {},
-    "workbench.colorTheme": "Dracula",
+    "[json]": {
+        "editor.formatOnSave": true,
+        "editor.quickSuggestions": {
+            "strings": true
+        },
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
     "[typescript]": {
-        "editor.tabSize": 2,
         "editor.formatOnType": true,
         "editor.formatOnSave": true,
         "editor.defaultFormatter": "esbenp.prettier-vscode"
     },
     "[javascript]": {
-        "editor.tabSize": 2,
         "editor.formatOnType": true,
         "editor.formatOnSave": true,
         "editor.defaultFormatter": "esbenp.prettier-vscode"
     },
-    "typescript.updateImportsOnFileMove.enabled": "always",
-    "eslint.packageManager": "yarn"
+    "[javascriptreact]": {
+        "editor.formatOnType": true,
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "editor.autoClosingBrackets": "beforeWhitespace",
+    "editor.autoClosingQuotes": "beforeWhitespace",
+    "editor.smoothScrolling": true,
+    "files.insertFinalNewline": true,
+    "files.trimFinalNewlines": true,
+    "javascript.updateImportsOnFileMove.enabled": "always",
+    "vim.highlightedyank.enable": true,
+    "cSpell.userWords": [
+        "Webapp"
+    ],
+    "scss.showErrors": true,
+    "jest.pathToConfig": "jest.config.dev.js",
+    "editor.formatOnSave": true,
+    "prettier.packageManager": "yarn",
+    "jest.autoEnable": false,
+    "jest.runAllTestsFirst": false
 }

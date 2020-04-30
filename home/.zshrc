@@ -1,5 +1,6 @@
 CASE_SENSITIVE="true"
 ENABLE_CORRECTION="false"
+setopt interactivecomments
 unsetopt auto_cd
 
 # ssh
