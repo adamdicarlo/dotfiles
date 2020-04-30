@@ -30,16 +30,15 @@ function install_nvm {
   if [ ! -d "$HOME/.config/nvm" ]; then
     # PROFILE=/dev/null Tells nvm installer not to append lines to shell profiles (.bashrc, .zshrc)
     # nvm will install into $XDG_CONFIG_HOME/nvm if the var is defined.
-    PROFILE=/dev/null
-    XDG_CONFIG_HOME=$HOME/.config
 
     # Reason for fork: https://github.com/nvm-sh/nvm/pull/2013
-    curl -o- https://raw.githubusercontent.com/bees/nvm/update_install_dir_output/install.sh | bash
+    curl -o- https://raw.githubusercontent.com/bees/nvm/update_install_dir_output/install.sh \
+    | PROFILE=/dev/null XDG_CONFIG_HOME=$HOME/.config bash
   fi
 }
 
 function install_shell {
-  if [ "$SHELL" != "/usr/bin/zsh" && "$SHELL" != "/bin/zsh" ]; then
+  if [[ "$SHELL" != "/usr/bin/zsh" && "$SHELL" != "/bin/zsh" ]]; then
     if which zsh 2>/dev/null; then
       green "Updating login shell to zsh"
       chsh -s $(which zsh)

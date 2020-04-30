@@ -1,5 +1,7 @@
 #!/bin/bash
 
+PATH=/usr/local/sbin:$PATH
+
 green=$(tput setaf 2)
 bold=$(tput bold)
 normal=$(tput sgr0)
@@ -60,7 +62,7 @@ which BuildStrings &>/dev/null || xcode-select --install
 #
 # Install-via-Homebrew tools
 #
-maybe_install the_silver_searcher ag
+maybe_install ripgrep rg
 maybe_install bat
 maybe_install cmake
 maybe_install coreutils gln
@@ -77,7 +79,7 @@ maybe_install watch
 maybe_install wget
 
 maybe_install_dupe git
-maybe_install_dupe findutils find --with-default-names
+maybe_install_dupe findutils gfind
 
 [ -d ~/.nvm ] || maybe_install nvm
 [ -f "$(brew --prefix)/etc/profile.d/z.sh" ] || maybe_install z
@@ -87,7 +89,6 @@ if ! git info &>/dev/null; then
   brew install git-extras
 fi
 
-[ -d /usr/local/Homebrew/Library/Taps/homebrew/homebrew-completions ] || brew tap homebrew/completions
 [ -f /usr/local/share/zsh/site-functions/_docker ] || brew install docker-completion
 [ -f /usr/local/share/zsh/site-functions/_docker-compose ] || brew install docker-compose-completion
 [ -f /usr/local/share/zsh/site-functions/_docker-machine ] || brew install docker-machine-completion
@@ -95,24 +96,8 @@ fi
 #
 # Apps
 #
-maybe_install_cask alfred 'Alfred 3.app'
-maybe_install_cask amphetamine Amphetamine.app
-maybe_install_cask dropbox Dropbox.app
-maybe_install_cask evernote Evernote.app
-maybe_install_cask flux Flux.app
-maybe_install_cask iterm2 iTerm.app
-maybe_install_cask meld Meld.app
-maybe_install_cask vlc VLC.app
-
-if [ ! -d /Applications/Karabiner-Elements.app ]; then
-  pushd /tmp
-    wget -q https://github.com/wwwjfy/Karabiner-Elements/releases/download/0.90.83/Karabiner-Elements-0.90.83.dmg
-    echo "Please manually install Karabiner-Elements through its installer"
-    open Karabiner-Elements-0.90.83.dmg
-    sleep 4
-    open /Volumes/Karabiner-Elements-0.90.83/Karabiner-Elements.sparkle_guided.pkg
-  popd
-fi
+maybe_install_cask alfred 'Alfred 4.app'
+maybe_install_cask karabiner-elements Karabiner-Elements.app
 
 [ -d "$HOME/Library/PreferencePanes/AppTrap.prefPane" ] || maybe_install_cask apptrap
 
@@ -139,4 +124,6 @@ if [ ! -f ~/Library/Fonts/FiraCode-Regular.otf ]; then
   brew cask install font-fira-code
 fi
 
+green 'Success!'
+echo "Invoking common script..."
 ./bootstrap-common.sh
