@@ -1,136 +1,134 @@
 {
-    "editor.tabSize": 2,
+  "debug.node.autoAttach": "off",
+  "editor.tabSize": 2,
+  "editor.renderWhitespace": "boundary",
+  "editor.codeActionsOnSave": {
+    "source.fixAll": true,
+    "source.organizeImports": false
+  },
+  "editor.fontFamily": "Fura Code, Fira Code, Menlo, Monaco, 'Courier New', monospace",
+  "editor.fontLigatures": true,
+  "editor.autoClosingBrackets": "beforeWhitespace",
+  "editor.autoClosingQuotes": "beforeWhitespace",
+  "editor.smoothScrolling": true,
+  "files.insertFinalNewline": true,
+  "files.trimFinalNewlines": true,
+  "javascript.updateImportsOnFileMove.enabled": "always",
+  "cSpell.userWords": ["Webapp"],
+  "scss.showErrors": true,
+  "jest.pathToConfig": "jest.config.js",
+  "editor.formatOnSave": true,
+  "prettier.packageManager": "yarn",
+  "jest.autoEnable": false,
+  "jest.runAllTestsFirst": false,
+  "vscode-neovim.neovimPath": "/usr/bin/nvim",
+  "jest.pathToJest": "./node_modules/.bin/jest",
+  "editor.minimap.enabled": false,
+  "todohighlight.keywords": [
+    {
+      "text": "TODO",
+      "color": "#fff",
+      "backgroundColor": "#ffbd2a",
+      "overviewRulerColor": "rgba(255,189,42,0.8)"
+    },
+    {
+      "text": "FIXME",
+      "color": "#fff",
+      "backgroundColor": "#f06292",
+      "overviewRulerColor": "rgba(240,98,146,0.8)"
+    },
+    {
+      "text": "NOTE",
+      "color": "#ff0000",
+      "backgroundColor": "yellow",
+      "overviewRulerColor": "grey"
+    },
+    {
+      "text": "HACK",
+      "color": "#fff",
+      "backgroundColor": "red",
+      "isWholeLine": false
+    }
+  ],
+  "vim.highlightedyank.enable": true,
+  "vim.incsearch": true,
+  "vim.leader": "<space>",
+  "vim.normalModeKeyBindingsNonRecursive": [
+    {
+      "before": ["k"],
+      "after": ["j"]
+    },
+    {
+      "before": ["h"],
+      "after": ["k"]
+    },
+    {
+      "before": ["j"],
+      "after": ["h"]
+    }
+  ],
+  "vim.textwidth": 100,
+  "vim.useCtrlKeys": true,
+  "vim.visualModeKeyBindingsNonRecursive": [
+    {
+      "before": ["k"],
+      "after": ["j"]
+    },
+    {
+      "before": ["h"],
+      "after": ["k"]
+    },
+    {
+      "before": ["j"],
+      "after": ["h"]
+    }
+  ],
+  "window.zoomLevel": 0,
+  "typescript.updateImportsOnFileMove.enabled": "always",
+  "eslint.packageManager": "yarn",
+  "[c]": {
+    "editor.defaultFormatter": "xaver.clang-format",
+    "editor.tabSize": 4,
     "editor.renderWhitespace": "boundary",
     "editor.codeActionsOnSave": {
-        "source.fixAll": true,
-        "source.organizeImports": false
+      "source.fixAll": true,
+      "source.organizeImports": false
     },
-    "editor.fontFamily": "Fura Code, Fira Code, Menlo, Monaco, 'Courier New', monospace",
-    "editor.fontLigatures": true,
-    "debug.node.autoAttach": "off",
-    "todohighlight.keywords": [
-        {
-            "text": "TODO",
-            "color": "#fff",
-            "backgroundColor": "#ffbd2a",
-            "overviewRulerColor": "rgba(255,189,42,0.8)"
-        },
-        {
-            "text": "FIXME",
-            "color": "#fff",
-            "backgroundColor": "#f06292",
-            "overviewRulerColor": "rgba(240,98,146,0.8)"
-        },
-        {
-            "text": "NOTE",
-            "color": "#ff0000",
-            "backgroundColor": "yellow",
-            "overviewRulerColor": "grey"
-        },
-        {
-            "text": "HACK",
-            "color": "#fff",
-            "backgroundColor": "red",
-            "isWholeLine": false,
-        },
-    ],
-    "vim.neovimPath": "/usr/local/bin/nvim",
-    "vim.incsearch": true,
-    "vim.textwidth": 100,
-    "vim.leader": ",",
-    "vim.normalModeKeyBindingsNonRecursive": [
-        {
-            "before": [
-                "k"
-            ],
-            "after": [
-                "j"
-            ]
-        },
-        {
-            "before": [
-                "h"
-            ],
-            "after": [
-                "k"
-            ]
-        },
-        {
-            "before": [
-                "j"
-            ],
-            "after": [
-                "h"
-            ]
-        }
-    ],
-    "vim.visualModeKeyBindingsNonRecursive": [
-        {
-            "before": [
-                "k"
-            ],
-            "after": [
-                "j"
-            ]
-        },
-        {
-            "before": [
-                "h"
-            ],
-            "after": [
-                "k"
-            ]
-        },
-        {
-            "before": [
-                "j"
-            ],
-            "after": [
-                "h"
-            ]
-        }
-    ],
-    "window.zoomLevel": 1,
-    "vim.disableExtension": false,
-    "typescript.updateImportsOnFileMove.enabled": "always",
-    "eslint.packageManager": "yarn",
-    "[go]": {},
-    "[json]": {
-        "editor.formatOnSave": true,
-        "editor.quickSuggestions": {
-            "strings": true
-        },
-        "editor.defaultFormatter": "esbenp.prettier-vscode"
-    },
-    "[typescript]": {
-        "editor.formatOnType": true,
-        "editor.formatOnSave": true,
-        "editor.defaultFormatter": "esbenp.prettier-vscode"
-    },
-    "[javascript]": {
-        "editor.formatOnType": true,
-        "editor.formatOnSave": true,
-        "editor.defaultFormatter": "esbenp.prettier-vscode"
-    },
-    "[javascriptreact]": {
-        "editor.formatOnType": true,
-        "editor.formatOnSave": true,
-        "editor.defaultFormatter": "esbenp.prettier-vscode"
-    },
-    "editor.autoClosingBrackets": "beforeWhitespace",
-    "editor.autoClosingQuotes": "beforeWhitespace",
-    "editor.smoothScrolling": true,
-    "files.insertFinalNewline": true,
-    "files.trimFinalNewlines": true,
-    "javascript.updateImportsOnFileMove.enabled": "always",
-    "vim.highlightedyank.enable": true,
-    "cSpell.userWords": [
-        "Webapp"
-    ],
-    "scss.showErrors": true,
-    "jest.pathToConfig": "jest.config.dev.js",
+    "editor.wordBasedSuggestions": false,
+    "editor.suggest.insertMode": "replace",
+    "editor.semanticHighlighting.enabled": true,
+    "editor.tabCompletion": "on",
+    "editor.useTabStops": true
+  },
+  "[go]": {},
+  "[json]": {
     "editor.formatOnSave": true,
-    "prettier.packageManager": "yarn",
-    "jest.autoEnable": false,
-    "jest.runAllTestsFirst": false
+    "editor.quickSuggestions": {
+      "strings": true
+    },
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescript]": {
+    "editor.formatOnType": true,
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[javascript]": {
+    "editor.formatOnType": true,
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[javascriptreact]": {
+    "editor.formatOnType": true,
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[haskell]": {
+    "editor.formatOnSave": true
+  },
+  "haskell.trace.server": "messages",
+  "haskell.formattingProvider": "floskell"
 }
