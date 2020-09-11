@@ -1,0 +1,14 @@
+#!/usr/sh
+export QT_QPA_PLATFORMTHEME="qt5ct"
+
+# Enable natural scrolling on all devices.
+xinput list --name-only \
+  | grep -iE "touchpad|mouse|trackpoint" \
+  | xargs -I{} xinput set-prop "{}" "libinput Natural Scrolling Enabled" 1
+
+# Swap left Windows and Alt keys for a Mac-like keyboard layout.
+setxkbmap -option altwin:swap_lalt_lwin
+
+# Make Caps Lock double as Ctrl (when held) and Esc (when tapped).
+setxkbmap -option ctrl:nocaps
+pgrep xcape >/dev/null || xcape -e Control_L=Escape
