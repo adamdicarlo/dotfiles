@@ -44,3 +44,5 @@ if which exa 1>/dev/null; then
     exa
   }
 fi
+
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh

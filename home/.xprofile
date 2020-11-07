@@ -6,6 +6,10 @@ xinput list --name-only \
   | grep -iE "touchpad|mouse|trackpoint" \
   | xargs -I{} xinput set-prop "{}" "libinput Natural Scrolling Enabled" 1
 
+
+# Where do these "altwin:swap_lalt_lwin" and "ctrl:nocaps" strings come from?
+# They, and a bazillion others, are listed in `man xkeyboard-config`.
+
 # Swap left Windows and Alt keys for a Mac-like keyboard layout.
 setxkbmap -option altwin:swap_lalt_lwin
 

@@ -1,10 +1,15 @@
 export XDG_CONFIG_HOME=$HOME/.config
 export ZPLUG_HOME=${XDG_CONFIG_HOME}/zplug
 export EDITOR=${EDITOR:-nvim}
-export PATH="$HOME/bin:/usr/local/bin:/usr/local/sbin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/X11/bin:$HOME/.yarn/bin:./node_modules/.bin"
+path=(~/bin $path ~/.yarn/bin ./node_modules/.bin)
+
+if [ -n "$DESKTOP_SESSION" ]; then
+  eval $(gnome-keyring-daemon --start)
+  export SSH_AUTH_SOCK
+fi
 
 if [ ! -z "$GOPATH" ]; then
-  export PATH="$PATH:$GOPATH/bin"
+  path=($path $GOPATH/bin)
 fi
 
 export MANPATH="/usr/local/man:$MANPATH"
