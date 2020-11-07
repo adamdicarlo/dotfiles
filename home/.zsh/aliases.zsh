@@ -1,4 +1,5 @@
 alias ag='ag --path-to-ignore ~/.ignore'
+alias icat='kitty +kitten icat'
 alias nvimconfig="$EDITOR ~/.config/nvim/init.vim"
 alias zshconfig="$EDITOR ~/.zshrc"
 alias v="$EDITOR"

@@ -1,3 +1,16 @@
+# ssh
+export SSH_KEY_PATH="~/.ssh/rsa_id"
+if [[ -n $SSH_CONNECTION ]]; then
+  export EDITOR='vim'
+else
+  export EDITOR='nvim'
+fi
+
+export GPG_TTY=$(tty)
+export LESS=-RFX
+export PAGER=less
+export TERM=${TERM:-xterm-256color}
+
 export XDG_CONFIG_HOME=$HOME/.config
 export ZPLUG_HOME=${XDG_CONFIG_HOME}/zplug
 export EDITOR=${EDITOR:-nvim}
@@ -7,6 +20,8 @@ if [ -n "$DESKTOP_SESSION" ]; then
   eval $(gnome-keyring-daemon --start)
   export SSH_AUTH_SOCK
 fi
+
+export MAKEFLAGS="-j$(expr $(nproc) \+ 1)"
 
 if [ ! -z "$GOPATH" ]; then
   path=($path $GOPATH/bin)

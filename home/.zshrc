@@ -3,19 +3,6 @@ ENABLE_CORRECTION="false"
 setopt interactivecomments
 unsetopt auto_cd
 
-# ssh
-export SSH_KEY_PATH="~/.ssh/rsa_id"
-if [[ -n $SSH_CONNECTION ]]; then
-  export EDITOR='vim'
-else
-  export EDITOR='nvim'
-fi
-
-export GPG_TTY=$(tty)
-export LESS=-RFX
-export PAGER=less
-export TERM=${TERM:-xterm-256color}
-
 # Extra (custom) config scripts
 for script in ~/.zsh/*.zsh; do source $script; done
 
