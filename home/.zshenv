@@ -6,6 +6,10 @@ else
   export EDITOR='nvim'
 fi
 
+# Make sure ssh-ident (which I have symlinked as ssh, rsync, scp in ~/bin) won't invoke itself when
+# trying to delegate to actual ssh.
+export BINARY_SSH=/usr/bin/ssh
+
 export GPG_TTY=$(tty)
 export LESS=-RFX
 export PAGER=less
