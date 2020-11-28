@@ -15,7 +15,7 @@ function red {
 
 function install_homeshick {
   if [ ! -d ~/.homesick/repos/homeshick ]; then
-    green "Installing homeshick"
+    green "Installing homeshick: Dotfiles manager"
     git clone -q git://github.com/andsens/homeshick.git ~/.homesick/repos/homeshick
   fi
 
@@ -26,14 +26,12 @@ function install_homeshick {
   homeshick link castle-neovim
 }
 
-function install_nvm {
-  if [ ! -d "$HOME/.config/nvm" ]; then
-    # PROFILE=/dev/null Tells nvm installer not to append lines to shell profiles (.bashrc, .zshrc)
-    # nvm will install into $XDG_CONFIG_HOME/nvm if the var is defined.
-
-    # Reason for fork: https://github.com/nvm-sh/nvm/pull/2013
-    curl -o- https://raw.githubusercontent.com/bees/nvm/update_install_dir_output/install.sh \
-    | PROFILE=/dev/null XDG_CONFIG_HOME=$HOME/.config bash
+function install_fnm {
+  if [ ! -d "$HOME/.config/fnm" ]; then
+    green "Installing fnm: Fast Node version manager"
+    curl -fsSL https://fnm.vercel.app/install | bash -s -- \
+      --install-dir "$HOME/.config/fnm" \
+      --skip-shell
   fi
 }
 
@@ -57,7 +55,7 @@ function install_vim_plug {
 function install_zplug {
   ZPLUG_HOME=$HOME/.config/zplug
   if [ ! -d $ZPLUG_HOME ]; then
-    green "Installing zplug"
+    green "Installing zplug: Zsh plugin manager"
     curl -sL --proto-redir -all,https \
       https://raw.githubusercontent.com/zplug/installer/master/installer.zsh \
       | ZPLUG_HOME=$ZPLUG_HOME zsh
@@ -65,8 +63,8 @@ function install_zplug {
 }
 
 
-install_homeshick
-install_nvm
-install_vim_plug
-install_zplug
 install_shell
+install_homeshick
+install_vim_plug
+install_fnm
+install_zplug
