@@ -20,7 +20,7 @@ export ZPLUG_HOME=${XDG_CONFIG_HOME}/zplug
 export EDITOR=${EDITOR:-nvim}
 path=(~/bin $path ~/.yarn/bin ./node_modules/.bin)
 
-if [ -n "$DESKTOP_SESSION" ]; then
+if [ -n "$DESKTOP_SESSION" ] && ! pgrep gnome-keyring-daemon; then
   eval $(gnome-keyring-daemon --start)
   export SSH_AUTH_SOCK
 fi
