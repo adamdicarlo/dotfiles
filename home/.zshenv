@@ -18,7 +18,7 @@ export TERM=${TERM:-xterm-256color}
 export XDG_CONFIG_HOME=$HOME/.config
 export ZPLUG_HOME=${XDG_CONFIG_HOME}/zplug
 export EDITOR=${EDITOR:-nvim}
-path=(~/bin $path ~/.yarn/bin ./node_modules/.bin)
+path=(~/bin $path ./node_modules/.bin ~/.yarn/bin)
 
 if [ -n "$DESKTOP_SESSION" ] && ! pgrep gnome-keyring-daemon; then
   eval $(gnome-keyring-daemon --start)
