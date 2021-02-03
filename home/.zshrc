@@ -6,6 +6,9 @@ unsetopt auto_cd
 # Extra (custom) config scripts
 for script in ~/.zsh/*.zsh; do source $script; done
 
+# Fast Node.js version manager
+which fnm >/dev/null && source <(fnm env)
+
 # Homeshick
 source "$HOME/.homesick/repos/homeshick/homeshick.sh"
 fpath=($HOME/.homesick/repos/homeshick/completions $fpath)
