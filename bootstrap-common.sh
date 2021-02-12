@@ -46,12 +46,6 @@ function install_shell {
   fi
 }
 
-function install_vim_plug {
-  green "Installing/updating Plug.vim"
-  curl -SsfLo ~/.config/nvim/autoload/plug.vim --create-dirs \
-      https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-}
-
 function install_zplug {
   ZPLUG_HOME=$HOME/.config/zplug
   if [ ! -d $ZPLUG_HOME ]; then
@@ -65,6 +59,5 @@ function install_zplug {
 
 install_shell
 install_homeshick
-install_vim_plug
 install_fnm
 install_zplug
