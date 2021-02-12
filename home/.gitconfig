@@ -65,3 +65,5 @@
   path = ~/.gitconfig-etckeeper.inc
 [rebase]
   autoStash = true
+[init]
+  defaultBranch = main
