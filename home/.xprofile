@@ -1,17 +1,34 @@
 #!/usr/sh
 export QT_QPA_PLATFORMTHEME="qt5ct"
+export QT_AUTO_SCREEN_SCALE_FACTOR=1
+export GDK_SCALE=2
+export GDK_DPI_SCALE=0.5
 
 # Enable natural scrolling on all devices.
 xinput list --name-only \
   | grep -iE "touchpad|mouse|trackpoint" \
   | xargs -I{} xinput set-prop "{}" "libinput Natural Scrolling Enabled" 1
 
+for id in $(xinput list | grep 'MX Vertical Mouse' | sd '.*id=(\d+).*' '$1'); do
+  echo "xinput set-prop acceleration speed for device: $id"
+  xinput set-prop $id "libinput Accel Speed" 0.5
+done
 
+xset r rate 200 20
+
+# turn off beep
+xset b off
+
+# Swap left Windows and Alt keys for a Mac-like keyboard layout.
+setxkbmap -layout us -variant colemak -option altwin:swap_lalt_lwin
 # Where do these "altwin:swap_lalt_lwin" and "ctrl:nocaps" strings come from?
 # They, and a bazillion others, are listed in `man xkeyboard-config`.
 
-# Swap left Windows and Alt keys for a Mac-like keyboard layout.
-setxkbmap -option altwin:swap_lalt_lwin
+# No, wait, don't do that for the keyboard that already has a Mac layout.
+for id in $(xinput list | grep 'Kinesis Freestyle2 for Mac' | sd '.*id=(\d+).*' '$1'); do
+  echo "setxkbmap for freestyle2 device: $id"
+  setxkbmap -device $id -layout us -variant colemak -option
+done
 
 # Make Caps Lock double as Ctrl (when held) and Esc (when tapped).
 setxkbmap -option ctrl:nocaps
