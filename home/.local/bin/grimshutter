@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+base="$HOME/Sync/Screenshots/$(date +%F_%H-%M-%S)-screenshot"
+target="${base}.png"
+grimshot save $1 "$target" && shutter "$target"
+
+# annotated="${base}-annotated.png"
+# grimshot save $1 "$target" && cp "$target" "$annotated" && shutter --disable_systray "$annotated"

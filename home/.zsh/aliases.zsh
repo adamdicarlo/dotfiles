@@ -34,6 +34,9 @@ alias dcpl='docker-compose pull'
 alias dclg='docker-compose logs --tail=50 --follow'
 alias dockerclean='docker images -qf dangling=true | xargs docker rmi'
 
+# sway/wayland
+alias sway-appids="swaymsg -t get_tree | jq -r '.nodes[].nodes[].nodes[].app_id' | uniq"
+
 function dce {
   COMMAND=${@}
   SERVICE=${PWD##*/}

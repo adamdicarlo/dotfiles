@@ -1,0 +1,8 @@
+profile {
+    output "Goldstar Company Ltd LG HDR WQHD 0x0000B6E2" enable mode 3440x1440 position 0,0 scale 1
+    output eDP-1 disable
+}
+
+profile undocked {
+    output eDP-1 enable scale 2
+}
