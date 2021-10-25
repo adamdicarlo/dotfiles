@@ -1,10 +1,9 @@
 ---
-debug: false
 wait: true
 timeouts:
   - timeout: 900
-    command: 'swaylock -f -c 000000'
+    command: 'swaylock -S --effect-blur 4x4 --indicator -k --clock --effect-vignette 0:1 --indicator-radius 250 --inside-color 00000088 --indicator-thickness 28 --layout-bg-color 00000000 --font-size 48'
   - timeout: 800
     command: 'swaymsg "output * dpms off"'
     resume: 'swaymsg "output * dpms on"'
-before-sleep: 'swaylock -f -c 000000'
+before-sleep: 'swaylock -S --effect-blur 4x4 --indicator -k --clock --effect-vignette 0:1 --indicator-radius 250 --inside-color 00000088 --indicator-thickness 28 --layout-bg-color 00000000 --font-size 48'
