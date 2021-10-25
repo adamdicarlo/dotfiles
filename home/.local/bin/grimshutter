@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+mkdir -p $HOME/Sync/Screenshots
 base="$HOME/Sync/Screenshots/$(date +%F_%H-%M-%S)-screenshot"
 target="${base}.png"
 grimshot save $1 "$target" && shutter "$target"
