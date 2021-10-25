@@ -36,7 +36,7 @@ export PAGER=less
 export XDG_CONFIG_HOME=$HOME/.config
 export ZPLUG_HOME=${XDG_CONFIG_HOME}/zplug
 export EDITOR=${EDITOR:-nvim}
-path=(~/bin $path ./node_modules/.bin ~/.yarn/bin)
+path=(~/.local/bin ~/.yarn/bin $path)
 
 export MAKEFLAGS="-j$(expr $(nproc) \+ 1)"
 
