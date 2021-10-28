@@ -2,7 +2,4 @@
 mkdir -p $HOME/Sync/Screenshots
 base="$HOME/Sync/Screenshots/$(date +%F_%H-%M-%S)-screenshot"
 target="${base}.png"
-grimshot save $1 "$target" && shutter "$target"
-
-# annotated="${base}-annotated.png"
-# grimshot save $1 "$target" && cp "$target" "$annotated" && shutter --disable_systray "$annotated"
+grimshot save "$1" "$target" && echo "$target" | clipcopy; killall shutter &>/dev/null; shutter "$target"
