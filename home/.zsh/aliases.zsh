@@ -14,14 +14,13 @@ fi
 # git
 alias gs='git status' # just can't get used to `gst` for this!
 alias gds='git diff --staged'
-alias gum='git checkout master; git pull; git checkout -'
-alias gud='git checkout develop; git pull; git checkout -'
-alias grbd='git rebase develop'
+alias gum='git checkout $(git_main_branch); git pull; git checkout -'
+alias grbm='git fetch && git rebase origin/$(git_main_branch)'
 
 alias git-clean-up-old-branches='for i in $(git-show-merged-branches); do git branch -d $i; done'
 
 # https://github.com/not-an-aardvark/git-delete-squashed
-alias git-delete-squashed='git checkout -q master && git for-each-ref refs/heads/ "--format=%(refname:short)" | while read branch; do mergeBase=$(git merge-base master $branch) && [[ $(git cherry master $(git commit-tree $(git rev-parse $branch\^{tree}) -p $mergeBase -m _)) == "-"* ]] && git branch -D $branch; done'
+alias git-delete-squashed='git checkout -q $(git_main_branch) && git for-each-ref refs/heads/ "--format=%(refname:short)" | while read branch; do mergeBase=$(git merge-base $(git_main_branch) $branch) && [[ $(git cherry $(git_main_branch) $(git commit-tree $(git rev-parse $branch\^{tree}) -p $mergeBase -m _)) == "-"* ]] && git branch -D $branch; done'
 
 # docker
 alias dc='docker-compose'
