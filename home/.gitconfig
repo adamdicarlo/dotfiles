@@ -61,8 +61,11 @@
 [mergetool "meld"]
   cmd = meld "$LOCAL" "$BASE" "$REMOTE" --output="$MERGED" --auto-merge
   trustExitCode = true
+[mergetool "meld_flatpak"]
+  cmd = flatpak run --file-forwarding --filesystem=/tmp org.gnome.meld "$LOCAL" "$BASE" "$REMOTE" --output="$MERGED" --auto-merge
+  trustExitCode = true
 [mergetool "fugitive"]
-  cmd = mvim -f -c \"Gdiff\" \"$MERGED\"
+  cmd = nvim -f -c "Gvdiffsplit!" "$MERGED"
 [mergetool]
   keepBackup = false
 [filter "media"]
