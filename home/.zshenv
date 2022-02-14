@@ -2,7 +2,7 @@ if [ -n "$DESKTOP_SESSION" ]; then
   export TERM=${TERM:-xterm-256color}
   export QT_QPA_PLATFORM=wayland
   export QT_QPA_PLATFORMTHEME=qt5ct
-  export SUDO_ASKPASS=$(which xaskpass)
+  export SUDO_ASKPASS=/usr/lib/ssh/gnome-ssh-askpass3
 
   if ! pgrep gnome-keyring-daemon; then
     eval $(gnome-keyring-daemon --start)
@@ -36,7 +36,7 @@ export PAGER=less
 export XDG_CONFIG_HOME=$HOME/.config
 export ZPLUG_HOME=${XDG_CONFIG_HOME}/zplug
 export EDITOR=${EDITOR:-nvim}
-path=(~/.local/bin ~/.yarn/bin $path)
+path=(~/.local/bin $path)
 
 export MAKEFLAGS="-j$(expr $(nproc) \+ 1)"
 

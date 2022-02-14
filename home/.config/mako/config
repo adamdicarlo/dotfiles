@@ -1,0 +1,17 @@
+max-history=20
+max-visible=6
+
+group-by=summary,body
+
+# Style
+background-color=#285577CC
+border-radius=3
+border-size=1
+font=monospace 11.5
+padding=6,0,6,10
+width=350
+height=256
+layer=overlay
+
+[mode=do-not-disturb]
+invisible=1

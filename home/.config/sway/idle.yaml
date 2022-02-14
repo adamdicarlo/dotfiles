@@ -4,4 +4,18 @@ timeouts:
   - timeout: '900'
     command: 'systemctl suspend'
 idlehint: '800'
-before-sleep: 'swaylock -S --effect-blur 4x4 --indicator -k --clock --effect-vignette 0:1 --indicator-radius 250 --inside-color 00000088 --indicator-thickness 28 --layout-bg-color 00000000 --font-size 48'
+before-sleep: |
+  swaylock \
+    --screenshots \
+    --effect-blur 8x8 \
+    --indicator \
+    --show-failed-attempts \
+    --show-keyboard-layout \
+    --clock \
+    --effect-vignette 0:1 \
+    --indicator-radius 220 \
+    --inside-color 00000088 \
+    --indicator-thickness 24 \
+    --layout-bg-color 00000000 \
+    --font-size 44 \
+    --text-color FFFFFFFF

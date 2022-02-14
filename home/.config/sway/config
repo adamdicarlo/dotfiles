@@ -2,6 +2,11 @@
 
 xwayland enable
 
+font pango:monospace 11
+default_border pixel 2
+hide_edge_borders smart
+#gaps inner all set 4
+
 ### Variables
 #
 # Mod1: Alt.
@@ -48,15 +53,16 @@ input "1:1:AT_Translated_Set_2_keyboard" {
 input "type:keyboard" {
     xkb_layout us
     xkb_variant colemak
-    repeat_delay 250
-    repeat_rate 50
+    repeat_delay 230
+    repeat_rate 60
 }
 
-input "*" {
+input "type:pointer" {
     natural_scroll enabled
 }
 
-input "Touchpad" {
+input "type:touchpad" {
+    natural_scroll enabled
     scroll_factor 1.0
 }
 
@@ -161,6 +167,9 @@ input "Touchpad" {
 
     # Move focus to the parent container
     bindsym $mod+a focus parent
+
+    bindsym $mod+b border toggle
+
 #
 # Scratchpad:
 #
@@ -216,9 +225,7 @@ bindsym --locked XF86AudioNext         exec playerctl next
 bindsym --locked XF86AudioPrev         exec playerctl previous
 
 bindsym $mod+Shift+s         exec ~/.local/bin/grimshutter area
-bindsym $mod+Shift+n         exec swaync-client -t -sw
-
-hide_edge_borders smart
+bindsym $mod+Shift+n         exec makoctl dismiss --all
 
 bar {
   swaybar_command waybar
