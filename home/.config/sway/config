@@ -10,7 +10,7 @@ hide_edge_borders smart
 ### Variables
 #
 # Mod1: Alt.
-# Mod4: Logo key.
+# Mod4: Super (logo key).
 set $mod Mod4
 
 # Home row direction keys, like Vim (with Colemak bindings)
@@ -53,8 +53,8 @@ input "1:1:AT_Translated_Set_2_keyboard" {
 input "type:keyboard" {
     xkb_layout us
     xkb_variant colemak
-    repeat_delay 230
-    repeat_rate 60
+    repeat_delay 250
+    repeat_rate 50
 }
 
 input "type:pointer" {
@@ -209,6 +209,7 @@ mode "resize" {
     # Return to default mode
     bindsym Return mode "default"
     bindsym Escape mode "default"
+    bindsym $mod+r mode "default"
 }
 bindsym $mod+r mode "resize"
 
@@ -226,6 +227,8 @@ bindsym --locked XF86AudioPrev         exec playerctl previous
 
 bindsym $mod+Shift+s         exec ~/.local/bin/grimshutter area
 bindsym $mod+Shift+n         exec makoctl dismiss --all
+
+hide_edge_borders smart
 
 bar {
   swaybar_command waybar

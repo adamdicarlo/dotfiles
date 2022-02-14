@@ -1,16 +1,13 @@
 max-history=20
 max-visible=6
-
 group-by=summary,body
 
-# Style
-background-color=#285577CC
-border-radius=3
-border-size=1
-font=monospace 11.5
-padding=6,0,6,10
-width=350
-height=256
+background-color=#000000BB
+text-color=#FFFFFF
+border-color=#22222299
+border-size=2
+padding=12
+border-radius=4
 layer=overlay
 
 [mode=do-not-disturb]
