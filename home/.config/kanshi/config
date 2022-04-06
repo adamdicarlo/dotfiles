@@ -4,5 +4,5 @@ profile {
 }
 
 profile undocked {
-    output eDP-1 enable scale 2
+    output eDP-1 enable scale 1
 }

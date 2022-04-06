@@ -230,11 +230,7 @@ bindsym $mod+Shift+n         exec makoctl dismiss --all
 
 hide_edge_borders smart
 
-bar {
-  swaybar_command waybar
-}
+set $waybar_position bottom
 
 include /etc/sway/config.d/*
 include ./config.d/*
-
-exec dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP=sway
