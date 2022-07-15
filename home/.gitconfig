@@ -10,8 +10,6 @@
   rebase = true
 [alias]
   lg = "log --color --graph --abbrev-commit --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr)%C(bold blue)<%an>%Creset'"
-  # Push to Gerrit
-  pr = push origin HEAD:refs/for/master
 
 # so much color! Source:
 # https://github.com/paulirish/dotfiles/blob/63cb8193b0e66cf80ab6332477f1f52c7fbb9311/.gitconfig#L23-L44
@@ -85,6 +83,3 @@
 	smudge = git-lfs smudge -- %f
 	process = git-lfs filter-process
 	required = true
-
-[includeIf "gitdir:~/observe/"]
-  path=~/.gitconfig-observe
