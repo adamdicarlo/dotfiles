@@ -1,7 +1,5 @@
 if [ -n "$DESKTOP_SESSION" ]; then
-  export TERM=${TERM:-xterm-256color}
-  export QT_QPA_PLATFORM=wayland
-  export QT_QPA_PLATFORMTHEME=qt5ct
+  export TERM="${TERM:-xterm-256color}"
   export SUDO_ASKPASS=/usr/lib/ssh/gnome-ssh-askpass3
 
   if ! pgrep gnome-keyring-daemon; then
@@ -44,4 +42,6 @@ if [ ! -z "$GOPATH" ]; then
   path=($path $GOPATH/bin)
 fi
 
-export MANPATH="/usr/local/man:$MANPATH"
+if which man >/dev/null; then
+  export MANPATH="/usr/local/man:$MANPATH"
+fi
