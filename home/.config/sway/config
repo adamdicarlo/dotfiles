@@ -222,7 +222,7 @@ bindsym --locked XF86AudioPlay         exec playerctl play-pause
 bindsym --locked XF86AudioNext         exec playerctl next
 bindsym --locked XF86AudioPrev         exec playerctl previous
 
-bindsym $mod+Shift+s         exec ~/.local/bin/grimshutter area
+bindsym $mod+Shift+s         exec flameshot gui
 bindsym $mod+Shift+n         exec makoctl dismiss --all
 
 hide_edge_borders smart

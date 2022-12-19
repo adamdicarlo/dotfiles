@@ -1,10 +1,7 @@
 if [ -n "$DESKTOP_SESSION" ]; then
   export TERM="${TERM:-xterm-256color}"
-  export SUDO_ASKPASS=/usr/lib/ssh/gnome-ssh-askpass3
-
-  if ! pgrep gnome-keyring-daemon; then
-    eval $(gnome-keyring-daemon --start)
-    export SSH_AUTH_SOCK
+  if [ -f /usr/lib/ssh/gnome-ssh-askpass3 ]; then
+    export SUDO_ASKPASS=/usr/lib/ssh/gnome-ssh-askpass3
   fi
 else
   export TERM=xterm-256color
