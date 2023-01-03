@@ -3,7 +3,7 @@
 # Defaults
 include "./config.d/*.conf"
 
-# These include files are created and overwritten by nwg-shell tools.
+# DO NOT EDIT THESE: These files are created and overwritten by nwg-shell-config.
 include "./variables"
 include "./outputs"
 include "./autostart"
@@ -14,10 +14,6 @@ include "./touchpad"
 
 # nwg tooling edits this line, adding a whitespace error
 xwayland enable 
-
-# border & title
-for_window [title="^.*"] border pixel 2, title_format "<b> %class >> %title </b>"
-default_border pixel 2
 
 # gaps
 gaps inner 4
@@ -39,10 +35,6 @@ set $left j
 set $down k
 set $up h
 set $right l
-
-# Turn built-in screen on and off on lid events
-bindswitch --reload --locked lid:on output $laptop disable
-bindswitch --reload --locked lid:off output $laptop enable
 
 swaybg_command ~/.azotebg
 
@@ -67,13 +59,7 @@ bindsym $alt+l            exec nwg-lock
 bindsym $alt+$mod+h       exec nwg-shell-help
 
 # Exit menu
-bindsym $mod+x exec $exit
-
-# Exit sway (default way to log you out of your Wayland session)
-bindsym $mod+Shift+e exec swaynag -t warning \
-    -m 'You pressed the exit shortcut. Do you really want to exit sway? This will end your Wayland session.' \
-    -b 'Yes, exit sway' \
-    'swaymsg exit'
+bindsym $mod+Shift+e exec $exit
 
 # screenshot
 bindsym $mod+s exec grim -g "$(slurp)" - | swappy -f -
@@ -212,6 +198,10 @@ default_orientation horizontal
 bindsym $mod+Shift+f fullscreen
 
 ###############      Border & Gaps     ###############
+
+# border & title
+for_window [title="^.*"] border pixel 2, title_format "<b> %class >> %title </b>"
+default_border pixel 2
 
 # changing border style
 bindsym $mod+b border toggle

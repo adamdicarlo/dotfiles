@@ -1,7 +1,7 @@
 #!/usr/bin/bash
-laptop=eDP-1
+laptop=${1:-eDP-1}
 if grep -q closed /proc/acpi/button/lid/LID*/state; then
-    swaymsg output $laptop disable
+    swaymsg output "$laptop" disable
 else
-    swaymsg output $laptop enable
+    swaymsg output "$laptop" enable
 fi
