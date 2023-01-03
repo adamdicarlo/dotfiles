@@ -74,6 +74,10 @@
   autoupdate = true
 [includeIf "gitdir:/etc/"]
   path = ~/.gitconfig-etckeeper.inc
+[includeIf "gitdir:/home/adam/facility_app/"]
+  path = ~/.config/gitconfig.carerev.inc
+[includeIf "hasconfig:remote.*.url:*:avencera/rustywind"]
+  path = ~/.config/gitconfig.carerev.inc
 [rebase]
   autoStash = true
 [init]
