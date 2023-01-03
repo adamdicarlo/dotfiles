@@ -3,16 +3,19 @@ ENABLE_CORRECTION="false"
 setopt interactivecomments
 unsetopt auto_cd
 
+# fancy completion menus
+zstyle ':completion:*' menu select
+
 # Extra (custom) config scripts
 for script in ~/.zsh/*.zsh; do source $script; done
 
-# Fast Node.js version manager
-which fnm >/dev/null && source <(fnm env)
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
 # Homeshick
 source "$HOME/.homesick/repos/homeshick/homeshick.sh"
 fpath=($HOME/.homesick/repos/homeshick/completions $fpath)
 
+# macOS?
 if [ ! -d /home ]; then
   # z
   source `brew --prefix`/etc/profile.d/z.sh
@@ -24,15 +27,8 @@ if [ ! -d /home ]; then
   tic /tmp/$TERM.ti
 fi
 
-# fancy completion menus
-zstyle ':completion:*' menu select
-
 # Hooks
 # `cd` hook can disrupt shell scripts, so define this after all `source` commands!
-if which exa 1>/dev/null; then
-  function chpwd () {
-    exa
-  }
-fi
-
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+function chpwd () {
+  ls
+}

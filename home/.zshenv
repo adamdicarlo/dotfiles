@@ -1,14 +1,27 @@
+# Nothing in here is zsh specific, so rename this to .profile to work with other shells?
+
 if [ -n "$DESKTOP_SESSION" ]; then
-  export TERM="${TERM:-xterm-256color}"
+  export AMD_VULKAN_ICD=RADV
+  export BROWSER=firefox-developer-edition
+  export GTK2_RC_FILES="$HOME/.gtkrc-2.0"
+  export MAIL=thunderbird
+  export XDG_SCREENSHOTS_DIR=$HOME/Sync/Screenshots
+
+  export TERM=${TERM:-xterm-256color}
+
   if [ -f /usr/lib/ssh/gnome-ssh-askpass3 ]; then
     export SUDO_ASKPASS=/usr/lib/ssh/gnome-ssh-askpass3
+  else
+    echo "WARNING: Can't find gnome-ssh-askpass3"
+  fi
+
+  if ! pgrep -f $(which gnome-keyring-daemon) >/dev/null; then
+    eval $(gnome-keyring-daemon --start)
+    export SSH_AUTH_SOCK
   fi
 else
   export TERM=xterm-256color
 fi
-
-# ssh
-export SSH_KEY_PATH="~/.ssh/rsa_id"
 
 if which nvim >/dev/null; then
   export EDITOR='nvim'
@@ -17,28 +30,29 @@ elif which vim >/dev/null; then
 elif which vi >/dev/null; then
   export EDITOR='vi'
 else
-  echo "WARNING: Can't find any Vims\! EDITOR=${EDITOR}"
+  echo "WARNING: Can't find nvim, vim, or even vi\! EDITOR=${EDITOR}"
 fi
 
-# Make sure ssh-ident (which I have symlinked as ssh, rsync, scp in ~/bin) won't invoke itself when
-# trying to delegate to actual ssh.
 export BINARY_SSH=/usr/bin/ssh
-
 export GPG_TTY=$(tty)
-export LESS=-RFX
-export PAGER=less
-
+export MAKEFLAGS="-j$(expr $(nproc) \+ 1)"
+export MANPAGER="sh -c 'col -bx | bat -l man -p'"
+export MANPATH="/usr/local/man:$MANPATH"
+export PAGER="bat"
+export SSH_KEY_PATH="~/.ssh/ed25519.pub"
+export VISUAL=${VISUAL:-nvim}
 export XDG_CONFIG_HOME=$HOME/.config
 export ZPLUG_HOME=${XDG_CONFIG_HOME}/zplug
-export EDITOR=${EDITOR:-nvim}
-path=(~/.local/bin $path)
+path=(~/bin ~/.local/bin $path)
 
-export MAKEFLAGS="-j$(expr $(nproc) \+ 1)"
 
+# Golang
 if [ ! -z "$GOPATH" ]; then
   path=($path $GOPATH/bin)
 fi
 
-if which man >/dev/null; then
-  export MANPATH="/usr/local/man:$MANPATH"
-fi
+# Fast Node.js version manager
+which fnm >/dev/null && source <(fnm env)
+
+# Ruby
+which rbenv >/dev/null && eval "$(rbenv init - zsh)"
