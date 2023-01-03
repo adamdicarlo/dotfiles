@@ -1,0 +1,6 @@
+set $term kitty
+set $browser MOZ_ENABLE_WAYLAND=1 firefox
+set $filemanager nautilus
+set $editor nvim
+set $launcher nwg-drawer
+set $exit nwg-bar -p center -a middle -i 48 -s preset-2.css

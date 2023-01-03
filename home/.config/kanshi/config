@@ -1,8 +1,17 @@
-profile {
+profile dell-ultrawide {
+    output "Dell Inc. DELL U3821DW HH7YZ63" enable mode 3840x1600 position 0,0 scale 1
+    output eDP-1 disable
+}
+
+profile lg-ultrawide {
     output "Goldstar Company Ltd LG HDR WQHD 0x0000B6E2" enable mode 3440x1440 position 0,0 scale 1
     output eDP-1 disable
 }
 
-profile undocked {
-    output eDP-1 enable scale 1
+profile galp5-undocked {
+    output "Chimei Innolux Corporation 0x14F2 0x00000000" enable mode 1920x1080 position 0,0 scale 1
+}
+
+profile x1c7-undocked {
+    output "Unknown 0x07C8 0x00000000" enable mode 3840x2160 position 0,0 scale 2
 }
