@@ -16,7 +16,7 @@ function red {
 function install_homeshick {
   if [ ! -d ~/.homesick/repos/homeshick ]; then
     green "Installing homeshick: Dotfiles manager"
-    git clone -q git://github.com/andsens/homeshick.git ~/.homesick/repos/homeshick
+    git clone -q http://github.com/andsens/homeshick.git ~/.homesick/repos/homeshick
   fi
 
   PATH=$PATH:$HOME/.homesick/repos/homeshick/bin
