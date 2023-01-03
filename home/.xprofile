@@ -4,33 +4,29 @@ export QT_AUTO_SCREEN_SCALE_FACTOR=1
 export GDK_SCALE=1
 export GDK_DPI_SCALE=1
 
-# Enable natural scrolling on all devices.
-xinput list --name-only \
-  | grep -iE "touchpad|mouse|trackpoint" \
-  | xargs -I{} xinput set-prop "{}" "libinput Natural Scrolling Enabled" 1
+# Enable natural scrolling on all pointer devices
+# Set speed for Logitech MX Vertical Mouse.
+while IFS= read -r line; do
+  id=$(echo "$line" | sd '.*id=(\d+).*' '$1')
 
-for id in $(xinput list | grep 'MX Vertical Mouse' | sd '.*id=(\d+).*' '$1'); do
-  echo "xinput set-prop acceleration speed for device: $id"
-  xinput set-prop $id "libinput Accel Speed" 0.5
-done
+  if echo "$line" | grep -q 'MX Vertical'; then
+    echo "Setting accel speed for $id"
+    xinput set-prop "$id" "libinput Accel Speed" 0.5
+  fi
 
-xset r rate 250 20
+  if xinput list-props "$id" | grep -q 'libinput Natural Scrolling'; then
+    echo "Enabling natural scrolling for $id"
+    xinput set-prop "$id" "libinput Natural Scrolling Enabled" 1
+  fi
+done <<< "$(xinput list | grep pointer)"
 
-# turn off beep
+xset r rate 200 60
+
+# turn off bell
 xset b off
 
 # Swap left Windows and Alt keys for a Mac-like keyboard layout.
-setxkbmap -layout us -variant colemak -option altwin:swap_lalt_lwin
-
+#
 # Where do these "altwin:swap_lalt_lwin" and "ctrl:nocaps" strings come from?
 # They, and a bazillion others, are listed in `man xkeyboard-config`.
-
-# No, wait, don't do that for the keyboard that already has a Mac layout.
-for id in $(xinput list | grep 'UHK' | sd '.*id=(\d+).*' '$1'); do
-  echo "setxkbmap for freestyle2 device: $id"
-  setxkbmap -device $id -layout us -variant colemak -option
-done
-
-# Make Caps Lock double as Ctrl (when held) and Esc (when tapped).
-setxkbmap -option ctrl:nocaps
-pgrep xcape >/dev/null || xcape -e Control_L=Escape
+setxkbmap -layout us -variant colemak -option '' -option altwin:swap_lalt_lwin -option ctrl:nocaps
